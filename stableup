@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Basename qq(basename);
+use File::Copy qq(move);
+
+my $tmpdir = $ENV{TMPDIR} || "/tmp";
+
+die "Has to be run from the kernel-source GIT dir" if (! -d ".git");
+
+if ($#ARGV != 1) {
+        print "Usage: $0 patch ids_file\n";
+        exit 1;
+}
+
+my $patch = $ARGV[0];
+my $idsfile = $ARGV[1];
+my $dest = "patches.kernel.org/" . basename $patch;
+
+if (-f $patch && ! -f $dest) {
+	move $patch, $dest || die "cannot move $patch to $dest";
+	print "Moved $patch to $dest\n";
+}
+
+open IDS, "<$idsfile" || die "cannot open $idsfile";
+
+my $regexp = "";
+my $first = 1;
+
+while (<IDS>) {
+	chomp;
+	$regexp .= "|" if (!$first);
+	$regexp .= $_;
+	$first = 0;
+}
+
+close IDS;
+
+die "invalid regexp: '$regexp'" if (length $regexp == 0);
+
+open GIT, "git grep -E '$regexp' patches.apparmor patches.arch " .
+	"patches.drivers patches.fixes patches.rpmify patches.suse " .
+	"patches.trace|" || die "cannot execute git";
+
+my %files;
+
+while (<GIT>) {
+	chomp;
+	/^([^:]+):(Git-commit: |Patch-mainline: )?/;
+	my $file = $1;
+	if (defined $2) {
+		system("git rm $file");
+		system("grep -v '\t$file\$' series.conf >$tmpdir/ser");
+		system("mv $tmpdir/ser series.conf");
+	}
+	$files{$file} = 1;
+}
+
+close GIT;
+
+foreach my $file (keys %files) {
+	if (-e $file) {
+		system("git grep -E '$regexp' $file");
+	}
+}
