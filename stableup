@@ -19,6 +19,8 @@ my $dest = "patches.kernel.org/" . basename $patch;
 if (-f $patch && ! -f $dest) {
 	move $patch, $dest || die "cannot move $patch to $dest";
 	print "Moved $patch to $dest\n";
+	system("git add $dest");
+	print "Added $dest to GIT\n";
 }
 
 open IDS, "<$idsfile" || die "cannot open $idsfile";

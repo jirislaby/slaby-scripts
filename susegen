@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z "$TMPDIR" ]; then
+	TMPDIR=/tmp
+fi
+
+PATCHES=$TMPDIR/patches
+REF="$1"
+shift
+MACHINE="$1"
+shift
+
+rm -rf $PATCHES
+
+git format-patch -o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes' --add-header "References: $REF" $@
+scp -C $PATCHES/* $MACHINE
+echo Copied to $MACHINE
+
+rm -rf $PATCHES

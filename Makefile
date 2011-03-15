@@ -3,7 +3,7 @@ bindir=$(prefix)/bin
 
 INSTALL=install
 
-BIN_FILES=stableup sussh
+BIN_FILES=stableids stableup susegen sussh
 
 all:
 
