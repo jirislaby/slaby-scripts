@@ -5,6 +5,9 @@ if ! host $HOST >/dev/null; then
 	HOST=$1.arch.suse.de
 fi
 if ! host $HOST >/dev/null; then
+	HOST=$1.qa.suse.de
+fi
+if ! host $HOST >/dev/null; then
 	HOST=$1.suse.cz
 fi
 
