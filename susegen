@@ -13,6 +13,12 @@ shift
 rm -rf $PATCHES
 
 git format-patch -o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes' --add-header "References: $REF" $@
+
+for patch in $PATCHES/*; do
+	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
+	sed -i "s/^Git-commit: $/&$SHA/" $patch
+done
+
 scp -C $PATCHES/* $MACHINE
 echo Copied to $MACHINE
 
