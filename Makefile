@@ -17,4 +17,4 @@ install:
 		$(INSTALL) $$bin $(DESTDIR)/$(bindir)/; \
 	done
 
-.PHONY: all clean
+.PHONY: all clean install
