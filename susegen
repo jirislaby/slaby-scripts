@@ -5,21 +5,26 @@ if [ -z "$TMPDIR" ]; then
 fi
 
 PATCHES=$TMPDIR/patches
-REF="$1"
+REF=
+if [ "$1" != "nop" ]; then
+	REF="--add-header=References: $1"
+fi
 shift
 MACHINE="$1"
 shift
 
 rm -rf $PATCHES
 
-git format-patch -o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes' --add-header "References: $REF" $@
+git format-patch -o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes' "$REF" $@ || exit 1
 
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
 	sed -i "s/^Git-commit: $/&$SHA/" $patch
 done
 
-scp -C $PATCHES/* $MACHINE
-echo Copied to $MACHINE
+if [ "$MACHINE" != "nop" ]; then
+	scp -C $PATCHES/* $MACHINE || exit 1
+	echo Copied to $MACHINE
 
-rm -rf $PATCHES
+	rm -rf $PATCHES
+fi
