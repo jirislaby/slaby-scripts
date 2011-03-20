@@ -15,7 +15,14 @@ rm -f $SCR
 FILE=$1
 shift
 
-qemu-kvm -k en-us -usbdevice tablet -hda $FILE -smp 2 -m 1000 -net user -net nic,model=e1000 -usb -serial pty "$@" 2>$SCR &
+MEM=`grep 'MemTotal:' /proc/meminfo|sed 's/^.*: *\([0-9]*\) *kB$/\1/'`
+MEM=$(($MEM/5/1024))
+
+if [ $MEM -lt 100 ]; then
+	MEM=100
+fi
+
+qemu-kvm -k en-us -usbdevice tablet -hda $FILE -smp 2 -m $MEM -net user -net nic,model=e1000 -usb -serial pty "$@" 2>$SCR &
 QEMU=$!
 
 while ! grep -q 'redirected to' $SCR; do
