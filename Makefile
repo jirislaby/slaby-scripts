@@ -3,7 +3,7 @@ bindir=$(prefix)/bin
 
 INSTALL=install
 
-BIN_FILES=qqemu stableids stableup susegen sussh
+BIN_FILES=ku qqemu stableids stableup susegen sussh
 
 all:
 
