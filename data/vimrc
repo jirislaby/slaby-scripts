@@ -1,0 +1,30 @@
+set hlsearch
+set aw
+
+if has("cscope") && filereadable("/usr/bin/cscope")
+   set csprg=/usr/bin/cscope
+   set csto=0
+   set cst
+   set nocsverb
+   " add any database in current directory
+   if filereadable("cscope.out")
+      cs add cscope.out
+   " else add database pointed to by environment
+   elseif $CSCOPE_DB != ""
+      cs add $CSCOPE_DB
+   endif
+   set csverb
+endif
+
+augroup filetype
+	au! BufRead,BufNewFile *.ll     set filetype=llvm
+	au! BufRead,BufNewFile *.td     set filetype=tablegen
+augroup END
+
+autocmd FileType c set cin
+autocmd FileType gitcommit set tw=70 nocin
+
+imap <C-K> <Esc>lc<End>
+imap <C-U> <Esc>ld<Home>
+map <C-K> d<End>
+map <C-U> d<Home>
