@@ -14,7 +14,9 @@ if ($#ARGV != 1) {
 
 my $patch = $ARGV[0];
 my $idsfile = $ARGV[1];
-my $dest = "patches.kernel.org/" . basename $patch;
+my $destdir = "patches.kernel.org/";
+my $dest = $destdir . basename $patch;
+mkdir $destdir if (! -d $destdir);
 
 if (-f $patch && ! -f $dest) {
 	move $patch, $dest || die "cannot move $patch to $dest";
