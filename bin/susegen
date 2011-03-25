@@ -4,18 +4,33 @@ if [ -z "$TMPDIR" ]; then
 	TMPDIR=/tmp
 fi
 
-PATCHES=$TMPDIR/patches
-REF=
-if [ "$1" != "nop" ]; then
-	REF="--add-header=References: $1"
+if [ $# -lt 2 ]; then
+	echo $0 '<references> <destination> [git arguments]'
+	echo '<references>      append References: line with this argument (can be "nop")'
+	echo '<destination>     destination directory (can be user@machine:dir)'
+	echo "<git arguments>   what's passed to git"
+	echo
+	echo Examples:
+	echo $0 'bnc#12345 /tmp -1 0ea859964fcba'
+	echo $0 'nop krtek@machine.org:/tmp v0.1..v0.2'
+	exit 1
 fi
+
+
+REF="$1"
 shift
 MACHINE="$1"
 shift
 
+PATCHES=$TMPDIR/patches
+GITARGS="-o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes'"
+if [ "$REF" != "nop" ]; then
+	GITARGS="$GITARGS --add-header 'References: $REF'"
+fi
+
 rm -rf $PATCHES
 
-git format-patch -o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes' "$REF" $@ || exit 1
+eval git format-patch $GITARGS $@ || exit 1
 
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
