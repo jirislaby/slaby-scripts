@@ -1,0 +1,83 @@
+#!/bin/bash
+
+LINUX_GIT=../linux
+
+if [ `git diff HEAD|wc -l` -ne 0 ]; then
+	git diff --color HEAD
+	exit 1
+fi
+if [ `git ls-files -o -x /patches -x /.pc|wc -l` -ne 0 ]; then
+	git ls-files -o -x /patches -x /.pc
+	exit 1
+fi
+
+git checkout master
+
+(
+quilt pop -a -f && rm -rf .pc/ patches/
+) &
+
+pushd ../patches/
+rm -f broken-out.tar.gz
+wget -o /tmp/wget-log http://userweb.kernel.org/~akpm/mmotm/broken-out.tar.gz
+popd
+
+wait
+
+tar zxvf ../patches/broken-out.tar.gz
+mv broken-out/ patches
+mv series patches/
+mv .DATE* patches/
+#echo -------------------------------------------------------------------------
+#cat patches/mm.patch
+#echo -------------------------------------------------------------------------
+#head Makefile
+#echo -------------------------------------------------------------------------
+perl -we '
+use strict;
+
+sub get_ver ($) {
+	my ($ver, $pl, $sl, $ev);
+	my $cnt = 0;
+	my $file = shift;
+	open (H, "<$file") || die "cannot open $file";
+	while (<H>) {
+		if (/^ ?VERSION = (.*)/) {$ver=$1; $cnt++}
+		if (/^ ?PATCHLEVEL = (.*)/) {$pl=$1; $cnt++}
+		if (/^ ?SUBLEVEL = (.*)/) {$sl=$1; $cnt++}
+		if (/^-?EXTRAVERSION = (-?[rc0-9]*)(-mm[0-9]*)?/) {$ev=$1; $cnt++}
+	}
+	close H;
+	die "invalid input in $file" if ($cnt != 4);
+	return "$ver.$pl.$sl$ev";
+}
+
+my $old = get_ver("Makefile");
+my $new = get_ver("patches/mm.patch");
+if ($old ne $new) {
+	system("git --git-dir=" . $ENV{LINUX_GIT} . "/.git diff v$old..v$new|" .
+		"patch -p1") ||
+		die "cannot exec git";
+}
+'
+echo any patches to apply?
+read
+quilt push -a || exit 1
+
+F=`git ls-files -d`
+test -n "$F" && (git rm $F || exit 1)
+F=`git ls-files -o -x /patches -x /.pc`
+test -n "$F" && (git add -f $F || exit 1)
+F=`git ls-files -m`
+test -n "$F" && (git add $F || exit 1)
+
+(git commit -em "mmotm `head -1 patches/.DATE`" && git gc --prune) || exit 1
+git push origin master &
+echo -------------------------------------------------------------------------
+echo All done, rebase?
+read OPT
+git rebase $OPT master devel
+echo cscope
+read OPT
+make O=../bu cscope &
+make O=../bu oldconfig
