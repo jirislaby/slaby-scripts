@@ -10,7 +10,7 @@ if [ -z "$TMPDIR" ]; then
 fi
 
 SCR=$TMPDIR/qemu.$RANDOM
-rm -f $SCR
+rm -f $SCR >/dev/null 2>&1
 
 FILE=$1
 shift
