@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LINUX_GIT=../linux
+export LINUX_GIT=../linux
 
 if [ `git diff HEAD|wc -l` -ne 0 ]; then
 	git diff --color HEAD
