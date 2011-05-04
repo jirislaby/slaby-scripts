@@ -1,3 +1,6 @@
+HISTSIZE=10000
+LESS="-M -R -X -F -i"
+
 alias sa='ssh aisa -CX'
 alias sd='ssh decibel -CX'
 alias san='ssh anemoi -X'
