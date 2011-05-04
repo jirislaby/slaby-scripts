@@ -7,7 +7,7 @@ INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
 BIN_FILES=ku mmup qqemu stableids stableup susegen sussh
-DATA_FILES=vimrc
+DATA_FILES=bash_profile vimrc
 
 all:
 
