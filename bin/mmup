@@ -55,9 +55,13 @@ sub get_ver ($) {
 my $old = get_ver("Makefile");
 my $new = get_ver("patches/mm.patch");
 if ($old ne $new) {
-	system("git --git-dir=" . $ENV{LINUX_GIT} . "/.git diff v$old..v$new|" .
-		"patch -p1") ||
-		die "cannot exec git";
+	my $gitcmd = "git --git-dir=$ENV{LINUX_GIT}/.git";
+	my $gitpatch = "$gitcmd diff v$old..v$new|patch -p1";
+	if (system($gitpatch)) {
+		print "Running remote update on $ENV{LINUX_GIT}\n";
+		system("$gitcmd remote update) || die "cannot update git";
+		system($gitpatch) || die "cannot patch from git";
+	}
 }
 '
 echo any patches to apply?
