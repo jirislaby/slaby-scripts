@@ -59,7 +59,7 @@ if ($old ne $new) {
 	my $gitpatch = "$gitcmd diff v$old..v$new|patch -p1";
 	if (system($gitpatch)) {
 		print "Running remote update on $ENV{LINUX_GIT}\n";
-		system("$gitcmd remote update) || die "cannot update git";
+		system("$gitcmd remote update") || die "cannot update git";
 		system($gitpatch) || die "cannot patch from git";
 	}
 }
