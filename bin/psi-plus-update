@@ -8,25 +8,25 @@ fi
 mkdir psi
 cd psi
 
-svn co http://psi-dev.googlecode.com/svn/trunk/ psi-dev
+svn co http://psi-dev.googlecode.com/svn/trunk/ psi-dev || exit 1
 rev=`svnversion psi-dev/patches`
 psi_rev=psi+-0.15.$rev
 find psi-dev -name .svn -exec rm -rf {} +
 
-git clone --depth 1 git://git.psi-im.org/psi.git $psi_rev
+git clone --depth 1 git://git.psi-im.org/psi.git $psi_rev || exit 1
 cd $psi_rev
-git submodule init
-git submodule update
+git submodule init || exit 1
+git submodule update || exit 1
 find . -name '.git*' -exec rm -rf {} +
 
 for f in ../psi-dev/patches/*diff; do
-	patch --no-backup-if-mismatch -p1 -i "${f}"
+	patch --no-backup-if-mismatch -p1 -i "${f}" || exit 1
 done
 
 cp -r ../psi-dev/iconsets/ ./
 cp -r ../psi-dev/plugins/ src/
 
-qconf
+qconf || exit 1
 
 cd ..
 
