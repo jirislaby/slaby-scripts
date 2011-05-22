@@ -23,9 +23,6 @@ for f in ../psi-dev/patches/*diff; do
 	patch --no-backup-if-mismatch -p1 -i "${f}"
 done
 
-psi_rev=psi+-0.15.3817
-cd $psi_rev
-
 cp -r ../psi-dev/iconsets/ ./
 cp -r ../psi-dev/plugins/ src/
 
