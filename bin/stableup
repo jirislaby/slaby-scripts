@@ -12,6 +12,14 @@ if ($#ARGV != 1) {
         exit 1;
 }
 
+open(SERIES, "+<series.conf")|| die "cannot open series.conf";
+my $series;
+my $series_changed = 0;
+{
+	local $/;
+	$series = <SERIES>;
+}
+
 my $patch = $ARGV[0];
 my $idsfile = $ARGV[1];
 my $destdir = "patches.kernel.org/";
@@ -23,27 +31,19 @@ if (-f $patch && ! -f $dest) {
 	print "Moved $patch to $dest\n";
 	system("git add $dest");
 	print "Added $dest to GIT\n";
+	unless ($series =~ s/(latest standard kernel patches(?:\n[^\n]+)+\n)\n/$1\t$dest\n\n/) {
+		die "cannot find a place in series.conf to add the patch";
+	}
+	$series_changed = 1;
 }
 
 open IDS, "<$idsfile" || die "cannot open $idsfile";
-
-my $regexp = "";
-my $first = 1;
-
-while (<IDS>) {
-	chomp;
-	$regexp .= "|" if (!$first);
-	$regexp .= $_;
-	$first = 0;
-}
-
+my $regexp = join "|", map { chomp; $_ } <IDS>;
 close IDS;
 
-die "invalid regexp: '$regexp'" if (length $regexp == 0);
+die "invalid regexp computed" if ($regexp eq "");
 
-open GIT, "git grep -E '$regexp' patches.apparmor patches.arch " .
-	"patches.drivers patches.fixes patches.rpmify patches.suse " .
-	"patches.trace|" || die "cannot execute git";
+open GIT, "git grep -E '$regexp' patches.*|" || die "cannot execute git";
 
 my %files;
 
@@ -53,16 +53,25 @@ while (<GIT>) {
 	my $file = $1;
 	if (defined $2) {
 		system("git rm $file");
-		system("grep -v '\t$file\$' series.conf >$tmpdir/ser");
-		system("mv $tmpdir/ser series.conf");
+		$series =~ s/\t$file\n//;
+		$series_changed = 1;
 	}
 	$files{$file} = 1;
 }
 
 close GIT;
 
+if ($series_changed) {
+	seek(SERIES, 0, 0) || die "cannot seek series.conf";
+	truncate(SERIES, 0) || die "cannot truncate series.conf";
+	print SERIES $series;
+}
+close SERIES;
+
 foreach my $file (keys %files) {
 	if (-e $file) {
 		system("git grep -E '$regexp' $file");
 	}
 }
+
+0;
