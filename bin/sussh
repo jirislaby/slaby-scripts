@@ -16,6 +16,8 @@ if ! ping -c 1 $HOST -W 2 -q >/dev/null; then
 	exit 0
 fi
 
+shift
+
 CMD="ssh -CX jslaby@$HOST"
-echo $CMD
-$CMD
+echo $CMD $@
+$CMD $@
