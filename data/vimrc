@@ -24,6 +24,10 @@ augroup END
 autocmd FileType c set cin
 autocmd FileType gitcommit set tw=70 nocin
 
+imap <F7> <Esc>:mak<CR>
+map <F7> :mak<CR>
+map <F11> :cp<CR>
+map <F12> :cn<CR>
 imap <C-K> <Esc>lc<End>
 imap <C-U> <Esc>ld<Home>
 map <C-K> d<End>
