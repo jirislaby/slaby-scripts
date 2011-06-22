@@ -34,6 +34,10 @@ eval git format-patch $GITARGS $@ || exit 1
 
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
+	MAINLINE=`git name-rev --refs=refs/tags/v[23].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
+	if ! echo "$MAINLINE"|grep -q undefined; then
+		sed -i "s/^Patch-mainline: yes$/Patch-mainline: $MAINLINE/" $patch
+	fi
 	sed -i "s/^Git-commit: $/&$SHA/" $patch
 done
 
