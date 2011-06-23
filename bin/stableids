@@ -23,14 +23,20 @@ if ($range =~ /^v(2\.6\.[0-9]+(\.[0-9]+)?)\.\.v(2\.6\.[0-9]+\.([0-9]+))$/) {
 	}
 }
 
-open GIT, "git log --pretty='format:%B' $range|" ||
+open GIT, "git log --format=%B $range|" ||
 	die "git log cannot be run";
 open OUT, "|ssh -C $machine 'cat >$idsfile'" ||
 	die "ssh didn't start";
 
+my @SHAs;
+
 while (<GIT>) {
-	while (/\b[0-9a-f]{40}\b/g) {
-		print OUT "$&\n";
+	if (/^commit ([0-9a-f]{40}) upstream\.$/ ||
+		/^\[ Upstream commit ([0-9a-f]{40}) \]$/) {
+		print OUT "$1\n";
+		push @SHAs, $1;
+	} elsif (/\b[0-9a-f]{40}\b/) {
+		print "\tUnmatched SHA: $_";
 	}
 }
 
@@ -46,7 +52,12 @@ open OUT, "|ssh -C $machine 'cat >$patchfile'" ||
 
 print OUT "From: $user\n";
 print OUT "Subject: Linux $new_version\n";
-print OUT "Patch-mainline: Linux $new_version\n\n";
+print OUT "Patch-mainline: $new_version\n";
+foreach (@SHAs) {
+	print OUT "Git-commit: $_\n";
+}
+
+print OUT "\n";
 print OUT "Signed-off-by: $user\n";
 print OUT "---\n";
 

@@ -49,6 +49,7 @@ my %files;
 
 while (<GIT>) {
 	chomp;
+	next if (/patches\.kernel\.org/);
 	/^([^:]+):(Git-commit: |Patch-mainline: )?/;
 	my $file = $1;
 	if (defined $2) {
