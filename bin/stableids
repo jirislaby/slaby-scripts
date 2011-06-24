@@ -13,7 +13,8 @@ my $patchfile = "/dev/shm/patch";
 my $user = 'Jiri Slaby <jslaby@suse.cz>';
 my $new_version = "";
 
-if ($range =~ /^v(2\.6\.[0-9]+(\.[0-9]+)?)\.\.v(2\.6\.[0-9]+\.([0-9]+))$/) {
+if ($range =~ /^v(2\.6\.[0-9]+(\.[0-9]+)?)\.\.v(2\.6\.[0-9]+\.([0-9]+))$/ ||
+		/^v(3\.[0-9]+(\.[0-9]+)?)\.\.v(3\.[0-9]+\.([0-9]+))$/) {
 	$new_version = $3;
 	$patchfile .= "-";
 	if (defined $2) {
