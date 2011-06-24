@@ -31,8 +31,10 @@ open OUT, "|ssh -C $machine 'cat >$idsfile'" ||
 my @SHAs;
 
 while (<GIT>) {
-	if (/^commit ([0-9a-f]{40}) upstream\.$/ ||
-		/^\[ Upstream commit ([0-9a-f]{40}) \]$/) {
+	if (/^commit ([0-9a-f]{40}) upstream\.?$/ ||
+		/^[\[(]\s*Upstream commit ([0-9a-f]{40})\s*[\])]$/ ||
+		/^Upstream commit ([0-9a-f]{40})\.$/ ||
+		/^\(cherry picked from commit ([0-9a-f]{40})\)$/) {
 		print OUT "$1\n";
 		push @SHAs, $1;
 	} elsif (/\b[0-9a-f]{40}\b/) {
