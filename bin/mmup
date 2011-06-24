@@ -49,7 +49,8 @@ sub get_ver ($) {
 	}
 	close H;
 	die "invalid input in $file" if ($cnt != 4);
-	return "$ver.$pl.$sl$ev";
+	return "$ver.$pl.$sl$ev" if ($ver < 3);
+	return "$ver.$pl$ev";
 }
 
 my $old = get_ver("Makefile");
