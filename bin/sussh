@@ -18,6 +18,6 @@ fi
 
 shift
 
-CMD="ssh -CX jslaby@$HOST"
+CMD="ssh -CX -o StrictHostKeyChecking=no jslaby@$HOST"
 echo $CMD $@
 $CMD $@
