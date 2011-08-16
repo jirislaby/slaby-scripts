@@ -26,7 +26,7 @@ if ($range =~ /^v(2\.6\.[0-9]+(\.[0-9]+)?)\.\.v(2\.6\.[0-9]+\.([0-9]+))$/ ||
 
 open GIT, "git log --format=%B $range|" ||
 	die "git log cannot be run";
-open OUT, "|ssh -C $machine 'cat >$idsfile'" ||
+open OUT, "|ssh -C $machine -o StrictHostKeyChecking=no 'cat >$idsfile'" ||
 	die "ssh didn't start";
 
 my @SHAs;
