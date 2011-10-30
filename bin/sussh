@@ -1,23 +1,17 @@
 #!/bin/sh
 
-HOST=$1.suse.de
-if ! host $HOST >/dev/null; then
-	HOST=$1.arch.suse.de
-fi
-if ! host $HOST >/dev/null; then
-	HOST=$1.qa.suse.de
-fi
-if ! host $HOST >/dev/null; then
-	HOST=$1.suse.cz
-fi
-
-if ! ping -c 1 $HOST -W 2 -q >/dev/null; then
-	echo $HOST is DEAD
-	exit 0
-fi
-
+NAMESERVER=10.11.0.100
+HOST=$1
 shift
 
-CMD="ssh -CX -o StrictHostKeyChecking=no jslaby@$HOST"
+for SUFFIX in arch.suse.de suse.de suse.cz qa.suse.de; do
+	FQDN=$HOST.$SUFFIX
+	IP=`host $FQDN $NAMESERVER | sed -ne 's/.* has address // p'`
+	if [ -n "$IP" ]; then
+		break
+	fi
+done
+
+CMD="ssh -CX -o StrictHostKeyChecking=no jslaby@$IP"
 echo $CMD $@
 $CMD $@
