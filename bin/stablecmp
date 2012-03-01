@@ -7,18 +7,25 @@ my $two = shift;
 sub convert($$) {
 	my $in = shift;
 	my $out = shift;
-	open(IN, "<", $in) || die "cannot open '$in'";
+	open(IN, "<$in") || die "cannot open '$in'";
 
 	while (<IN>) {
 		last if (/^\+ make .*all CONFIG_DEBUG_SECTION_MISMATCH/);
 	}
 
 	my @lines;
+	my $start = 1;
 	while (<IN>) {
+		next if ($start && /^\+/);
+		$start = 0;
 		last if (/^\+/);
 		s/2\.6\.[0-9]+(\.[0-9]+)?//g;
 		s/3\.[0-9]+(\.[0-9]+)?//g;
+		s@/home/abuild/rpmbuild/@@g;
+		s@/usr/src/packages/@@g;
 		s/^CRC [0-9a-z]+$//g;
+		s/^System is [0-9]+ kB$//g;
+		s/^Root device is .*//g;
 		push @lines, $_;
 	}
 	close IN;
