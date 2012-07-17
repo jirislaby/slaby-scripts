@@ -46,7 +46,7 @@ die "invalid regexp computed" if ($regexp eq "");
 open GIT, "git grep -E '$regexp' patches.*|" || die "cannot execute git";
 
 my %files;
-my $tags = qr/(?:Git-commit: |Patch-mainline: |From )[0-9a-f]{40}/;
+my $tags = qr/(?:Git-commit: |Patch-mainline: |From )([0-9a-f]{40})/;
 
 while (<GIT>) {
 	chomp;
@@ -55,12 +55,13 @@ while (<GIT>) {
 	my $file = $1;
 	if (defined $2) {
 		open PATCH, "<$file";
-		my $tag_cnt = 0;
+		my %shas = ();
 		while (<PATCH>) {
-			$tag_cnt++ if /^$tags/;
+			next unless /^$tags/;
+			$shas{$1} = 1;
 		}
 		close PATCH;
-		if ($tag_cnt == 1) {
+		if (scalar(keys %shas) == 1) {
 			system("git rm $file");
 			$series =~ s/\t$file\n//;
 			$series_changed = 1;
