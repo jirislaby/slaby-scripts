@@ -35,6 +35,7 @@ while (<GIT>) {
 	if (/^commit ([0-9a-f]{40}) upstream\.?$/ ||
 		/^[\[(]\s*[Uu]pstream commit ([0-9a-f]{40})\s*[\])]$/ ||
 		/^[uU]pstream commit ([0-9a-f]{40})\.$/ ||
+		/^This is a backport of ([0-9a-f]{40})$/ ||
 		/^\(cherry picked from commit ([0-9a-f]{40})\)$/) {
 		print OUT "$1\n";
 		push @SHAs, $1;
