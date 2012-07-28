@@ -17,6 +17,7 @@ install: bin-install data-install
 
 bin-install:
 	$(call install,$(INSTALL),bin/,$(BIN_FILES),$(DESTDIR)/$(bindir)/)
+	$(call install,$(INSTALL),bin/,01dvb,$(DESTDIR)/$(libdir)/pm-utils/sleep.d/)
 
 data-install:
 	$(call install,$(INSTALL_DATA),data/,$(DATA_FILES),$(DESTDIR)/$(datadir)/slaby-scripts/)
