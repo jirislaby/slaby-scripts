@@ -1,0 +1,25 @@
+#!/bin/bash
+# Abort the hibernation process if there are DVB adapter open.
+
+. "${PM_FUNCTIONS}"
+
+function checkopendvb() {
+    [ -n "`fuser /dev/dvb/adapter*/demux*`" ]
+}
+
+RETVAL=0
+case "$1" in
+    hibernate|suspend)
+        if checkopendvb; then
+            MESSAGE="ERROR: active DVB found. Aborting $1 process."
+            command_exists logger && /bin/logger -t pm-utils -p syslog.err $MESSAGE
+            inhibit "${MESSAGE}"
+            RETVAL=1
+        fi
+        ;;
+    thaw|resume)
+        ;;
+    *)  exit $NA
+        ;;
+esac
+exit $RETVAL
