@@ -1,6 +1,8 @@
 prefix=/usr
 bindir=$(prefix)/bin
+libdir=$(prefix)/lib
 datadir=$(prefix)/share
+pm_libdir=$(prefix)/lib/pm-utils
 
 INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
@@ -17,7 +19,7 @@ install: bin-install data-install
 
 bin-install:
 	$(call install,$(INSTALL),bin/,$(BIN_FILES),$(DESTDIR)/$(bindir)/)
-	$(call install,$(INSTALL),bin/,01dvb,$(DESTDIR)/$(libdir)/pm-utils/sleep.d/)
+	$(call install,$(INSTALL),bin/,01dvb,$(DESTDIR)/$(pm_libdir)/sleep.d/)
 
 data-install:
 	$(call install,$(INSTALL_DATA),data/,$(DATA_FILES),$(DESTDIR)/$(datadir)/slaby-scripts/)
