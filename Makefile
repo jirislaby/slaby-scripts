@@ -8,7 +8,7 @@ INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
-BIN_FILES=ku mmup qqemu stableids stableup susegen sussh
+BIN_FILES=ku mmup patch-mainline-check qqemu stableids stableup susegen sussh
 DATA_FILES=bash_profile bashrc vimrc
 
 all:
