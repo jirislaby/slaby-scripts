@@ -53,7 +53,8 @@ while (<GIT>) {
 	next if (/patches\.kernel\.org\/patch-[0-9]/);
 	/^([^:]+):($tags)?/;
 	my $file = $1;
-	if (defined $2) {
+	# file may be deleted already
+	if (defined $2 && -f $file) {
 		open(PATCH, "<$file") || die "cannot open $file";
 		my %shas = ();
 		while (<PATCH>) {
