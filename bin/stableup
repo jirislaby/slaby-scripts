@@ -12,7 +12,7 @@ if ($#ARGV != 1) {
         exit 1;
 }
 
-open(SERIES, "+<series.conf")|| die "cannot open series.conf";
+open(SERIES, "+<series.conf") || die "cannot open series.conf";
 my $series;
 my $series_changed = 0;
 {
@@ -54,7 +54,7 @@ while (<GIT>) {
 	/^([^:]+):($tags)?/;
 	my $file = $1;
 	if (defined $2) {
-		open PATCH, "<$file";
+		open(PATCH, "<$file") || die "cannot open $file";
 		my %shas = ();
 		while (<PATCH>) {
 			next unless /^$tags/;
