@@ -60,6 +60,7 @@ while (<GIT>) {
 		my %shas = ();
 		my @refs = ();
 		while (my $line = <PATCH>) {
+			chomp $line;
 			$shas{$1} = 1 if ($line =~ /^$tags/);
 			if ($line =~ /^References: (.*)$/) {
 				push @refs, (split /\s+/, $1);
@@ -85,6 +86,12 @@ if ($series_changed) {
 }
 close SERIES;
 
+sub output_refs($@) {
+	my ($fh, @refs) = @_;
+	my %uniq = map { $_, 1 } @refs;
+	print $fh "References: ", join(' ', keys %uniq), "\n";
+}
+
 if (scalar @references) {
 	open DEST, "<$dest";
 	my @dest = <DEST>;
@@ -93,11 +100,12 @@ if (scalar @references) {
 	my $had_git_commit = 0;
 	foreach my $line (@dest) {
 		if (!$had_git_commit && $line =~ /^Git-commit: /) {
-			print DEST "References: ", join(' ', @references), "\n";
+			output_refs(\*DEST, @references);
 			$had_git_commit = 1;
-		} elsif ($line =~ /^References: /) {
-			chomp $line;
-			print DEST "$line ", join(' ', @references), "\n";
+		} elsif ($line =~ /^References: (.*)$/) {
+			chomp $1;
+			push @references, (split /\s+/, $1);
+			output_refs(\*DEST, @references);
 			next;
 		}
 		print DEST $line;
