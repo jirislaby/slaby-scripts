@@ -46,6 +46,7 @@ die "invalid regexp computed" if ($regexp eq "");
 open GIT, "git grep -E '$regexp' patches.*|" || die "cannot execute git";
 
 my %files;
+my @references = ();
 my $tags = qr/(?:Git-commit: |Patch-mainline: |From )([0-9a-f]{40})/;
 
 while (<GIT>) {
@@ -57,12 +58,16 @@ while (<GIT>) {
 	if (defined $2 && -f $file) {
 		open(PATCH, "<$file") || die "cannot open $file";
 		my %shas = ();
-		while (<PATCH>) {
-			next unless /^$tags/;
-			$shas{$1} = 1;
+		my @refs = ();
+		while (my $line = <PATCH>) {
+			$shas{$1} = 1 if ($line =~ /^$tags/);
+			if ($line =~ /^References: (.*)$/) {
+				push @refs, (split /\s+/, $1);
+			}
 		}
 		close PATCH;
 		if (scalar(keys %shas) == 1) {
+			push @references, @refs;
 			system("git rm $file");
 			$series =~ s/\t$file\n//;
 			$series_changed = 1;
@@ -79,6 +84,27 @@ if ($series_changed) {
 	print SERIES $series;
 }
 close SERIES;
+
+if (scalar @references) {
+	open DEST, "<$dest";
+	my @dest = <DEST>;
+	close DEST;
+	open DEST, ">$dest";
+	my $had_git_commit = 0;
+	foreach my $line (@dest) {
+		if (!$had_git_commit && $line =~ /^Git-commit: /) {
+			print DEST "References: ", join(' ', @references), "\n";
+			$had_git_commit = 1;
+		} elsif ($line =~ /^References: /) {
+			chomp $line;
+			print DEST "$line ", join(' ', @references), "\n";
+			next;
+		}
+		print DEST $line;
+	}
+	undef @dest;
+	close DEST;
+}
 
 foreach my $file (keys %files) {
 	if (-e $file) {
