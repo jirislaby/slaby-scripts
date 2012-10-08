@@ -1,0 +1,31 @@
+#!/bin/bash
+
+FIRST="$1"
+SECOND="$2"
+
+FIRSTO="`mktemp`"
+SECONDO="`mktemp`"
+
+function replace {
+sed -e '
+s@stime=[0-9]*@stime=XXX@g;
+s@cutime=[0-9]*@cutime=XXX@g;
+s@duration=[0-9]*@duration=XXX@g;
+s@pid\[[0-9]*\]@pid[XXX]@g;
+s@thread\[[0-9]*\]@thread[XXX]@g;
+s@pid [0-9]*@pid XXX@g;
+s@thread [0-9]*@thread XXX@g;
+s@sum = [0-9]*@sum = XXX@g;
+s@file_[0-9]*@file_XXX@g;
+s@dir_[0-9]*@dir_XXX@g;
+s@node_[0-9]*@node_XXX@g;
+s@addr=0x[0-9a-fA-F]*@addr=0xXXX@g;
+s@contents of memory 0x[0-9a-fA-F]*@contents of memory 0xXXX@g;
+s@signal handler [0-9]* started@signal handler XXX started@g;
+' "$1"
+}
+
+replace "$FIRST" >"$FIRSTO"
+replace "$SECOND" >"$SECONDO"
+
+diff -u "$FIRSTO" "$SECONDO" | view -
