@@ -25,8 +25,14 @@ autocmd FileType c set cin
 autocmd FileType gitcommit set tw=70 nocin
 autocmd FileType gitcommit 1
 
+imap <F3> <Esc>:wN<CR>
+map <F3> :wN<CR>
 imap <F4> <Esc>:wn<CR>
 map <F4> :wn<CR>
+imap <F5> <Esc>l[si
+map <F5> [s
+imap <F6> <Esc>l]si
+map <F6> ]s
 imap <F7> <Esc>:mak<CR>
 map <F7> :mak<CR>
 imap <C-F7> <Esc>:mak!<CR>
