@@ -23,7 +23,7 @@ MACHINE="$1"
 shift
 
 PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --add-header 'Git-commit: ' --add-header 'Patch-mainline: yes'"
+GITARGS="-o $PATCHES -s -k --add-header 'Patch-mainline: no'"
 if [ "$REF" != "nop" ]; then
 	GITARGS="$GITARGS --add-header 'References: $REF'"
 fi
@@ -35,10 +35,10 @@ eval git format-patch $GITARGS $@ || exit 1
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
 	MAINLINE=`git name-rev --refs=refs/tags/v[23].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
+	sed -ni "2,$ p" $patch
 	if ! echo "$MAINLINE"|grep -q undefined; then
-		sed -i "s/^Patch-mainline: yes$/Patch-mainline: $MAINLINE/" $patch
+		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $MAINLINE/" $patch
 	fi
-	sed -i "s/^Git-commit: $/&$SHA/" $patch
 done
 
 if [ "$MACHINE" != "nop" ]; then
