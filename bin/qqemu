@@ -22,7 +22,9 @@ if [ $MEM -lt 100 ]; then
 	MEM=100
 fi
 
-qemu-kvm -k en-us -usbdevice tablet -balloon virtio -hda $FILE -smp 2 -m $MEM -net user -net nic,model=e1000 -usb -serial pty "$@" 2>$SCR &
+qemu-kvm -k en-us -smp 2 -m $MEM -soundhw hda -usb -usbdevice tablet \
+		-net user -net nic,model=e1000 -serial pty -balloon virtio \
+		-hda $FILE -smp 2 -m $MEM "$@" 2>$SCR &
 QEMU=$!
 
 while ! grep -q 'redirected to' $SCR 2>/dev/null; do
