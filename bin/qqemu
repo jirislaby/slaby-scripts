@@ -24,7 +24,7 @@ fi
 
 qemu-kvm -k en-us -smp 2 -m $MEM -soundhw hda -usb -usbdevice tablet \
 		-net user -net nic,model=e1000 -serial pty -balloon virtio \
-		-hda $FILE -smp 2 -m $MEM "$@" 2>$SCR &
+		-hda $FILE "$@" 2>$SCR &
 QEMU=$!
 
 while ! grep -q 'redirected to' $SCR 2>/dev/null; do
