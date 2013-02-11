@@ -5,12 +5,13 @@ use File::Copy qq(move);
 
 my $tmpdir = $ENV{TMPDIR} || "/tmp";
 
-die "Has to be run from the kernel-source GIT dir" if (! -d ".git");
-
 if ($#ARGV != 1) {
-        print "Usage: $0 patch ids_file\n";
+        print "Usage: $0 <patch> <ids_file>\n\n",
+		"Both <patch> and <ids_file> are usually generated using `stableids'.\n";
         exit 1;
 }
+
+die "Has to be run from the kernel-source GIT dir" if (! -d ".git");
 
 open(SERIES, "+<series.conf") || die "cannot open series.conf";
 my $series;
