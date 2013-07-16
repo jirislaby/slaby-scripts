@@ -1,6 +1,6 @@
 #!/bin/sh
 
-NAMESERVER=10.11.0.100
+NAMESERVER=10.120.0.1
 HOST=$1
 shift
 
