@@ -31,7 +31,7 @@ while ! grep -q 'redirected to' $SCR 2>/dev/null; do
 	usleep 100000
 done
 
-screen `sed -ne '/redirected to / s/.* // p' $SCR`
+screen `sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
 
 rm -f $SCR
 
