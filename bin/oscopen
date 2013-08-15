@@ -1,11 +1,20 @@
 #!/bin/bash
 
+function filter {
+	echo "$@" | sed '
+		s/+/%2B/g
+		'
+}
+
 function show_pkg {
-	xdg-open "https://build.opensuse.org/package/show?package=$2&project=$1"
+	PRJ=`filter $1`
+	PKG=`filter $2`
+	xdg-open "https://build.opensuse.org/package/show?package=$PKG&project=$PRJ"
 }
 
 function show_prj {
-	xdg-open "https://build.opensuse.org/project/monitor?project=$1"
+	PRJ=`filter $1`
+	xdg-open "https://build.opensuse.org/project/monitor?project=$PRJ"
 }
 
 if [ $# -eq 1 ]; then
