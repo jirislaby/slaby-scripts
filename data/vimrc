@@ -18,13 +18,14 @@ if has("cscope") && filereadable("/usr/bin/cscope")
 endif
 
 augroup filetype
-	au! BufRead,BufNewFile *.ll     set filetype=llvm
-	au! BufRead,BufNewFile *.td     set filetype=tablegen
+	au! BufRead,BufNewFile *.ll	set filetype=llvm
+	au! BufRead,BufNewFile *.g	set filetype=antlr3
+	au! BufRead,BufNewFile *.td	set filetype=tablegen
 augroup END
 
 autocmd FileType c set cin
 autocmd FileType gitcommit set tw=70 nocin
-autocmd FileType gitcommit 1
+autocmd FileType gitcommit 1G
 
 imap <F3> <Esc>:wN<CR>
 map <F3> :wN<CR>
