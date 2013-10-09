@@ -8,7 +8,7 @@ INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
-BIN_FILES=ku ltpcmp mmup oscopen patch-mainline-check qqemu susegen sussh
+BIN_FILES=ku ltpcmp mmup oscopen patch-mainline-check qqemu runvim susegen sussh
 DATA_FILES=bash_profile bashrc vimrc
 
 all:
