@@ -2,6 +2,7 @@ prefix=/usr
 bindir=$(prefix)/bin
 libdir=$(prefix)/lib
 datadir=$(prefix)/share
+perllibdir=$(shell eval `perl -V:installsitelib`; echo $$installsitelib)
 pm_libdir=$(prefix)/lib/pm-utils
 
 INSTALL=install
@@ -10,12 +11,13 @@ INSTALL_DATA=$(INSTALL) -m 644
 
 BIN_FILES=ku ltpcmp mmup oscopen patch-mainline-check qqemu runvim susegen sussh
 DATA_FILES=bash_profile bashrc vimrc
+PERLLIB_FILES=StableHelper.pm
 
 all:
 
 clean:
 
-install: bin-install data-install
+install: bin-install data-install perllib-install
 
 bin-install:
 	$(call install,$(INSTALL),bin/,$(BIN_FILES),$(DESTDIR)/$(bindir)/)
@@ -24,7 +26,10 @@ bin-install:
 data-install:
 	$(call install,$(INSTALL_DATA),data/,$(DATA_FILES),$(DESTDIR)/$(datadir)/slaby-scripts/)
 
-.PHONY: all clean install bin-install data-install
+perllib-install:
+	$(call install,$(INSTALL_DATA),perl/,$(PERLLIB_FILES),$(DESTDIR)/$(perllibdir)/)
+
+.PHONY: all clean install bin-install data-install perllib-install
 
 # install_dir <dir>
 install_dir = $(info [Id] $1) \
