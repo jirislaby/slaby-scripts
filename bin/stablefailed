@@ -1,0 +1,35 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Temp qw/tempdir/;
+use Git;
+use StableHelper;
+
+my $repo = Git->repository();
+my $tmpdir = tempdir();
+
+print "TMP=$tmpdir\n";
+
+while (my $SHA=<>) {
+	chomp $SHA;
+	my $file = $repo->command_oneline('format-patch',
+			'--subject-prefix=patch NOT added to the 3.12 stable tree',
+			'-N', '-M', "-o$tmpdir", '-1', $SHA);
+	print "$file\n";
+
+	StableHelper::add_header($file, <<EOF);
+This patch does NOT apply to the 3.12 stable tree. If you still want
+it applied, please provide a backport.
+
+===============
+
+commit $SHA upstream.
+EOF
+	print scalar($repo->command('send-email',
+				'--to', 'stable@vger.kernel.org',
+			'--cc', 'jslaby@suse.cz', $file));
+	unlink $file;
+}
+
+unlink $tmpdir;
+
+1;

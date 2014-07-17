@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+use strict;
+use Git;
+use StableHelper;
+
+die "invalid arguments" if (scalar @ARGV < 2);
+
+my $repo = Git->repository();
+my @files = $repo->command('format-patch',
+		'--subject-prefix=patch added to the 3.12 stable tree',
+		'-N', '-M', "-o$ARGV[0]", $ARGV[1]);
+
+foreach my $file (@files) {
+	print "$file\n";
+
+	StableHelper::add_header($file, <<EOF);
+This patch has been added to the 3.12 stable tree. If you have any
+objections, please let us know.
+
+===============
+EOF
+}
+
+1;

@@ -1,0 +1,95 @@
+#!/usr/bin/perl -w -I /home/latest/repos/slaby-scripts/perl
+use strict;
+use Error qw(:try);
+use Git;
+use StableHelper;
+
+die "invalid arguments" if (scalar @ARGV < 2);
+
+my $sdir = shift @ARGV;
+my $srepo = Git->repository($sdir);
+my $repo = Git->repository();
+
+my @history = $srepo->command('log', '--format=%B', 'v3.12..stable-3.12');
+@history = StableHelper::get_upstream_commits(@history);
+my %history;
+@history{@history} = undef;
+
+my @further;
+my @removed;
+
+sub remove($$) {
+	my ($msg, $file) = @_;
+	print $msg, " ", scalar $repo->command('rm', $file);
+	push @removed, $file;
+}
+
+foreach my $patch (@ARGV) {
+	open(FILE, "<", $patch) || die "cannot open $patch";
+	my @header = ();
+	while (my $line = <FILE>) {
+		chomp $line;
+		last if $line eq "---";
+		push @header, $line;
+	}
+	close FILE;
+
+	# remove duplicates
+	my @SHAs = StableHelper::get_upstream_commits(@header);
+	if (scalar @SHAs == 1 && exists $history{$SHAs[0]}) {
+		remove("DUP", $patch);
+		next;
+	}
+
+	# remove patches for later stables only
+	if (scalar @SHAs == 1) {
+		my @stabletags;
+		git_cmd_try {
+			@stabletags = grep(/^cc:.*stable@.*3\.1[3-9]/i,
+			$srepo->command('show', '--format=%B', '-q', $SHAs[0]));
+		} "SHA does not exist $SHAs[0]";
+		if (scalar @stabletags == 1) {
+			remove("LATER", $patch);
+			next;
+		}
+	}
+
+	# lines with "Fixes: ..."
+	my @fixes = map { /fixes.*\s([0-9a-f]{8,})/i ? ($1) : ()  } @header;
+	if (scalar @fixes) {
+		my $remove = 1;
+		foreach my $fix (@fixes) {
+			$fix = $srepo->command_oneline('rev-parse', $fix);
+			if (exists $history{$fix}) {
+				$remove = 0;
+				last;
+			}
+			my $desc = $srepo->command_oneline('describe',
+					'--exact-match', '--contains', $fix);
+			if ($desc !~ /^v3\.1[3-9]/) {
+				$remove = 0;
+				last;
+			}
+		}
+		if ($remove) {
+			remove("FIX", $patch);
+			next;
+		}
+	}
+
+	push @further, $patch;
+}
+
+system('sed', '-i', 's#Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>#Signed-off-by: Jiri Slaby <jslaby@suse.cz>#', @further) == 0 or die "cannot exec sed";
+
+my $rmregexp = join '|', @removed;
+
+open(FILE, "<", "series") || die "cannot open series for r";
+my @series = <FILE>;
+close FILE;
+
+open(FILE, ">", "series") || die "cannot open series for w";
+print FILE grep(!/^$rmregexp$/, @series);
+close FILE;
+
+1;
