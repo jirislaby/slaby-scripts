@@ -1,0 +1,93 @@
+#!/usr/bin/perl -w
+use strict;
+use Git;
+use StableHelper;
+
+die "invalid arguments" if (scalar @ARGV < 2);
+
+my $rc = "-rc1";
+
+my $outdir = $ARGV[0];
+my $orelease = $ARGV[1];
+die unless ($orelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
+my $nrelease = $1 . ($2 + 1);
+
+my $repo = Git->repository();
+
+my $topcommit = scalar($repo->command('show', '--pretty=format:%B', '-s'));
+my $topcommit_expected = "Linux $nrelease\n";
+
+die "bad topmost commit\n" .
+	"\texpected: $topcommit_expected\n" .
+	"\tis: $topcommit"
+	if ($topcommit ne $topcommit_expected);
+
+my $patch = "/tmp/patch-$nrelease$rc";
+my $diff = scalar($repo->command('diff', "v$orelease.."));
+open(PATCH, '>', $patch) || die "cannot write $patch";
+print PATCH $diff;
+$diff = undef;
+close(PATCH);
+
+my $ret = system("gpg2 --default-key 06B47049 --armor --detach-sign --yes $patch");
+die "cannot execute gpg2: $ret" if ($ret);
+die unless (-f "$patch.asc");
+
+print "running kup:\n";
+system("kup put $patch $patch.asc /pub/linux/kernel/people/jirislaby/stable-review/patch-$nrelease$rc.xz");
+
+unlink $patch;
+print "Done\n\n";
+
+my @files = $repo->command('format-patch',
+		'--cover-letter',
+		'--thread',
+		'--subject-prefix=PATCH 3.12',
+		'-n', '-M', "-o$outdir", "v$orelease..HEAD^");
+
+my $cover = shift @files;
+my $npatches = scalar(@files);
+my $date = gmtime(time + 2 * 24 * 60 * 60);
+my $ccover;
+open(FILE, "<", $cover) || die "cannot open $cover";
+{
+	local $/;
+	$ccover = <FILE>;
+}
+close FILE;
+$ccover =~ s/\*\*\* SUBJECT HERE \*\*\*/$nrelease-stable review/;
+my $blurb = <<EOF;
+This is the start of the stable review cycle for the $nrelease release.
+There are $npatches patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
+
+Responses should be made by $date
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	http://kernel.org/pub/linux/kernel/people/jirislaby/stable-review/patch-$nrelease-rc1.xz
+and the diffstat can be found below.
+
+thanks,
+js
+
+===============
+EOF
+$ccover =~ s/\*\*\* BLURB HERE \*\*\*/$blurb/;
+
+open(FILE, ">", $cover) || die "cannot open $cover";
+print FILE $ccover;
+close FILE;
+
+foreach my $file (@files) {
+	print "$file\n";
+
+	StableHelper::add_header($file, <<EOF);
+3.12-stable review patch.  If anyone has any objections, please let me know.
+
+===============
+EOF
+}
+
+1;
