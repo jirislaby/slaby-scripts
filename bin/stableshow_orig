@@ -14,7 +14,7 @@ foreach my $SHA (@commits) {
 		$SHA = $repo->command_oneline('rev-parse', $SHA);
 	} "bad SHA";
 
-	print scalar($repo->command('show', '--color', $SHA));
+	$repo->command_noisy('show', '--color', $SHA);
 }
 
 1;
