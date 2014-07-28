@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+use strict;
+use Git;
+use StableHelper;
+
+my $repo = Git->repository(Directory => '/home/latest/linux');
+
+my @lines = <>;
+
+my @commits = StableHelper::get_upstream_commits(@lines);
+
+foreach my $SHA (@commits) {
+	git_cmd_try {
+		$SHA = $repo->command_oneline('rev-parse', $SHA);
+	} "bad SHA";
+
+	print scalar($repo->command('show', '--color', $SHA));
+}
+
+1;
