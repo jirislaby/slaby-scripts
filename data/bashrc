@@ -4,3 +4,9 @@ alias san='ssh anemoi -X'
 
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
+
+function stablerm() {
+	git rm $1
+	grep -v "^$1$" series > series1
+	mv series1 series
+}
