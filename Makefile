@@ -9,7 +9,7 @@ INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
-BIN_FILES=ku ltpcmp mmup oscopen patch-mainline-check qqemu runvim susegen sussh
+BIN_FILES=ltpcmp mmup oscopen patch-mainline-check qqemu runvim stableadded stablefailed stableprepqueue stablerc susegen sussh
 DATA_FILES=bash_profile bashrc vimrc
 PERLLIB_FILES=StableHelper.pm
 

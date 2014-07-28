@@ -1,4 +1,0 @@
-#!/bin/bash
-
-chmod 660 $XAUTHORITY
-while ! sudo -E -u ku ~ku/.startup; do :; done
