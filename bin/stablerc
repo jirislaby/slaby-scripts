@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use Date::Manip::Date;
 use Git;
 use StableHelper;
 
@@ -47,7 +48,10 @@ my @files = $repo->command('format-patch',
 
 my $cover = shift @files;
 my $npatches = scalar(@files);
-my $date = gmtime(time + 2 * 24 * 60 * 60);
+my $date = new Date::Manip::Date;
+$date->parse("now");
+$date->next_business_day(2);
+$date = $date->printf("%C");
 my $ccover;
 open(FILE, "<", $cover) || die "cannot open $cover";
 {
@@ -62,7 +66,7 @@ There are $npatches patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by $date
+Responses should be made by $date.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
