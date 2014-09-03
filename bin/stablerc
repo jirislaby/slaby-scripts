@@ -9,9 +9,9 @@ die "invalid arguments" if (scalar @ARGV < 2);
 my $rc = "-rc1";
 
 my $outdir = $ARGV[0];
-my $orelease = $ARGV[1];
-die unless ($orelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
-my $nrelease = $1 . ($2 + 1);
+my $nrelease = $ARGV[1];
+die unless ($nrelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
+my $orelease = $1 . ($2 - 1);
 
 my $repo = Git->repository();
 
