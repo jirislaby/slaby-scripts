@@ -10,12 +10,14 @@ my $rc = "-rc1";
 
 my $outdir = $ARGV[0];
 my $nrelease = $ARGV[1];
+my $SHA = $ARGV[2] || "HEAD";
+
 die unless ($nrelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
 my $orelease = $1 . ($2 - 1);
 
 my $repo = Git->repository();
 
-my $topcommit = scalar($repo->command('show', '--pretty=format:%B', '-s'));
+my $topcommit = scalar($repo->command('show', '--pretty=format:%B', '-s', $SHA));
 my $topcommit_expected = "Linux $nrelease\n";
 
 die "bad topmost commit\n" .
@@ -24,7 +26,7 @@ die "bad topmost commit\n" .
 	if ($topcommit ne $topcommit_expected);
 
 my $patch = "/tmp/patch-$nrelease$rc";
-my $diff = scalar($repo->command('diff', "v$orelease.."));
+my $diff = scalar($repo->command('diff', "v$orelease..$SHA"));
 open(PATCH, '>', $patch) || die "cannot write $patch";
 print PATCH $diff;
 $diff = undef;
@@ -44,7 +46,7 @@ my @files = $repo->command('format-patch',
 		'--cover-letter',
 		'--thread',
 		'--subject-prefix=PATCH 3.12',
-		'-n', '-M', "-o$outdir", "v$orelease..HEAD^");
+		'-n', '-M', "-o$outdir", "v$orelease..$SHA^");
 
 my $cover = shift @files;
 my $npatches = scalar(@files);
