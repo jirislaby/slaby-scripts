@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e -x
+
+if [ -z "$1" ]; then
+	exit 1
+fi
+
+RELEASE=$1
+RELNO=${RELEASE##*.}
+LASTREL=${RELEASE%.[0-9]*}.$(($RELNO-1))
+SHA=$2
+
+git tag -u 06B47049 -m "This is the ${RELEASE} stable release" v${RELEASE} $SHA
+SHA=`git rev-parse --verify v${RELEASE}^{commit}`
+git push korg $SHA:refs/heads/stable-3.12 v${RELEASE}
+sleep 30
+COLUMNS=70 git request-pull v$LASTREL \
+	    git://git.kernel.org/pub/scm/linux/kernel/git/jirislaby/linux-stable.git \
+	    v$RELEASE
