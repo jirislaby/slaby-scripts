@@ -1,5 +1,12 @@
 #!/bin/bash
 
+WIN=0
+
+if [ "$1" = "-w" ]; then
+	WIN=1
+	shift
+fi
+
 if [ $# -lt 1 ]; then
 	echo $0 '<file.img> [qemu arguments]'
 	exit 1
@@ -8,9 +15,6 @@ fi
 if [ -z "$TMPDIR" ]; then
 	TMPDIR=/tmp
 fi
-
-SCR=$TMPDIR/qemu.$RANDOM
-rm -f $SCR >/dev/null 2>&1
 
 FILE=$1
 shift
@@ -22,17 +26,39 @@ if [ $MEM -lt 100 ]; then
 	MEM=100
 fi
 
-qemu-kvm -k en-us -smp 2 -m $MEM -soundhw hda -usb -usbdevice tablet \
-		-net user -net nic,model=e1000 -redir tcp:2222::22 \
-		-serial pty -balloon virtio -hda $FILE "$@" 2>$SCR &
-QEMU=$!
+QEMU_ARGS="-k en-us -smp 2 -m $MEM -usb -usbdevice tablet -hda $FILE"
+if [ $WIN = 1 ]; then
+	QEMU_ARGS="$QEMU_ARGS -soundhw ac97 -net user,smb=/home/smb,hostfwd=tcp::3389-:3389 -net nic,model=rtl8139 -localtime"
+else
+	QEMU_ARGS="$QEMU_ARGS -soundhw hda -net user,hostfwd=tcp::2222-:22 -net nic,model=e1000 -serial pty -balloon virtio"
+fi
 
-while ! grep -q 'redirected to' $SCR 2>/dev/null; do
-	usleep 100000
-done
+QEMU_RUN="qemu-kvm $QEMU_ARGS $@"
+echo $QEMU_RUN
 
-screen `sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+if [ $WIN = 1 ]; then
+	exec $QEMU_RUN
+else
+	SCR=$TMPDIR/qemu.$RANDOM
+	rm -f $SCR >/dev/null 2>&1
 
-rm -f $SCR
+	$QEMU_RUN 2> >(tee $SCR >&2) &
+	QEMU=$!
 
-wait $QEMU
+	FAIL=0
+	while ! grep -q 'redirected to' $SCR 2>/dev/null; do
+		if [ ! -d "/proc/$QEMU" ]; then
+			FAIL=1
+			break
+		fi
+		usleep 100000
+	done
+
+	if [ $FAIL = 0 ]; then
+		screen `sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+	fi
+
+	rm -f $SCR
+
+	wait $QEMU
+fi
