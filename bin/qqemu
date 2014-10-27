@@ -33,16 +33,16 @@ else
 	QEMU_ARGS="$QEMU_ARGS -soundhw hda -net user,hostfwd=tcp::2222-:22 -net nic,model=e1000 -serial pty -balloon virtio"
 fi
 
-QEMU_RUN="qemu-kvm $QEMU_ARGS $@"
-echo $QEMU_RUN
+QEMU_RUN="qemu-kvm $QEMU_ARGS"
+echo $QEMU_RUN "$@"
 
 if [ $WIN = 1 ]; then
-	exec $QEMU_RUN
+	exec $QEMU_RUN "$@"
 else
 	SCR=$TMPDIR/qemu.$RANDOM
 	rm -f $SCR >/dev/null 2>&1
 
-	$QEMU_RUN 2> >(tee $SCR >&2) &
+	$QEMU_RUN "$@" 2> >(tee $SCR >&2) &
 	QEMU=$!
 
 	FAIL=0
