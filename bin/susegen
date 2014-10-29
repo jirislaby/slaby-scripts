@@ -42,7 +42,7 @@ for patch in $PATCHES/*; do
 done
 
 if [ "$MACHINE" != "nop" ]; then
-	scp -C $PATCHES/* $MACHINE || exit 1
+	scp -o StrictHostKeyChecking=no -C $PATCHES/* $MACHINE || exit 1
 	echo Copied to $MACHINE
 
 	rm -rf $PATCHES
