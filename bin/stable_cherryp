@@ -14,7 +14,8 @@ while (my $SHA=<>) {
 	$repo->command_noisy('describe', '--exact-match', '--contains', $SHA);
 
 	$ENV{'EDITOR'} = qq(sed -i '3 s/^/commit $SHA upstream.\\n\\n/');
-	$repo->command_noisy('cherry-pick', '-s', '-e', $SHA);
+	print scalar($repo->command_oneline('cherry-pick', '-s', '-e', $SHA)),
+	      "\n";
 }
 
 1;
