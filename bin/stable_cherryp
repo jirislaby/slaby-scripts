@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+use strict;
+use Git;
+
+my $repo = Git->repository();
+
+while (my $SHA=<>) {
+	chomp $SHA;
+
+	git_cmd_try {
+		$SHA = $repo->command_oneline('rev-parse', $SHA);
+	} "bad SHA";
+
+	$repo->command_noisy('describe', '--exact-match', '--contains', $SHA);
+
+	$ENV{'EDITOR'} = qq(sed -i '3 s/^/commit $SHA upstream.\\n\\n/');
+	$repo->command_noisy('cherry-pick', '-s', '-e', $SHA);
+}
+
+1;
