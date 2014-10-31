@@ -20,10 +20,12 @@ my $repo = Git->repository();
 my $topcommit = scalar($repo->command('show', '--pretty=format:%B', '-s', $SHA));
 my $topcommit_expected = "Linux $nrelease\n";
 
-die "bad topmost commit\n" .
-	"\texpected: $topcommit_expected\n" .
-	"\tis: $topcommit"
-	if ($topcommit ne $topcommit_expected);
+if ($topcommit ne $topcommit_expected) {
+	$topcommit =~ s/\n.*//;
+	die "bad topmost commit\n" .
+		"\texpected: $topcommit_expected" .
+		"\tis:       $topcommit\n";
+}
 
 my $patch = "/tmp/patch-$nrelease$rc";
 my $diff = scalar($repo->command('diff', "v$orelease..$SHA"));
