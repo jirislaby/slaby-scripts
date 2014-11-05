@@ -7,7 +7,7 @@ alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
 
 alias tign='tig korg/next_master..'
-alias tigl='tig HEAD~1000..'
+alias tigl='tig -1000'
 
 function stablerm() {
 	git rm $1
