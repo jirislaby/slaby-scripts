@@ -9,7 +9,7 @@ alias oscp='osc -A https://pmbs-api.links2linux.org'
 alias tign='tig korg/next_master..'
 alias tigl='tig -1000'
 
-function stablerm() {
+function stable_rm() {
 	git rm $1
 	grep -v "^$1$" series > series1
 	mv series1 series
