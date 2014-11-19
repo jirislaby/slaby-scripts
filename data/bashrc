@@ -10,7 +10,9 @@ alias tign='tig korg/next_master..'
 alias tigl='tig -1000'
 
 function stable_rm() {
-	git rm $1
-	grep -v "^$1$" series > series1
-	mv series1 series
+	for file in $@; do
+		git rm "$file"
+		grep -v "^$file$" series > series1
+		mv series1 series
+	done
 }
