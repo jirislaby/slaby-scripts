@@ -55,7 +55,10 @@ else
 	done
 
 	if [ $FAIL = 0 ]; then
-		screen `sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+		TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+		if [ -c "$TTY" ]; then
+			screen "$TTY"
+		fi
 	fi
 
 	rm -f $SCR
