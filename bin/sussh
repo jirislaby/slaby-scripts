@@ -1,12 +1,11 @@
 #!/bin/sh
 
-NAMESERVER=10.120.0.1
 HOST=$1
 shift
 
 for SUFFIX in arch.suse.de suse.de suse.cz qa.suse.de; do
 	FQDN=$HOST.$SUFFIX
-	IP=`host $FQDN $NAMESERVER | sed -ne 's/.* has address // p'`
+	IP=`host $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
 	if [ -n "$IP" ]; then
 		break
 	fi
