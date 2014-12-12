@@ -13,6 +13,10 @@ function filter {
 		'
 }
 
+function show_req {
+	xdg-open "https://$BS/request/show/$1"
+}
+
 function show_pkg {
 	PRJ=`filter $1`
 	PKG=`filter $2`
@@ -26,15 +30,18 @@ function show_prj {
 
 if [ $# -eq 1 ]; then
 	case "$1" in
+	+([0-9]))
+		show_req "$1"
+		;;
 	*/*)
-		show_pkg ${1%/*} ${1#*/}
+		show_pkg "${1%/*}" "${1#*/}"
 		;;
 	*)
-		show_prj $1
+		show_prj "$1"
 		;;
 	esac
 elif [ $# -eq 2 ]; then
-	show_pkg $1 $2
+	show_pkg "$1" "$2"
 else
 	exit 1
 fi
