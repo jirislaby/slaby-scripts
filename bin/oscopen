@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# for +() in request
+shopt -s extglob
+
 if [ "x$1" = "x-i" ]; then
 	BS=build.suse.de
 	shift
