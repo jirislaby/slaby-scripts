@@ -3,13 +3,6 @@
 # for +() in request
 shopt -s extglob
 
-if [ "x$1" = "x-i" ]; then
-	BS=build.suse.de
-	shift
-else
-	BS=build.opensuse.org
-fi
-
 function filter {
 	echo "$@" | sed '
 		s/+/%2B/g
@@ -21,17 +14,38 @@ function show_req {
 }
 
 function show_pkg {
-	PRJ=`filter $1`
-	PKG=`filter $2`
+	PRJ="`filter $1`"
+	PKG="`filter $2`"
 	xdg-open "https://$BS/package/show?package=$PKG&project=$PRJ"
 }
 
 function show_prj {
-	PRJ=`filter $1`
+	PRJ="`filter $1`"
 	xdg-open "https://$BS/project/monitor?project=$PRJ"
 }
 
-if [ $# -eq 1 ]; then
+function show_devel {
+	PRJ="`osc develproject openSUSE:Factory $1`" || exit 1
+	show_pkg "$PRJ" "$1"
+}
+
+BS=build.opensuse.org
+DEVEL=0
+
+while getopts "di" OPT; do
+	case "$OPT" in
+		i) BS=build.suse.de
+		;;
+		d) DEVEL=1
+		;;
+	esac
+done
+
+shift $(($OPTIND-1))
+
+if [ $DEVEL -eq 1 ]; then
+	show_devel "$1"
+elif [ $# -eq 1 ]; then
 	case "$1" in
 	+([0-9]))
 		show_req "$1"
