@@ -9,4 +9,4 @@ if [ "x$VERSION" = "x12" ]; then
 	sudo zypper ar -f http://download.suse.de/ibs/home:/jirislaby:/xx/SLE_12/home:jirislaby:xx.repo 2>/dev/null || true
 fi
 
-sudo zypper in --no-rec cscope quilt osc build git-core obs-service-tar_scm obs-service-recompress obs-service-set_version 
+sudo zypper in --no-rec cscope quilt osc build gcc git-core make obs-service-tar_scm obs-service-recompress obs-service-set_version 
