@@ -8,18 +8,18 @@ else
 	eval `grep -Ew 'VERSION|PATCHLEVEL' /etc/SuSE-release|sed 's@ @@g'`
 fi
 
-ADDREPO=
+function add_repo() {
+	sudo zypper ar -f "$1" 2>/dev/null || true
+}
+
 if [ "x$VERSION" = "x11" ]; then
 	case "$PATCHLEVEL" in
-		3) ADDREPO='http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
+		3) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
+		   add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 		;;
 	esac
 elif [ "x$VERSION" = "x12" ]; then
-	ADDREPO='http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-fi
-
-if [ -n "$ADDREPO" ]; then
-	sudo zypper ar -f "$ADDREPO" 2>/dev/null || true
+	add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
 fi
 
 sudo zypper in --no-rec cscope quilt osc build gcc git-core make obs-service-tar_scm obs-service-recompress obs-service-set_version 
