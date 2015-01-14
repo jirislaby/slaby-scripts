@@ -14,7 +14,14 @@ SHA=$2
 git tag -u 06B47049 -m "This is the ${RELEASE} stable release" v${RELEASE} $SHA
 SHA=`git rev-parse --verify v${RELEASE}^{commit}`
 git push korg $SHA:refs/heads/stable-3.12 v${RELEASE}
-sleep 30
+ATTEMPT=0
+while [ $ATTEMPT -lt 30 ]; do
+	if [ "x`git ls-remote korg v${RELEASE}`" != x ]; then
+		break
+	fi
+	sleep 1
+	ATTEMPT=$(($ATTEMPT+1))
+done
 COLUMNS=70 git request-pull v$LASTREL \
 	    git://git.kernel.org/pub/scm/linux/kernel/git/jirislaby/linux-stable.git \
 	    v$RELEASE
