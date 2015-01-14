@@ -2,7 +2,11 @@
 
 set -xxe
 
-. /etc/os-release
+if [ -f /etc/os-release ]; then
+	. /etc/os-release
+else
+	eval `grep VERSION /etc/SuSE-release|sed 's@ @@g'`
+fi
 
 if [ "x$VERSION" = "x12" ]; then
 	sudo zypper ar -f http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo 2>/dev/null || true
