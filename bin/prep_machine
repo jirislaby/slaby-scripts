@@ -12,15 +12,19 @@ function add_repo() {
 	sudo zypper ar -f "$1" 2>/dev/null || true
 }
 
-if [ "x$VERSION" = "x11" ]; then
-	case "$PATCHLEVEL" in
+case "$VERSION" in
+	11) case "$PATCHLEVEL" in
 		3) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
 		   add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 		;;
 	esac
-elif [ "x$VERSION" = "x12" ]; then
-	add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-fi
+	;;
+	11.4) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
+	      add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
+	;;
+	12) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
+	;;
+esac
 
 sudo zypper in --no-rec cscope quilt osc build gcc git-core make \
 	obs-service-download_files obs-service-format_spec_file \
