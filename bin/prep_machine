@@ -23,6 +23,7 @@ case "$VERSION" in
 	      add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 	;;
 	12) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
+	    sudo mount -oremount,dev,suid /dev/shm
 	;;
 esac
 
