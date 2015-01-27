@@ -26,7 +26,7 @@ if [ $MEM -lt 100 ]; then
 	MEM=100
 fi
 
-QEMU_ARGS="-k en-us -smp 2 -m $MEM -usb -usbdevice tablet -hda $FILE"
+QEMU_ARGS="-k en-us -smp 2 -m $MEM -usb -usbdevice tablet -drive discard=unmap,file=$FILE"
 if [ $WIN = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -soundhw ac97 -net user,smb=/home/smb,hostfwd=tcp::3389-:3389 -net nic,model=rtl8139 -localtime"
 else
