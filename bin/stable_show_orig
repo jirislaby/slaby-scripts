@@ -3,6 +3,9 @@ use strict;
 use Git;
 use StableHelper;
 
+my $editor = $ENV{'EDITOR'} || 'vim';
+my $file = $ARGV[0];
+
 my $repo = Git->repository(Directory => '/home/latest/linux');
 
 my @lines = <>;
@@ -15,6 +18,11 @@ foreach my $SHA (@commits) {
 	} "bad SHA";
 
 	$repo->command_noisy('show', '--color', $SHA);
+}
+
+print "Run editor [y/N]? ";
+if (<STDIN> =~ /^[yY]/) {
+	exec $editor, $file;
 }
 
 1;
