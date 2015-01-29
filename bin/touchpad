@@ -1,0 +1,3 @@
+#!/bin/bash
+
+synclient TouchpadOff=`synclient -l|awk '{if (/TouchpadOff/) {print !$3}}'`
