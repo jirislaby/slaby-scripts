@@ -1,3 +1,6 @@
 #!/bin/bash
 
-synclient TouchpadOff=`synclient -l|awk '{if (/TouchpadOff/) {print !$3}}'`
+NEWVAL=`synclient -l|awk '{if (/TouchpadOff/) {print !$3}}'`
+
+synclient TouchpadOff=$NEWVAL
+xinput set-prop 'TPPS/2 IBM TrackPoint' 'Device Enabled' $NEWVAL
