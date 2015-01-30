@@ -1,0 +1,11 @@
+[Unit]
+Description=Execute fstrim / on shutdown
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/true
+ExecStop=fstrim /
+
+[Install]
+WantedBy=multi-user.target
