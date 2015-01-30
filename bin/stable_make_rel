@@ -1,5 +1,7 @@
 #!/bin/bash
 
+REMOTE_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/jirislaby/linux-stable.git
+
 set -e -x
 
 if [ -z "$1" ]; then
@@ -16,12 +18,10 @@ SHA=`git rev-parse --verify v${RELEASE}^{commit}`
 git push korg $SHA:refs/heads/stable-3.12 v${RELEASE}
 ATTEMPT=0
 while [ $ATTEMPT -lt 30 ]; do
-	if [ "x`git ls-remote korg v${RELEASE}`" != x ]; then
+	if [ "x`git ls-remote $REMOTE_REPO v${RELEASE}`" != x ]; then
 		break
 	fi
 	sleep 1
 	ATTEMPT=$(($ATTEMPT+1))
 done
-COLUMNS=70 git request-pull v$LASTREL \
-	    git://git.kernel.org/pub/scm/linux/kernel/git/jirislaby/linux-stable.git \
-	    v$RELEASE
+COLUMNS=70 git request-pull "v$LASTREL" "$REMOTE_REPO" "v$RELEASE"
