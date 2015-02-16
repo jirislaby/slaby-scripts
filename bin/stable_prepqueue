@@ -100,7 +100,10 @@ foreach my $patch (keys %maybe_remove) {
 	delete $further{$patch};
 }
 
-system('sed', '-i', 's#Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>#Signed-off-by: Jiri Slaby <jslaby@suse.cz>#', keys %further) == 0 or die "cannot exec sed";
+if (scalar keys %further) {
+	system('sed', '-i', 's#Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>#Signed-off-by: Jiri Slaby <jslaby@suse.cz>#',
+		keys %further) == 0 or die "cannot exec sed";
+}
 
 my $rmregexp = join '|', @removed;
 
@@ -108,8 +111,13 @@ open(FILE, "<", "series") || die "cannot open series for r";
 my @series = <FILE>;
 close FILE;
 
-open(FILE, ">", "series") || die "cannot open series for w";
-print FILE grep(!/^$rmregexp$/, @series);
-close FILE;
+@series = grep(!/^$rmregexp$/, @series);
+if (scalar @series) {
+	open(FILE, ">", 'series') || die "cannot open series for w";
+	print FILE @series;
+	close FILE;
+} else {
+	$repo->command_noisy('rm', 'series');
+}
 
 1;
