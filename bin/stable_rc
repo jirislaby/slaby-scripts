@@ -21,7 +21,7 @@ my $topcommit = scalar($repo->command('show', '--pretty=format:%B', '-s', $SHA))
 my $topcommit_expected = "Linux $nrelease\n";
 
 if ($topcommit ne $topcommit_expected) {
-	$topcommit =~ s/\n.*//;
+	$topcommit =~ s/\n.*//s;
 	die "bad topmost commit\n" .
 		"\texpected: $topcommit_expected" .
 		"\tis:       $topcommit\n";
