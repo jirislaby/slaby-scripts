@@ -34,7 +34,7 @@ case "$VERSION" in
 	;;
 esac
 
-sudo zypper -v in --no-rec ca-certificates-suse cscope quilt \
+sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-format_spec_file \
 	obs-service-recompress obs-service-set_version \
