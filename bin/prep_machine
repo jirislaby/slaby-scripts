@@ -34,6 +34,9 @@ case "$VERSION" in
 	;;
 esac
 
+sudo ip -6 r flush dev eth0
+sudo ip -6 a flush dev eth0
+
 sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-format_spec_file \
