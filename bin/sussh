@@ -11,6 +11,13 @@ for SUFFIX in arch.suse.de suse.de suse.cz qa.suse.de; do
 	fi
 done
 
-CMD="ssh -CX -o StrictHostKeyChecking=no jslaby@$IP"
-echo $CMD $@
-$CMD $@
+if [ -z "$IP" ]; then
+	echo "no IP found for $HOST"
+	exit 1
+fi
+
+ssh-keygen -R "$IP" >/dev/null 2>&1
+
+set -x
+
+ssh -CX -o StrictHostKeyChecking=no "jslaby@$IP" $@
