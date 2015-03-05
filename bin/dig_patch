@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Temp qw/tempfile/;
+
+die 'bad params' if (scalar @ARGV != 1);
+
+my $patch = $ARGV[0];
+my $file;
+my $hunk;
+
+open P, "patch --dry-run -p1 -i '$patch' |";
+while (<P>) {
+	chomp;
+	if (/^checking file (.*)$/) {
+		$file = $1;
+		next;
+	}
+	if (/^Hunk #([0-9]+) FAILED/) {
+		$hunk = $1;
+		last;
+	}
+}
+close P;
+
+if (!defined($file) || !defined($hunk)) {
+	die "couldn't find file or hunk";
+}
+
+print "Looking for hunk $hunk in $file\n";
+
+my $has_file = 0;
+my $has_hunk = 0;
+my $at_hunk = 0;
+
+my $tmp = File::Temp->new();
+open P, "<$patch";
+while (<P>) {
+	chomp;
+	if (/^\+\+\+ b\/(.*)$/) {
+		$has_file = ($1 eq $file);
+		next;
+	}
+	next unless ($has_file);
+	if (/^@@/) {
+		$has_hunk = (++$at_hunk == $hunk);
+		next;
+	}
+	next unless ($has_hunk);
+	if (s/^[- ]//) {
+		print $tmp "$_\n";
+	}
+}
+close P;
+close $tmp;
+
+system("colordiff -u " . $tmp->filename . " $file | less -p '^ '") == 0 ||
+	die "cannot exec diff | less";
+
+1;
