@@ -1,5 +1,15 @@
 #!/bin/sh
 
+USER=jslaby
+
+while getopts "r" OPT; do
+	case "$OPT" in
+		r) USER=root
+		;;
+	esac
+done
+
+shift $(($OPTIND-1))
 HOST=$1
 shift
 
@@ -20,4 +30,4 @@ ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
-ssh -CX -o StrictHostKeyChecking=no "jslaby@$IP" $@
+ssh -CX -o StrictHostKeyChecking=no "$USER@$IP" $@
