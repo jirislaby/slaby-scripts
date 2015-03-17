@@ -29,6 +29,7 @@ case "$VERSION" in
 	      SCM=1
 	;;
 	12) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
+	    add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12/devel:tools:scm.repo'
 	    add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12/SUSE:CA.repo'
 	    sudo mount -oremount,dev,suid /dev/shm
 	;;
