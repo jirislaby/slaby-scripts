@@ -9,11 +9,9 @@ INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
-BIN_FILES=ltpcmp mmup oscopen patch-mainline-check qqemu runvim \
-	  stable_added stable_cherryp stable_failed stable_make_rel \
-	  stable_prepqueue stable_rc stable_show_orig susegen sussh \
-	  touchpad
-DATA_FILES=bash_profile bashrc fstrim-on-shutdown.service vimrc
+BIN_SKIP=01dvb
+BIN_FILES=$(filter-out $(BIN_SKIP),$(patsubst bin/%,%,$(wildcard bin/*)))
+DATA_FILES=$(filter-out $(DATA_SKIP),$(patsubst data/%,%,$(wildcard data/*)))
 PERLLIB_FILES=StableHelper.pm
 
 all:
