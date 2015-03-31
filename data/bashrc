@@ -9,6 +9,10 @@ alias oscp='osc -A https://pmbs-api.links2linux.org'
 alias tign='tig korg/next_master..'
 alias tigl='tig -1000'
 
+function stable_dry() {
+	patch --dry-run -p1 -i ~/repos/stable-queue/queue-3.14/"$1"
+}
+
 function stable_rm() {
 	for file in $@; do
 		git rm "$file"
