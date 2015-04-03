@@ -1,0 +1,32 @@
+#!/usr/bin/perl -w
+use strict;
+use Git;
+use StableHelper;
+
+my $repo = Git->repository();
+
+my @shas = $repo->command('log', '--format=%B', 'v3.10..stable-3.12');
+my %shas312s = map { $_ => 1 } StableHelper::get_upstream_commits(@shas);
+
+my %shas312 = map { $_ => 1 } $repo->command('rev-list', 'v3.10..v3.12');
+
+@shas = $repo->command('log', '--format=%B', 'v3.10..stable/linux-3.10.y');
+@shas = StableHelper::get_upstream_commits(@shas);
+
+my %missing;
+foreach my $sha (@shas) {
+	next if (defined $shas312{$sha} || defined $shas312s{$sha});
+
+	my $since = $repo->command_oneline('describe', '--exact-match',
+			'--contains', $sha);
+	$missing{$since} = $sha;
+	print "$sha ($since) is missing in 3.12\n";
+}
+
+print "==================\n";
+
+foreach my $since (sort keys %missing) {
+	print "$missing{$since} ($since) is missing in 3.12\n";
+}
+
+1;

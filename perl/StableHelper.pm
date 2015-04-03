@@ -14,7 +14,7 @@ sub get_upstream_commits(@) {
 				next;
 			}
 		}
-		if (/^commit ([0-9a-f]{40}) upstream\.?$/ ||
+		if (/^[Cc]ommit ([0-9a-f]{40}) upstream\.?$/ ||
 			/^[\[(]\s*[Uu]pstream commit ([0-9a-f]{40})\s*[\])]$/ ||
 			/^[uU]pstream commit ([0-9a-f]{40})\.$/ ||
 			/^This is a backport of ([0-9a-f]{40})$/ ||
