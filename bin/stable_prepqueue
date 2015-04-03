@@ -9,9 +9,10 @@ die "invalid arguments" if (scalar @ARGV < 2);
 my $sdir = shift @ARGV;
 my $srepo = Git->repository($sdir);
 my $repo = Git->repository();
-my $newer = qr/3\.(1[3-9]|[2-9][0-9])/;
+my $newer = qr/3\.(1[3-9]|[2-9][0-9])|[4-9]\.|[1-9][0-9]\./;
+my $myver = '3.12';
 
-my @history = $srepo->command('log', '--format=%B', 'v3.12..stable-3.12');
+my @history = $srepo->command('log', '--format=%B', "v$myver..stable-$myver");
 @history = StableHelper::get_upstream_commits(@history);
 my %history;
 @history{@history} = undef;
@@ -52,7 +53,7 @@ foreach my $patch (@ARGV) {
 				$srepo->command('show', '--format=%B', '-q',
 					$SHAs[0]));
 		} "SHA $SHAs[0] does not exist for $patch";
-		if (scalar @stabletags == 1) {
+		if (scalar @stabletags == 1 && $stabletags[0] !~ /$myver/) {
 			remove("LATER", $patch);
 			next;
 		}
