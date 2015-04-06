@@ -6,8 +6,9 @@ alias san='ssh anemoi -X'
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
 
-alias tign='tig korg/next_master..'
 alias tigl='tig -1000'
+alias tign='tig korg/next_master..'
+alias tigs='tig v3.12..'
 
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-3.14/"$1"
