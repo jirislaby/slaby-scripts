@@ -4,9 +4,14 @@ use File::Temp qw/tempfile/;
 
 die 'bad params' if (scalar @ARGV != 1);
 
+my $stable_path = '/home/latest/repos/stable-queue/queue-3.14/';
 my $patch = $ARGV[0];
 my $file;
 my $hunk;
+
+if (!-f $patch && -f "$stable_path/$patch") {
+	$patch = "$stable_path/$patch";
+}
 
 open P, "patch --dry-run -p1 -i '$patch' |";
 while (<P>) {
