@@ -8,6 +8,11 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
+if [ "x$COLUMNS" != "x70" ]; then
+	echo resize terminal to have 70 colums, git request-pull sucks
+	exit 1
+fi
+
 RELEASE=$1
 RELNO=${RELEASE##*.}
 LASTREL=${RELEASE%.[0-9]*}.$(($RELNO-1))
