@@ -9,7 +9,7 @@ if [ -z "$1" ]; then
 fi
 
 if [ "x$COLUMNS" != "x70" ]; then
-	echo resize terminal to have 70 colums, git request-pull sucks
+	echo resize terminal to have 70 colums, git request-pull sucks >&2
 	exit 1
 fi
 
