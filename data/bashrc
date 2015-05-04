@@ -13,11 +13,3 @@ alias tigs='tig v3.12..'
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-3.14/"$1"
 }
-
-function stable_rm() {
-	for file in $@; do
-		git rm "$file"
-		grep -v "^$file$" series > series1
-		mv series1 series
-	done
-}

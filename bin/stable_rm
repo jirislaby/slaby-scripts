@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for file in $@; do
+	git rm "$file"
+	grep -v "^$file$" series > series1
+	mv series1 series
+done

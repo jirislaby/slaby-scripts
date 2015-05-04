@@ -25,4 +25,9 @@ if (<STDIN> =~ /^[yY]/) {
 	exec $editor, $file;
 }
 
+print "Remove [y/N]? ";
+if (<STDIN> =~ /^[yY]/) {
+	exec 'stable_rm', $file;
+}
+
 1;
