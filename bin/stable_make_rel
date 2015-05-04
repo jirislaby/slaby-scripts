@@ -37,4 +37,4 @@ while [ $ATTEMPT -lt 30 ]; do
 done
 git request-pull "v$LASTREL" "$REMOTE_REPO" "v$RELEASE"
 
-resize -s $LINES $ORIG_COLUMNS
+resize -s $LINES $ORIG_COLUMNS >/dev/null
