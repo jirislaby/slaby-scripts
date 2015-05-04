@@ -20,7 +20,7 @@ while (<P>) {
 		$file = $1;
 		next;
 	}
-	if (/^Hunk #([0-9]+) FAILED/) {
+	if (/^Hunk #([0-9]+) (FAILED|succeeded at [0-9]+ with fuzz)/) {
 		$hunk = $1;
 		last;
 	}
