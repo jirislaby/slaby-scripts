@@ -8,6 +8,12 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
+eval `resize`
+ORIG_COLUMNS=$COLUMNS
+if [ "x$COLUMNS" != "x70" ]; then
+	resize -s $LINES 70
+fi
+
 if [ "x$COLUMNS" != "x70" ]; then
 	echo resize terminal to have 70 colums, git request-pull sucks >&2
 	exit 1
@@ -26,7 +32,9 @@ while [ $ATTEMPT -lt 30 ]; do
 	if [ "x`git ls-remote $REMOTE_REPO v${RELEASE}`" != x ]; then
 		break
 	fi
-	sleep 1
+	sleep 2
 	ATTEMPT=$(($ATTEMPT+1))
 done
-COLUMNS=70 git request-pull "v$LASTREL" "$REMOTE_REPO" "v$RELEASE"
+git request-pull "v$LASTREL" "$REMOTE_REPO" "v$RELEASE"
+
+resize -s $LINES $ORIG_COLUMNS
