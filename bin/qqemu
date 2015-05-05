@@ -18,19 +18,48 @@ fi
 
 FILE=$1
 shift
+QEMU_VER=`qemu-kvm --version | sed 's@.*version \([0-9.]*\),.*@\1@'`
+QEMU_MAJOR=${QEMU_VER%%.*}
 
-MEM=`grep 'MemTotal:' /proc/meminfo|sed 's/^.*: *\([0-9]*\) *kB$/\1/'`
-MEM=$(($MEM/5/1024))
-
-if [ $MEM -lt 100 ]; then
-	MEM=100
+if [ $QEMU_MAJOR -lt 2 ]; then
+	DRIVE="-drive file=$FILE"
+else
+	DRIVE="-drive discard=unmap,file=$FILE"
 fi
 
-QEMU_ARGS="-k en-us -smp 2 -m $MEM -usb -usbdevice tablet -drive discard=unmap,file=$FILE"
+MEM=""
+if ! echo $@ | grep -q -- '-m '; then
+	MEM=`grep 'MemTotal:' /proc/meminfo|sed 's/^.*: *\([0-9]*\) *kB$/\1/'`
+	MEM=$(($MEM/5/1024))
+
+	if [ $MEM -lt 100 ]; then
+		MEM=100
+	fi
+
+	MEM="-m $MEM"
+fi
+
+SMP=""
+if ! echo $@ | grep -q -- '-smp '; then
+	SMP=`grep '^processor' /proc/cpuinfo | tail -1 | sed 's@.* @@'`
+	SMP=$(($SMP + 1))
+	SMP="-smp $SMP"
+fi
+
+SOUND=""
+if [ -f /proc/asound/cards ]; then
+	if [ $WIN = 1 ]; then
+		SOUND='-soundhw ac97'
+	else
+		SOUND='-soundhw hda'
+	fi
+fi
+
+QEMU_ARGS="-k en-us $SMP $MEM -usb -usbdevice tablet $DRIVE $SOUND"
 if [ $WIN = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -soundhw ac97 -net user,smb=/home/smb,hostfwd=tcp::3389-:3389 -net nic,model=rtl8139 -localtime"
+	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::3389-:3389 -net nic,model=rtl8139 -localtime"
 else
-	QEMU_ARGS="$QEMU_ARGS -soundhw hda -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::3632-:3632 -net nic,model=e1000 -serial pty -balloon virtio"
+	QEMU_ARGS="$QEMU_ARGS -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::3632-:3632 -net nic,model=e1000 -serial pty -balloon virtio"
 fi
 
 QEMU_RUN="qemu-kvm $QEMU_ARGS"
