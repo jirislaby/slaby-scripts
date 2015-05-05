@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use File::Temp qw/tempfile/;
+use File::Which qw/which/;
 
 die 'bad params' if (scalar @ARGV != 1);
 
@@ -58,7 +59,9 @@ while (<P>) {
 close P;
 close $tmp;
 
-system("colordiff -u " . $tmp->filename . " $file | less -p '^ '") == 0 ||
+my $diff = which('colordiff') || 'diff';
+
+system("$diff -u " . $tmp->filename . " $file | less -p '^ '") == 0 ||
 	die "cannot exec diff | less";
 
 1;
