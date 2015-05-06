@@ -17,8 +17,8 @@ if (!-f $patch && -f "$stable_path/$patch") {
 open P, "patch --dry-run -p1 -i '$patch' |";
 while (<P>) {
 	chomp;
-	if (/^checking file (.*)$/) {
-		$file = $1;
+	if (/^(checking|patching) file (.*)$/) {
+		$file = $2;
 		next;
 	}
 	if (/^Hunk #([0-9]+) (FAILED|succeeded at [0-9]+ with fuzz)/) {
