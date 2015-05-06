@@ -61,7 +61,7 @@ close $tmp;
 
 my $diff = which('colordiff') || 'diff';
 
-system("$diff -u " . $tmp->filename . " $file | less -p '^ '") == 0 ||
+system("$diff -up " . $tmp->filename . " $file | less -p '^ '") == 0 ||
 	die "cannot exec diff | less";
 
 1;
