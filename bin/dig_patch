@@ -14,7 +14,7 @@ if (!-f $patch && -f "$stable_path/$patch") {
 	$patch = "$stable_path/$patch";
 }
 
-open P, "patch --dry-run -p1 -i '$patch' |";
+open P, "patch --dry-run -f -p1 -i '$patch' |";
 while (<P>) {
 	chomp;
 	if (/^(checking|patching) file (.*)$/) {
