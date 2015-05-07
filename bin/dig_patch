@@ -42,7 +42,7 @@ my $tmp = File::Temp->new();
 open P, "<$patch";
 while (<P>) {
 	chomp;
-	if (/^\+\+\+ b\/(.*)$/) {
+	if (/^\+\+\+ [^\/]+\/(\S+)/) {
 		$has_file = ($1 eq $file);
 		next;
 	}
@@ -52,6 +52,7 @@ while (<P>) {
 		next;
 	}
 	next unless ($has_hunk);
+	last if (/^---\s/);
 	if (s/^[- ]//) {
 		print $tmp "$_\n";
 	}
