@@ -11,7 +11,7 @@ fi
 eval `resize`
 ORIG_COLUMNS=$COLUMNS
 if [ "x$COLUMNS" != "x70" ]; then
-	resize -s $LINES 70
+	resize -s $LINES 70 >/dev/null
 fi
 
 if [ "x$COLUMNS" != "x70" ]; then
