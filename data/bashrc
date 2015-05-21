@@ -10,6 +10,10 @@ alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
 alias tigs='tig v3.12..'
 
+alias cdl='cd ~/linux'
+alias cds='cd ~/tmp/stable-3.12'
+alias cdq='cd ~/repos/stable-queue/queue-3.14/'
+
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-3.14/"$1"
 }
