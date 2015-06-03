@@ -1,0 +1,20 @@
+#!/bin/bash
+
+DESK=`xdotool get_desktop`
+case $DESK in
+	0)
+	xdg-su -c 'cd; xterm -geometry 164x24+0+734 &
+		usleep 100000'
+	xterm -geometry 80x42+1432+513 &
+	;;
+	1)
+	;;
+	2)
+	xdg-su -u ku -c 'xterm -geometry 155x25+0+734 &
+		usleep 10000; xterm -geometry 80x42+940+500 &
+		usleep 20000; xterm -geometry 80x42+1432+500 &
+		usleep 30000; xterm -geometry 150x24+0+0 &
+		usleep 100000'
+	xterm -geometry +912+0 &
+	;;
+esac
