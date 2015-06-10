@@ -12,6 +12,8 @@ alias tigs='tig v3.12..'
 
 alias cdl='cd ~/linux'
 alias cds='cd ~/tmp/stable-3.12'
+alias cdsl='cd ~/repos/slaby-scripts/'
+alias cdsu='cd ~/repos/suse/kernel-source/'
 alias cdq='cd ~/repos/stable-queue/queue-3.14/'
 
 function stable_dry() {
