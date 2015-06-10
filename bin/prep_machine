@@ -46,7 +46,7 @@ sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	obs-service-recompress obs-service-set_version \
 	obs-service-source_validator obs-service-tar_scm \
 	obs-service-verify_file perl-File-Which \
-	perl-libwww-perl || :
+	perl-libwww-perl tig || :
 
 if [ $SCM -eq 1 ]; then
 	sudo zypper -v dup --from devel_tools_scm || :
