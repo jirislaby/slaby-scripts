@@ -8,6 +8,11 @@ case $DESK in
 	xterm -geometry 80x42+1432+513 &
 	;;
 	1)
+	xterm -geometry 80x42+940+500 &
+	usleep 10000; xterm -geometry 80x42+1432+500 &
+	usleep 20000; xterm -geometry 150x24+0+0 &
+	usleep 30000; xterm -geometry 150x24+0+346 &
+	usleep 40000; xterm -geometry 12x4+1840+0 -e 'cat .nopas; read' &
 	;;
 	2)
 	xdg-su -u ku -c 'xterm -geometry 155x25+0+734 &
