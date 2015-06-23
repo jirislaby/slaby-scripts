@@ -27,7 +27,7 @@ case "$VERSION" in
 		;;
 	esac
 	;;
-	11.4) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
+	11.[34]) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
 	      add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 	      add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
 	      SCM=1
