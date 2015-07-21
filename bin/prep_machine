@@ -12,6 +12,7 @@ function add_repo() {
 	sudo zypper ar -f "$1" 2>/dev/null || true
 }
 
+REMOUNT_DEV=0
 SCM=0
 
 for DEV in `ls -d /sys/class/net/*`; do
@@ -38,8 +39,11 @@ case "$VERSION" in
 	12) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
 	    add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12/devel:tools:scm.repo'
 	    add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12/SUSE:CA.repo'
-	    sudo mount -oremount,dev,suid /dev/shm
+	    REMOUNT_DEV=1
 	    SCM=1
+	;;
+	13.2\ *)
+	    REMOUNT_DEV=1
 	;;
 esac
 
@@ -50,6 +54,10 @@ sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	obs-service-source_validator obs-service-tar_scm \
 	obs-service-verify_file perl-File-Which \
 	perl-libwww-perl tig || :
+
+if [ $REMOUNT_DEV -eq 1 ]; then
+	sudo mount -oremount,dev,suid /dev/shm
+fi
 
 if [ $SCM -eq 1 ]; then
 	sudo zypper -v dup --from devel_tools_scm || :
