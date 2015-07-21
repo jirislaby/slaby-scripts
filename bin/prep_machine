@@ -56,7 +56,7 @@ sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	perl-libwww-perl tig || :
 
 if [ $REMOUNT_DEV -eq 1 ]; then
-	sudo mount -oremount,dev,suid /dev/shm
+	sudo mount -oremount,dev,suid tmpfs /dev/shm
 fi
 
 if [ $SCM -eq 1 ]; then
