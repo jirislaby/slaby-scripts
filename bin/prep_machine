@@ -14,8 +14,11 @@ function add_repo() {
 
 SCM=0
 
-sudo ip -6 r flush dev eth0
-sudo ip -6 a flush dev eth0
+for DEV in `ls -d /sys/class/net/*`; do
+	DEV=`basename $DEV`
+	sudo ip -6 r flush dev $DEV
+	sudo ip -6 a flush dev $DEV
+done
 sudo sed -i 's@nameserver.*:@@' /etc/resolv.conf
 
 case "$VERSION" in
