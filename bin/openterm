@@ -1,9 +1,12 @@
 #!/bin/bash
 
+KEY=`xauth list|grep \`uname -n\`|sed 's@.* @@'`
+
 DESK=`xdotool get_desktop`
 case $DESK in
 	0)
-	xdg-su -c 'cd; xterm -geometry 164x24+0+734 &
+	xdg-su -c "cd; unset XAUTHORITY; xauth add $DISPLAY . $KEY;"'
+		xterm -geometry 164x24+0+734 &
 		usleep 100000'
 	xterm -geometry 80x42+1432+513 &
 	;;
@@ -15,7 +18,8 @@ case $DESK in
 	usleep 40000; xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
 	;;
 	2)
-	xdg-su -u ku -c 'xterm -geometry 155x25+0+734 &
+	xdg-su -u ku -c "unset XAUTHORITY; xauth add $DISPLAY . $KEY;"'
+		xterm -geometry 155x25+0+734 &
 		usleep 10000; xterm -geometry 80x42+940+500 &
 		usleep 20000; xterm -geometry 80x42+1432+500 &
 		usleep 30000; xterm -geometry 150x24+0+0 &
