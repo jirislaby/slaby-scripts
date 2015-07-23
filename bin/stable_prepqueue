@@ -49,7 +49,7 @@ foreach my $patch (@ARGV) {
 	if (scalar @SHAs == 1) {
 		my @stabletags;
 		git_cmd_try {
-			@stabletags = grep(/^cc:.*stable@.*\sv?$newer/i,
+			@stabletags = grep(/^cc:.*stable@.*[\s#]v?$newer/i,
 				$srepo->command('show', '--format=%B', '-q',
 					$SHAs[0]));
 		} "SHA $SHAs[0] does not exist for $patch";
