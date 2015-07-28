@@ -52,7 +52,7 @@ sudo zypper -v in --no-rec ca-certificates-suse cscope dwarves quilt \
 	obs-service-download_files obs-service-format_spec_file \
 	obs-service-recompress obs-service-set_version \
 	obs-service-source_validator obs-service-tar_scm \
-	obs-service-verify_file perl-File-Which \
+	obs-service-verify_file perl-File-Which perl-XML-Writer \
 	perl-libwww-perl tig || :
 
 if [ $REMOUNT_DEV -eq 1 ]; then
