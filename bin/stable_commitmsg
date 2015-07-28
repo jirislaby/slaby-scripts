@@ -1,0 +1,35 @@
+#!/usr/bin/perl -w
+use strict;
+
+die "bad args" if (scalar @ARGV < 2);
+
+my $sha = shift @ARGV;
+my $amend = (scalar @ARGV > 1) ? shift @ARGV : undef;
+my $file = shift @ARGV;
+
+open(IN, "<$file") or die "cannot open $file for reading";
+my @lines;
+push @lines, scalar <IN>; # title
+push @lines, scalar <IN>; # empty
+push @lines, "commit $sha upstream.";
+push @lines, ''; # empty
+push @lines, <IN>;
+close IN;
+
+chomp @lines;
+
+while ($lines[-1] =~ /^#|(^$)/) {
+	pop @lines;
+}
+
+if (defined $amend) {
+	my $sob = pop @lines;
+	push @lines, $amend;
+	push @lines, $sob;
+}
+
+open(OUT, ">$file") or die "cannot open $file for writing";
+map { print OUT "$_\n"; } @lines;
+close OUT;
+
+1;

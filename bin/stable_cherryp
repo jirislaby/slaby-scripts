@@ -1,8 +1,11 @@
 #!/usr/bin/perl -w
 use strict;
 use Git;
+use Error qw(:try);
 
 my $repo = Git->repository();
+
+my $amend = (scalar @ARGV > 0) ? shift @ARGV : undef;
 
 while (my $SHA=<>) {
 	chomp $SHA;
@@ -13,9 +16,16 @@ while (my $SHA=<>) {
 
 	$repo->command_noisy('describe', '--exact-match', '--contains', $SHA);
 
-	$ENV{'EDITOR'} = qq(sed -i '3 s/^/commit $SHA upstream.\\n\\n/');
-	print scalar($repo->command_oneline('cherry-pick', '-s', '-e', $SHA)),
-	      "\n";
+	$ENV{'EDITOR'} = qq(stable_commitmsg $SHA '$amend');
+	try {
+		print scalar($repo->command_oneline('cherry-pick', '-s', '-e', $SHA)),
+		      "\n";
+	} catch Git::Error::Command with {
+		my $E = shift;
+		die "cherry-pick failed with " . $E->value() . "\n" .
+			"after fixing up, run:\n" .
+			qq(EDITOR="$ENV{'EDITOR'}" git commit\n);
+	}
 }
 
 1;
