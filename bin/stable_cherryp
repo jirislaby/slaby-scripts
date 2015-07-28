@@ -5,7 +5,7 @@ use Error qw(:try);
 
 my $repo = Git->repository();
 
-my $amend = (scalar @ARGV > 0) ? shift @ARGV : undef;
+my $amend = (scalar @ARGV > 0) ? ("'" . shift(@ARGV) . "'") : '';
 
 while (my $SHA=<>) {
 	chomp $SHA;
@@ -16,7 +16,7 @@ while (my $SHA=<>) {
 
 	$repo->command_noisy('describe', '--exact-match', '--contains', $SHA);
 
-	$ENV{'EDITOR'} = qq(stable_commitmsg $SHA '$amend');
+	$ENV{'EDITOR'} = qq(stable_commitmsg $SHA $amend);
 	try {
 		print scalar($repo->command_oneline('cherry-pick', '-s', '-e', $SHA)),
 		      "\n";
