@@ -45,5 +45,5 @@ imap <C-K> <Esc>lc<End>
 imap <C-U> <Esc>ld<Home>
 map <C-K> d<End>
 map <C-U> d<Home>
-map <C-N> ?^@@<CR>V/^@@<CR>:s/^[- ]//n<CR><C-O><C-O>
-map <C-M> ?^@@<CR>V/^@@<CR>:s/^[+ ]//n<CR><C-O><C-O>
+map <C-N> ?^@@<CR>V/^@@\\|\\%$<CR>:s/^[- ]//n<CR>
+map <C-M> ?^@@<CR>V/^@@\\|\\%$<CR>:s/^[+ ]//n<CR>
