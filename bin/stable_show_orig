@@ -6,6 +6,8 @@ use StableHelper;
 my $editor = $ENV{'EDITOR'} || 'vim';
 my $file = $ARGV[0];
 
+die "'$file' does not exist" unless (-f $file);
+
 my $repo = Git->repository(Directory => '/home/latest/linux');
 
 my @lines = <>;
