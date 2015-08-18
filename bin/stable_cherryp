@@ -24,7 +24,7 @@ while (my $SHA=<>) {
 		my $E = shift;
 		die "cherry-pick failed with " . $E->value() . "\n" .
 			"after fixing up, run:\n" .
-			qq(EDITOR="$ENV{'EDITOR'}" git commit\n);
+			qq(EDITOR="$ENV{'EDITOR'}" git commit -a\n);
 	}
 }
 
