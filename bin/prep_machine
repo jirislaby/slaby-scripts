@@ -15,11 +15,13 @@ function add_repo() {
 REMOUNT_DEV=0
 SCM=0
 
-for DEV in `ls -d /sys/class/net/*`; do
-	DEV=`basename $DEV`
-	sudo ip -6 r flush dev $DEV
-	sudo ip -6 a flush dev $DEV
-done
+if ! mount | grep -q 'addr=[^,]*:[^,]*:'; then
+	for DEV in `ls -d /sys/class/net/*`; do
+		DEV=`basename $DEV`
+		sudo ip -6 r flush dev $DEV
+		sudo ip -6 a flush dev $DEV
+	done
+fi
 sudo sed -i 's@nameserver.*:@@' /etc/resolv.conf
 
 case "$VERSION" in
