@@ -49,7 +49,7 @@ case "$VERSION" in
 	;;
 esac
 
-sudo zypper -v --gpg-auto-import-keys in --no-rec \
+sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	ca-certificates-suse cscope dwarves quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-format_spec_file \
