@@ -52,7 +52,8 @@ esac
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	ca-certificates-suse cscope quilt \
 	osc build gcc git-core make \
-	obs-service-download_files obs-service-format_spec_file \
+	obs-service-download_files obs-service-download_url \
+	obs-service-format_spec_file \
 	obs-service-recompress obs-service-set_version \
 	obs-service-source_validator obs-service-tar_scm \
 	obs-service-verify_file perl-Config-IniFiles perl-File-Which \
