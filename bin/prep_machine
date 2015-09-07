@@ -68,5 +68,5 @@ if [ $REMOUNT_DEV -eq 1 ]; then
 fi
 
 if [ $SCM -eq 1 ]; then
-	sudo zypper -v dup --from devel_tools_scm || :
+	sudo zypper -v -n dup --from devel_tools_scm || :
 fi
