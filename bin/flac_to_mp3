@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for FLAC in $@; do
+	flac -d "$FLAC" -s -c | \
+		lame -V0 -m stereo - -o "${FLAC%.flac}.mp3" &
+done
+
+wait
