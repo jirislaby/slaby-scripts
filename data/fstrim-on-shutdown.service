@@ -5,7 +5,7 @@ Description=Execute fstrim / on shutdown
 Type=oneshot
 RemainAfterExit=true
 ExecStart=/bin/true
-ExecStop=fstrim /
+ExecStop=/usr/sbin/fstrim -a
 
 [Install]
 WantedBy=multi-user.target
