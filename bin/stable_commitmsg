@@ -13,7 +13,7 @@ push @lines, scalar <IN>; # title
 push @lines, scalar <IN>; # empty
 push @lines, "commit $sha upstream.";
 push @lines, ''; # empty
-push @lines, <IN>;
+push @lines, map { /^C[Cc]:\s+.*stable\@.*kernel.org/ ? () : ($_) } <IN>;
 close IN;
 
 chomp @lines;
