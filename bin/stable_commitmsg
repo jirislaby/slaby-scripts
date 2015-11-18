@@ -1,11 +1,15 @@
 #!/usr/bin/perl -w
 use strict;
+use Data::Dumper;
 
 die "bad args" if (scalar @ARGV < 2);
 
 my $sha = shift @ARGV;
 my $amend = (scalar @ARGV > 1) ? shift @ARGV : undef;
 my $file = shift @ARGV;
+my $debugfile = $ENV{'STABLE_DEBUG'} ? "/tmp/stable_debug" : "/dev/null";
+
+open(DBG, ">$debugfile") or die "cannot open $debugfile for writing";
 
 open(IN, "<$file") or die "cannot open $file for reading";
 my @lines;
@@ -18,9 +22,16 @@ close IN;
 
 chomp @lines;
 
+print DBG "===== before proc:\n";
+print DBG Dumper(@lines);
+print DBG "===== proc:\n";
+
 while ($lines[-1] =~ /^#|(^$)/) {
+	print DBG "popping '$lines[-1]'\n";
 	pop @lines;
 }
+
+print DBG "topmost '$lines[-1]'\n";
 
 push @lines, $amend if (defined $amend);
 push @lines, 'Signed-off-by: Jiri Slaby <jslaby@suse.cz>';
@@ -28,5 +39,9 @@ push @lines, 'Signed-off-by: Jiri Slaby <jslaby@suse.cz>';
 open(OUT, ">$file") or die "cannot open $file for writing";
 map { print OUT "$_\n"; } @lines;
 close OUT;
+
+print DBG "===== after proc:\n";
+print DBG Dumper(@lines);
+close DBG;
 
 1;
