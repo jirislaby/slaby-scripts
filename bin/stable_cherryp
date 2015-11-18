@@ -18,7 +18,7 @@ while (my $SHA=<>) {
 
 	$ENV{'EDITOR'} = qq(stable_commitmsg $SHA $amend);
 	try {
-		print scalar($repo->command_oneline('cherry-pick', '-s', '-e', $SHA)),
+		print scalar($repo->command_oneline('cherry-pick', '-e', $SHA)),
 		      "\n";
 	} catch Git::Error::Command with {
 		my $E = shift;

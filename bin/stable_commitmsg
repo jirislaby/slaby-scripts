@@ -22,11 +22,8 @@ while ($lines[-1] =~ /^#|(^$)/) {
 	pop @lines;
 }
 
-if (defined $amend) {
-	my $sob = pop @lines;
-	push @lines, $amend;
-	push @lines, $sob;
-}
+push @lines, $amend if (defined $amend);
+push @lines, 'Signed-off-by: Jiri Slaby <jslaby@suse.cz>';
 
 open(OUT, ">$file") or die "cannot open $file for writing";
 map { print OUT "$_\n"; } @lines;
