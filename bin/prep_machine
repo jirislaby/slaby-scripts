@@ -50,7 +50,7 @@ case "$VERSION" in
 esac
 
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
-	ca-certificates-suse cscope quilt \
+	cscope quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-download_url \
 	obs-service-format_spec_file \
@@ -59,6 +59,9 @@ sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	obs-service-verify_file perl-Config-IniFiles perl-File-Which \
 	perl-XML-Writer \
 	perl-libwww-perl tig || :
+
+sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
+	ca-certificates-suse || :
 
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	dwarves || :
