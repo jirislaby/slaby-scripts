@@ -12,8 +12,9 @@ my $outdir = $ARGV[0];
 my $nrelease = $ARGV[1];
 my $SHA = $ARGV[2] || "HEAD";
 
-die unless ($nrelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
-my $orelease = $1 . ($2 - 1);
+die 'bad revision' unless ($nrelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
+my $sublevel = $2;
+my $orelease = $1 . ($sublevel - 1);
 
 my $repo = Git->repository();
 
@@ -22,9 +23,9 @@ my $topcommit_expected = "Linux $nrelease\n";
 
 if ($topcommit ne $topcommit_expected) {
 	$topcommit =~ s/\n.*//s;
-	die "bad topmost commit\n" .
-		"\texpected: $topcommit_expected" .
-		"\tis:       $topcommit\n";
+	system ('sed', '-i', "s|\\(SUBLEVEL = \\).*|\\1$sublevel|", 'Makefile') == 0 ||
+		die 'cannot set SUBLEVEL in Makefile';
+	$repo->command_noisy('commit', '-m', $topcommit_expected, 'Makefile');
 }
 
 my $patch = "/tmp/patch-$nrelease$rc";
