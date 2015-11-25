@@ -5,6 +5,7 @@ alias san='ssh anemoi -X'
 
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
+alias oscss='osc service remoterun home:jirislaby slaby-scripts'
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
