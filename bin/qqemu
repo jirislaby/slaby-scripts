@@ -13,10 +13,10 @@ FILE=$1
 shift
 WIN=0
 FACT=0
-if [ echo "$FILE" | grep -q win ]; then
+if echo "$FILE" | grep -q win; then
 	WIN=1
 fi
-if [ echo "$FILE" | grep -q fact ]; then
+if echo "$FILE" | grep -q fact; then
 	FACT=1
 fi
 
