@@ -1,7 +1,19 @@
 #!/bin/bash
 
+for S in series series.conf; do
+	if [ -f "$S" ]; then
+		SERIES="$S"
+		break
+	fi
+done
+
+if [ -z "$SERIES" ]; then
+	echo no series file
+	exit 1
+fi
+
 for file in $@; do
 	git rm "$file"
-	grep -v "^$file$" series > series1
-	mv series1 series
+	grep -v "^$file$" "$SERIES" > series1
+	mv series1 "$SERIES"
 done
