@@ -14,6 +14,6 @@ fi
 
 for file in $@; do
 	git rm "$file"
-	grep -v "^$file$" "$SERIES" > series1
+	grep -v "^\s*$file$" "$SERIES" > series1
 	mv series1 "$SERIES"
 done
