@@ -7,7 +7,7 @@ die "invalid arguments" if (scalar @ARGV < 2);
 
 my $repo = Git->repository();
 my @files = $repo->command('format-patch',
-		'--subject-prefix=patch added to the 3.12 stable tree',
+		'--subject-prefix=patch added to 3.12-stable',
 		'-N', '-M', "-o$ARGV[0]", $ARGV[1]);
 
 foreach my $file (@files) {
