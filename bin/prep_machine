@@ -24,12 +24,15 @@ if ! mount | grep -q 'addr=[^,]*:[^,]*:'; then
 fi
 sudo sed -i 's@nameserver.*:@@' /etc/resolv.conf
 
+QEMU=qemu-kvm
+
 case "$VERSION" in
 	11) case "$PATCHLEVEL" in
 		3) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
 		   add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 		   add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
 		   SCM=1
+		   QEMU=kvm
 		;;
 	esac
 	;;
@@ -37,6 +40,7 @@ case "$VERSION" in
 	      add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 	      add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
 	      SCM=1
+	      QEMU=kvm
 	;;
 	12|12.1|12-SP1) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
 	    add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12/devel:tools:scm.repo'
@@ -50,7 +54,7 @@ case "$VERSION" in
 esac
 
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
-	cscope qemu quilt \
+	cscope $QEMU quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-download_url \
 	obs-service-format_spec_file \
