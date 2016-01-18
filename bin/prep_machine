@@ -50,7 +50,7 @@ case "$VERSION" in
 esac
 
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
-	cscope quilt \
+	cscope qemu quilt \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-download_url \
 	obs-service-format_spec_file \
