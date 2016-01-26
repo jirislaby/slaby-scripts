@@ -10,7 +10,32 @@ my $sdir = shift @ARGV;
 my $srepo = Git->repository($sdir);
 my $repo = Git->repository();
 my $newer = qr/3\.(1[3-9]|[2-9][0-9])|[4-9]\.|[1-9][0-9]\./;
+my $first_git = "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2";
 my $myver = '3.12';
+
+print "Parsing full history up to v$myver\n";
+
+my %full_history;
+my $full_history_file = "/tmp/full-hist-$myver";
+if (-f "$full_history_file") {
+	print "\t... from cache $full_history_file\n";
+	open(HIST, "<$full_history_file") or die "cannot open $full_history_file for r";
+	%full_history = map {
+		chomp;
+		$_ => 1
+	} <HIST>;
+	close HIST;
+} else {
+	open(HIST, ">$full_history_file") or die "cannot open $full_history_file for w";
+	%full_history = map {
+		chomp;
+		print HIST "$_\n";
+		$_ => 1
+	} $srepo->command('rev-list', "$first_git..v$myver");
+	close HIST;
+}
+
+print "Parsing history v$myver..stable-$myver\n";
 
 my @history = $srepo->command('log', '--format=%B', "v$myver..stable-$myver");
 @history = StableHelper::get_upstream_commits(@history);
@@ -28,7 +53,10 @@ sub remove($$) {
 	push @removed, $file;
 }
 
+print "Parsing ", scalar @ARGV, " patches\n";
+
 foreach my $patch (@ARGV) {
+	print "  Handling $patch\n";
 	open(FILE, "<", $patch) || die "cannot open $patch";
 	my @header = ();
 	while (my $line = <FILE>) {
@@ -66,12 +94,12 @@ foreach my $patch (@ARGV) {
 		foreach my $fix (@fixes) {
 			$fix = $srepo->command_oneline('rev-parse', $fix);
 			if (exists $history{$fix}) {
+				print "\tFixes stable history\n";
 				$remove = 0;
 				last;
 			}
-			my $desc = $srepo->command_oneline('describe',
-					'--exact-match', '--contains', $fix);
-			if ($desc !~ /^v$newer/) {
+			if (defined $full_history{$fix}) {
+				print "\tFixes full history\n";
 				$remove = 0;
 				last;
 			}
@@ -86,6 +114,8 @@ foreach my $patch (@ARGV) {
 		$localSHAs{$sha} = $patch;
 	}
 }
+
+print "Removing\n";
 
 whole:
 foreach my $patch (keys %maybe_remove) {
@@ -107,6 +137,8 @@ if (scalar keys %further) {
 }
 
 my $rmregexp = join '|', @removed;
+
+print "Updating series\n";
 
 open(FILE, "<", "series") || die "cannot open series for r";
 my @series = <FILE>;
