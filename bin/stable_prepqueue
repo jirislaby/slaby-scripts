@@ -92,7 +92,14 @@ foreach my $patch (@ARGV) {
 	if (scalar @fixes) {
 		my $remove = 1;
 		foreach my $fix (@fixes) {
-			$fix = $srepo->command_oneline('rev-parse', $fix);
+			my $bad = 0;
+			try {
+				$fix = $srepo->command_oneline('rev-parse', $fix);
+			} catch Git::Error::Command with {
+				print "\tBad fixes SHA: $fix\n";
+				$bad = 1;
+			};
+			next if $bad;
 			if (exists $history{$fix}) {
 				print "\tFixes stable history\n";
 				$remove = 0;
