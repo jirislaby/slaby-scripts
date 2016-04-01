@@ -31,22 +31,27 @@ case "$VERSION" in
 		3) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
 		   add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
 		   add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
+		   add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_11_SP4/home:jirislaby:arch-preinstall.repo'
 		   SCM=1
 		   QEMU=kvm
 		;;
 	esac
 	;;
-	11.[34]) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
-	      add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
-	      add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
-	      SCM=1
-	      QEMU=kvm
+	11.[34])
+		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SUSE_SLE-11-SP3_Update/SUSE:Tools.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_11_SP3/devel:tools:scm.repo'
+		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_11_SP3/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_11_SP4/home:jirislaby:arch-preinstall.repo'
+		SCM=1
+		QEMU=kvm
 	;;
-	12|12.1|12-SP1) add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-	    add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12/devel:tools:scm.repo'
-	    add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12/SUSE:CA.repo'
-	    REMOUNT_DEV=1
-	    SCM=1
+	12|12.1|12-SP1)
+		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12/devel:tools:scm.repo'
+		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP1/home:jirislaby:arch-preinstall.repo'
+		REMOUNT_DEV=1
+		SCM=1
 	;;
 	13.2\ *)
 	    REMOUNT_DEV=1
