@@ -1,9 +1,12 @@
 #!/bin/sh
 
 USER=jslaby
+SSH=ssh -CX -o StrictHostKeyChecking=no
 
-while getopts "r" OPT; do
+while getopts "mr" OPT; do
 	case "$OPT" in
+		m) SSH=mosh
+		;;
 		r) USER=root
 		;;
 	esac
@@ -30,4 +33,4 @@ ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
-ssh -CX -o StrictHostKeyChecking=no "$USER@$IP" $@
+$SSH "$USER@$IP" $@
