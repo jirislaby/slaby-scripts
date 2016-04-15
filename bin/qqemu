@@ -32,7 +32,7 @@ DRIVE="-drive file=$FILE"
 if [ $QEMU_MAJOR -ge 2 ]; then
 	DRIVE="$DRIVE,discard=unmap"
 	if [ $WIN = 0 ]; then
-		DRIVE="$DRIVE,if=virtio"
+		DRIVE="$DRIVE,if=none,id=hd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd"
 	fi
 fi
 
