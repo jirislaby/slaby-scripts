@@ -1,7 +1,7 @@
 #!/bin/sh
 
 USER=jslaby
-SSH=ssh -CX -o StrictHostKeyChecking=no
+SSH='ssh -CX -o StrictHostKeyChecking=no'
 
 while getopts "mr" OPT; do
 	case "$OPT" in
