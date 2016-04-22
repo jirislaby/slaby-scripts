@@ -70,7 +70,7 @@ QEMU_ARGS="-k en-us $SMP $MEM -usb -device virtio-rng-pci $DRIVE $SOUND"
 if [ $WIN = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::$((3389+$N_INSTANCES))-:3389 -net nic,model=rtl8139 -localtime"
 else
-	QEMU_ARGS="$QEMU_ARGS -net user,hostfwd=tcp::$((2222+$N_INSTANCES))-:22,hostfwd=tcp::$((3632+$N_INSTANCES))-:3632 -net nic,model=virtio -serial pty -balloon virtio"
+	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::$((2222+$N_INSTANCES))-:22,hostfwd=tcp::$((3632+$N_INSTANCES))-:3632 -net nic,model=virtio -serial pty -balloon virtio"
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci"
