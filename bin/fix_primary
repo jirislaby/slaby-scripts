@@ -4,4 +4,8 @@ xrandr --noprimary
 killall plasmashell
 plasmashell >/dev/null 2>&1 &
 sleep 5
-xrandr --output LVDS1 --primary
+if xrandr | grep -q LVDS-1; then
+	xrandr --output LVDS-1 --primary
+else
+	xrandr --output LVDS1 --primary
+fi
