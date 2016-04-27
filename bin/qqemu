@@ -18,17 +18,21 @@ FILE=$1
 shift
 WIN=0
 FACT=0
+RAW=""
 if echo "$FILE" | grep -q win; then
 	WIN=1
 fi
 if echo "$FILE" | grep -q fact; then
 	FACT=1
 fi
+if echo "$FILE" | grep -q '\.img$'; then
+	RAW=",format=raw"
+fi
 
 QEMU_VER=`qemu-kvm --version | sed 's@.*version \([0-9.]*\),.*@\1@'`
 QEMU_MAJOR=${QEMU_VER%%.*}
 
-DRIVE="-drive file=$FILE"
+DRIVE="-drive file=$FILE$RAW"
 if [ $QEMU_MAJOR -ge 2 ]; then
 	DRIVE="$DRIVE,discard=unmap"
 	if [ $WIN = 0 ]; then
