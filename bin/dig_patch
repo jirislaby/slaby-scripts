@@ -18,6 +18,9 @@ open(P, "patch --dry-run -f -p1 -i '$patch' |") or
 	die "patch failed to execute: $!";
 while (<P>) {
 	chomp;
+	if (/^No file to patch\./) {
+		die "the file does not exist";
+	}
 	if (/^(checking|patching) file (.*)$/) {
 		$file = $2;
 		next;
