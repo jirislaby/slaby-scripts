@@ -7,8 +7,9 @@ alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
 alias oscss='osc service remoterun home:jirislaby slaby-scripts'
 
+alias gde='git describe --contains --exact-match'
+alias gpl='git pull --rebase'
 alias gru='git remote update'
-alias gpull='git pull --rebase'
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
