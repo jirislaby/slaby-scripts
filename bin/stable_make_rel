@@ -19,6 +19,11 @@ if [ "x$COLUMNS" != "x70" ]; then
 	exit 1
 fi
 
+function finish {
+	resize -s $LINES $ORIG_COLUMNS >/dev/null
+}
+trap finish EXIT
+
 RELEASE=$1
 RELNO=${RELEASE##*.}
 LASTREL=${RELEASE%.[0-9]*}.$(($RELNO-1))
@@ -36,5 +41,3 @@ while [ $ATTEMPT -lt 30 ]; do
 	ATTEMPT=$(($ATTEMPT+1))
 done
 git request-pull "v$LASTREL" "$REMOTE_REPO" "v$RELEASE"
-
-resize -s $LINES $ORIG_COLUMNS >/dev/null
