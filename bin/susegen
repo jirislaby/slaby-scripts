@@ -36,7 +36,14 @@ for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
 	MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
 	sed -ni "2,$ p" $patch
-	if ! echo "$MAINLINE"|grep -q undefined; then
+	if echo "$MAINLINE" | grep -q undefined; then
+		if [ "`git branch -r --contains $SHA linus/master`" = "  linus/master" ]; then
+			MAINLINE="no tag yet"
+		else
+			MAINLINE=""
+		fi
+	fi
+	if [ -n "$MAINLINE" ]; then
 		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $MAINLINE/" $patch
 	fi
 done
