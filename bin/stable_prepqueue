@@ -32,6 +32,8 @@ if (-f "$full_history_file") {
 		print HIST "$_\n";
 		$_ => 1
 	} $srepo->command('rev-list', "$first_git..v$myver");
+	print HIST "$first_git\n";
+	$full_history{$first_git} = 1;
 	close HIST;
 }
 
