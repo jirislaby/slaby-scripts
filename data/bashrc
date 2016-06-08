@@ -8,7 +8,7 @@ alias oscp='osc -A https://pmbs-api.links2linux.org'
 alias oscss='osc service remoterun home:jirislaby slaby-scripts'
 
 alias gde='git describe --contains --exact-match'
-alias gpl='git pull --rebase'
+alias gpr='git pull --rebase'
 alias gru='git remote update'
 
 alias tigl='tig -1000'
