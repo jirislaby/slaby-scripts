@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for FLAC in $@; do
-	flac -d "$FLAC" -s -c | \
+	flac -d -F -s -c "$FLAC" | \
 		lame -V0 -m stereo - -o "${FLAC%.flac}.mp3" &
 done
 
