@@ -5,7 +5,7 @@ use File::Which qw/which/;
 
 die 'bad params' if (scalar @ARGV != 1);
 
-my $stable_path = '/home/latest/repos/stable-queue/queue-3.14/';
+my $stable_path = '/home/latest/repos/stable-queue/queue-4.4/';
 my $patch = $ARGV[0];
 my $file;
 my $hunk;

@@ -19,10 +19,10 @@ alias cdl='cd ~/linux'
 alias cds='cd ~/tmp/stable-3.12'
 alias cdsl='cd ~/repos/slaby-scripts/'
 alias cdsu='cd ~/repos/suse/kernel-source/'
-alias cdq='cd ~/repos/stable-queue/queue-3.14/'
+alias cdq='cd ~/repos/stable-queue/queue-4.4/'
 alias cdx='cd ~/repos/xf86-video-intel/'
 alias cdk='cd ~/kernel-source'
 
 function stable_dry() {
-	patch --dry-run -p1 -i ~/repos/stable-queue/queue-3.14/"$1"
+	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.4/"$1"
 }
