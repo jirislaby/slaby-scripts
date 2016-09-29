@@ -29,7 +29,7 @@ if echo "$FILE" | grep -q '\.img$'; then
 	RAW=",format=raw"
 fi
 
-QEMU_VER=`qemu-kvm --version | sed 's@.*version \([0-9.]*\)[ ,].*@\1@'`
+QEMU_VER=`qemu-kvm --version | sed 's@.*version \([0-9.]*\)[ ,(].*@\1@'`
 QEMU_MAJOR=${QEMU_VER%%.*}
 
 DRIVE="-drive file=$FILE$RAW"
