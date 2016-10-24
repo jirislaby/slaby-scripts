@@ -17,10 +17,14 @@ fi
 FILE=$1
 shift
 WIN=0
+NBSD=0
 FACT=0
 RAW=""
 if echo "$FILE" | grep -q win; then
 	WIN=1
+fi
+if echo "$FILE" | grep -q nbsd; then
+	NBSD=1
 fi
 if echo "$FILE" | grep -q fact; then
 	FACT=1
@@ -35,7 +39,7 @@ QEMU_MAJOR=${QEMU_VER%%.*}
 DRIVE="-drive file=$FILE$RAW"
 if [ "$QEMU_MAJOR" -ge 2 ]; then
 	DRIVE="$DRIVE,discard=unmap"
-	if [ $WIN = 0 ]; then
+	if [ $WIN = 0 -a $NBSD = 0]; then
 		DRIVE="$DRIVE,if=none,id=hd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd"
 	fi
 fi
