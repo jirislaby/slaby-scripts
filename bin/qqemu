@@ -72,13 +72,20 @@ if [ -f /proc/asound/cards ]; then
 	fi
 fi
 
-N_INSTANCES=`pidof qemu-system-x86_64|wc -w`
+function find_free_port() {
+	FREE_PORT="$1"
+	while :; do
+		/usr/sbin/ss -tnl "sport = $FREE_PORT" | grep -q ":$FREE_PORT\>" || break
+		FREE_PORT=$((FREE_PORT+1))
+	done
+	echo "$FREE_PORT"
+}
 
 QEMU_ARGS="-k en-us $SMP $MEM -usb -device virtio-rng-pci $DRIVE $SOUND"
 if [ $WIN = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::$((3389+$N_INSTANCES))-:3389 -net nic,model=rtl8139 -localtime"
+	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -localtime"
 else
-	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::$((2222+$N_INSTANCES))-:22,hostfwd=tcp::$((3632+$N_INSTANCES))-:3632 -net nic,model=virtio -serial pty -balloon virtio"
+	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial pty -balloon virtio"
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -vga virtio"
