@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+use strict;
+use Getopt::Long;
+
+system('cdda2wav -D/dev/sr0 -B -L 0');
+
+my %overr;
+my $iconv;
+
+GetOptions('album=s' => \$overr{Album},
+	"author=s" => \$overr{Performer},
+	"year=i" => \$overr{DYEAR},
+	"iconv=s" => \$iconv
+) or die "bad arguments";
+
+my %inf;
+
+open FILE, "audio.cddb" or die "Error opening inf file: $!";
+while (<FILE>)
+{
+	chomp;
+	next if (($_ =~ /^\s*#/) or ($_ !~ /\=/));
+
+	$_ =~ s/\s*$//;
+	$_ =~ /^\s*([^=]*)\s*=\s*'?([^']*)'?$/;
+
+	if (defined $iconv) {
+		$inf{$1} = `echo -n "$2" | iconv -f "$iconv"`;
+	} else {
+		$inf{$1} = $2;
+	}
+}
+close FILE;
+
+if ($inf{DTITLE} =~ m#(.*) / (.*)#) {
+	$inf{Performer} = $1;
+	$inf{Album} = $2;
+} else {
+	$inf{Performer} = "";
+	$inf{Album} = $inf{DTITLE};
+}
+
+foreach (keys %overr) {
+	next unless defined $overr{$_};
+	print "$_ -> $overr{$_}\n";
+	$inf{$_} = $overr{$_};
+}
+
+my $tn = 0;
+
+foreach my $wav (<audio_*.wav>) {
+	$wav =~ s/wav$//;
+
+	my $tt = $inf{"TTITLE$tn"};
+	my $ta = $inf{Performer};
+	my $tl = $inf{Album};
+	my $ty = $inf{DYEAR};
+	$tn++;
+
+	my $mp3name = sprintf "track%.2d.mp3", $tn;
+
+	print "laming title='$tt' author='$ta' album='$tl' year='$ty' track='$tn'\n";
+	system(qq(nice lame --nohist -V0 --vbr-new -m stereo --id3v2-only --tt "$tt" --ta "$ta" --tl "$tl" --ty "$ty" --tn "$tn" ${wav}wav $mp3name &));
+}
