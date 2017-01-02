@@ -81,7 +81,8 @@ sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	obs-service-format_spec_file \
 	obs-service-recompress obs-service-set_version \
 	obs-service-source_validator obs-service-tar_scm \
-	obs-service-verify_file perl-Config-IniFiles perl-File-Which \
+	obs-service-verify_file openssl-devel \
+	perl-Config-IniFiles perl-File-Which \
 	perl-XML-Writer \
 	perl-libwww-perl tig || :
 
