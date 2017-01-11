@@ -99,9 +99,11 @@ foreach my $patch (@ARGV) {
 				$fix = $srepo->command_oneline('rev-parse', $fix);
 			} catch Git::Error::Command with {
 				print "\tBad fixes SHA: $fix\n";
+				print "\tNot removing\n";
+				$remove = 0;
 				$bad = 1;
 			};
-			next if $bad;
+			last if $bad;
 			if (exists $history{$fix}) {
 				print "\tFixes stable history\n";
 				$remove = 0;
