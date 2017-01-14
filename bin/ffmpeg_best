@@ -10,4 +10,4 @@ DST="$2"
 shift
 shift
 
-echo ffmpeg -i "$SRC" $@ -c:v libx264 -crf 18 -preset:v slow -vf hqdn3d -c:a libfdk_aac -vbr 3 "$DST"
+ffmpeg -i "$SRC" $@ -c:v libx264 -crf 18 -preset:v slow -vf hqdn3d -c:a libfdk_aac -vbr 3 "$DST"
