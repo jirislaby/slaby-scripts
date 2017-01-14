@@ -12,6 +12,28 @@ my $repo = Git->repository();
 my $newer = qr/3\.(1[3-9]|[2-9][0-9])|[4-9]\.|[1-9][0-9]\./;
 my $first_git = "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2";
 my $myver = '3.12';
+my $renames = "/usr/share/slaby-scripts/renames-$myver";
+my %renames;
+
+print "Parsing renames for v$myver\n";
+if (-f $renames) {
+	open(REN, "<$renames") or die "cannot open $renames";
+	while (<REN>) {
+		chomp;
+		next if /^#/;
+		die "bad format of renames" unless /^(.*){(.*) => (.*)}(.*)$/;
+		my $from = $1 . $2 . $4;
+		my $to = $1 . $3 . $4;
+
+		$from =~ s@//@/@g;
+		$to =~ s@//@/@g;
+
+		$renames{$to} = $from;
+	}
+	close REN;
+} else {
+	print "\tNo renames at $renames\n"
+}
 
 print "Parsing full history up to v$myver\n";
 
@@ -44,10 +66,11 @@ my @history = $srepo->command('log', '--format=%B', "v$myver..stable-$myver");
 my %history;
 @history{@history} = undef;
 
-my %further;
+my %remaining;
 my %maybe_remove;
 my %localSHAs;
 my @removed;
+my %header_off;
 
 sub remove($$) {
 	my ($msg, $file) = @_;
@@ -67,6 +90,8 @@ foreach my $patch (@ARGV) {
 		push @header, $line;
 	}
 	close FILE;
+
+	$header_off{$patch} = scalar @header;
 
 	# remove duplicates
 	my @SHAs = StableHelper::get_upstream_commits(@header);
@@ -120,7 +145,7 @@ foreach my $patch (@ARGV) {
 		}
 	}
 
-	$further{$patch} = 1;
+	$remaining{$patch} = 1;
 	foreach my $sha (@SHAs) {
 		$localSHAs{$sha} = $patch;
 	}
@@ -139,12 +164,33 @@ foreach my $patch (keys %maybe_remove) {
 	}
 
 	remove("FIX", $patch);
-	delete $further{$patch};
+	delete $remaining{$patch};
 }
 
-if (scalar keys %further) {
-	system('sed', '-i', 's#Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>#Signed-off-by: Jiri Slaby <jslaby@suse.cz>#',
-		keys %further) == 0 or die "cannot exec sed";
+print "Mangling patches (s-o-b, renames, ...)\n";
+
+foreach my $patch (keys %remaining) {
+	open(FILE, "<", $patch) || die "cannot open $patch for r";
+	my @file = <FILE>;
+	close FILE;
+
+	for (my $i = $header_off{$patch}; $i >= 0; $i--) {
+		last if ($file[$i] =~ s#Signed-off-by: Greg Kroah-Hartman <gregkh\@linuxfoundation.org>#Signed-off-by: Jiri Slaby <jslaby\@suse.cz>#);
+	}
+
+	foreach (@file) {
+		next unless (/^(?:--- a\/|\+\+\+ b\/)(.*)$/);
+		if (defined $renames{$1}) {
+			print "P $patch\n";
+			print "\twas=  $_";
+			substr($_, 6) = $renames{$1} . "\n";
+			print "\tfinal=$_";
+		}
+	}
+
+	open(FILE, ">", $patch) || die "cannot open $patch for w";
+	map { print FILE } @file;
+	close FILE;
 }
 
 my $rmregexp = join '|', @removed;
