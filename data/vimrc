@@ -1,6 +1,7 @@
 set background=dark
 set hlsearch
 set aw
+set t_BE=
 
 if has("cscope") && filereadable("/usr/bin/cscope")
    set csprg=/usr/bin/cscope
