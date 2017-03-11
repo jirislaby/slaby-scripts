@@ -911,6 +911,7 @@ drivers/pinctrl/{ => samsung}/pinctrl-s3c64xx.c
 drivers/pinctrl/{ => samsung}/pinctrl-samsung.c
 drivers/pinctrl/{ => samsung}/pinctrl-samsung.h
 drivers/pinctrl/{ => sunxi}/pinctrl-sunxi.c
+drivers/scsi/{device_handler => }/scsi_dh.c
 drivers/s390/{kvm => virtio}/Makefile
 drivers/s390/{kvm => virtio}/kvm_virtio.c
 drivers/s390/{kvm => virtio}/virtio_ccw.c
