@@ -81,9 +81,14 @@ function find_free_port() {
 	echo "$FREE_PORT"
 }
 
-QEMU_ARGS="-k en-us $SMP $MEM -usb -device virtio-rng-pci $DRIVE $SOUND"
+if which spicy >/dev/null 2>&1 ; then
+	SPICE_PORT=`find_free_port 5924`
+	SPICE="-spice port=$SPICE_PORT,disable-ticketing -device virtio-serial -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
+fi
+
+QEMU_ARGS="-k en-us $SMP $MEM -usb -device virtio-rng-pci $DRIVE $SOUND $SPICE"
 if [ $WIN = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -localtime"
+	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -localtime -vga qxl"
 else
 	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial pty -balloon virtio"
 fi
@@ -97,12 +102,17 @@ QEMU_RUN="qemu-kvm $QEMU_ARGS"
 echo $QEMU_RUN "$@"
 
 if [ $WIN = 1 ]; then
-	exec $QEMU_RUN "$@"
+	if [ -n "$SPICE_PORT" ]; then
+		$QEMU_RUN -daemonize "$@"
+		exec spicy -p $SPICE_PORT 2>/dev/null
+	else
+		exec $QEMU_RUN "$@"
+	fi
 else
 	SCR=$TMPDIR/qemu.$RANDOM
 	rm -f $SCR >/dev/null 2>&1
 
-	$QEMU_RUN "$@" 2> >(tee $SCR >&2) &
+	$QEMU_RUN -daemonize "$@" 2> >(tee $SCR >&2)
 	QEMU=$!
 
 	FAIL=0
@@ -113,6 +123,10 @@ else
 		fi
 		usleep 100000
 	done
+
+	if [ -n "$SPICE_PORT" ]; then
+		spicy -p $SPICE_PORT 2>/dev/null &
+	fi
 
 	if [ $FAIL = 0 ]; then
 		TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
