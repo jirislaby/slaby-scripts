@@ -86,7 +86,8 @@ if which spicy >/dev/null 2>&1 ; then
 	SPICE="-spice port=$SPICE_PORT,disable-ticketing -device virtio-serial -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
 fi
 
-QEMU_ARGS="-k en-us $SMP $MEM -usb -device virtio-rng-pci $DRIVE $SOUND $SPICE"
+PID_FILE="$TMPDIR/qemu.pid.$RANDOM"
+QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -usb -device virtio-rng-pci $DRIVE $SOUND $SPICE"
 if [ $WIN = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -localtime -vga qxl"
 else
@@ -99,43 +100,46 @@ else
 fi
 
 QEMU_RUN="qemu-kvm $QEMU_ARGS"
+SCR=$TMPDIR/qemu.$RANDOM
+
+function finish() {
+	echo Cleaning up
+	rm -f "$SCR" >/dev/null 2>&1
+}
+
+trap finish EXIT
+finish
+
 echo $QEMU_RUN "$@"
-
-if [ $WIN = 1 ]; then
-	if [ -n "$SPICE_PORT" ]; then
-		$QEMU_RUN -daemonize "$@"
-		exec spicy -p $SPICE_PORT 2>/dev/null
-	else
-		exec $QEMU_RUN "$@"
-	fi
-else
-	SCR=$TMPDIR/qemu.$RANDOM
-	rm -f $SCR >/dev/null 2>&1
-
-	$QEMU_RUN -daemonize "$@" 2> >(tee $SCR >&2)
-	QEMU=$!
-
-	FAIL=0
-	while ! grep -q 'redirected to' $SCR 2>/dev/null; do
-		if [ ! -d "/proc/$QEMU" ]; then
-			FAIL=1
-			break
-		fi
-		usleep 100000
-	done
-
-	if [ -n "$SPICE_PORT" ]; then
-		spicy -p $SPICE_PORT 2>/dev/null &
-	fi
-
-	if [ $FAIL = 0 ]; then
-		TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
-		if [ -c "$TTY" ]; then
-			screen "$TTY"
-		fi
-	fi
-
-	rm -f $SCR
-
-	wait $QEMU
+$QEMU_RUN "$@" 2> >(tee $SCR >&2)
+if [ $? -ne 0 ]; then
+	exit 1
 fi
+QEMU=`cat $PID_FILE`
+rm -f $PID_FILE
+
+if [ -n "$SPICE_PORT" ]; then
+
+	spicy -p $SPICE_PORT 2>/dev/null &
+fi
+
+if [ $WIN = 0 ]; then
+	TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+	if [ -c "$TTY" ]; then
+		screen "$TTY"
+	fi
+fi
+
+function kill_qemu() {
+	echo Killing qemu
+	kill $QEMU
+	exit 0
+}
+
+trap kill_qemu INT TERM
+
+# wait $QEMU  -- won't work
+echo Waiting for qemu to finish
+while [ -d /proc/$QEMU ]; do
+	sleep 1
+done
