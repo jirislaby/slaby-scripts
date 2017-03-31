@@ -119,8 +119,7 @@ QEMU=`cat $PID_FILE`
 rm -f $PID_FILE
 
 if [ -n "$SPICE_PORT" ]; then
-
-	spicy -p $SPICE_PORT 2>/dev/null &
+	(spicy -p $SPICE_PORT 2>/dev/null; kill $QEMU 2>/dev/null) &
 fi
 
 if [ $WIN = 0 ]; then
