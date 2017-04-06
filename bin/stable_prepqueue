@@ -84,12 +84,18 @@ foreach my $patch (@ARGV) {
 	print "  Handling $patch\n";
 	open(FILE, "<", $patch) || die "cannot open $patch";
 	my @header = ();
+	my $has_delim = 0;
 	while (my $line = <FILE>) {
 		chomp $line;
-		last if $line eq "---";
+		if ($line eq "---") {
+			$has_delim = 1;
+			last;
+		}
 		push @header, $line;
 	}
 	close FILE;
+
+	die "no '---' in $patch" unless ($has_delim);
 
 	$header_off{$patch} = scalar @header;
 
