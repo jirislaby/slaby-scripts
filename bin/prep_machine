@@ -9,7 +9,7 @@ else
 fi
 
 function add_repo() {
-	sudo zypper ar -f "$1" 2>/dev/null || true
+	sudo zypper ar -f "$1" $2 2>/dev/null || true
 }
 
 REMOUNT_DEV=0
@@ -66,6 +66,16 @@ case "$VERSION" in
 		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP1/devel:tools:scm.repo'
 		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP2/SUSE:CA.repo'
 		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP2/home:jirislaby:arch-preinstall.repo'
+		add_repo 'http://dist.suse.de/install/SLP/SLE-12-SP2-SDK-LATEST/x86_64/DVD1/' sp2-sdk
+		REMOUNT_DEV=1
+		SCM=1
+	;;
+	12-SP3)
+		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP1/devel:tools:scm.repo'
+		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP2/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP2/home:jirislaby:arch-preinstall.repo'
+		add_repo 'http://dist.suse.de/install/SLP/SLE-12-SP3-SDK-LATEST/x86_64/DVD1/' sp3-sdk
 		REMOUNT_DEV=1
 		SCM=1
 	;;
@@ -75,7 +85,7 @@ case "$VERSION" in
 esac
 
 sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
-	cscope $QEMU quilt \
+	cscope $QEMU quilt mosh \
 	osc build gcc git-core make \
 	obs-service-download_files obs-service-download_url \
 	obs-service-format_spec_file \
