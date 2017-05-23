@@ -16,12 +16,12 @@ function show_req {
 function show_pkg {
 	PRJ="`filter $1`"
 	PKG="`filter $2`"
-	xdg-open "https://$BS/package/show?package=$PKG&project=$PRJ"
+	xdg-open "https://$BS/package/show/$PRJ/$PKG"
 }
 
 function show_prj {
 	PRJ="`filter $1`"
-	xdg-open "https://$BS/project/monitor?project=$PRJ"
+	xdg-open "https://$BS/project/monitor/$PRJ"
 }
 
 function show_devel {
