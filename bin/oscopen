@@ -32,9 +32,11 @@ function show_devel {
 BS=build.opensuse.org
 DEVEL=0
 
-while getopts "di" OPT; do
+while getopts "dip" OPT; do
 	case "$OPT" in
 		i) BS=build.suse.de
+		;;
+		p) BS=pmbs.links2linux.de
 		;;
 		d) DEVEL=1
 		;;
