@@ -23,7 +23,7 @@ MACHINE="$1"
 shift
 
 PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --add-header 'Patch-mainline: no'"
+GITARGS="-o $PATCHES -s -k --no-renames --add-header 'Patch-mainline: no'"
 if [ "$REF" != "nop" ]; then
 	GITARGS="$GITARGS --add-header 'References: $REF'"
 fi
