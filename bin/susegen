@@ -4,29 +4,43 @@ if [ -z "$TMPDIR" ]; then
 	TMPDIR=/tmp
 fi
 
-if [ $# -lt 2 ]; then
-	echo $0 '<references> <destination> [git arguments]'
-	echo '<references>      append References: line with this argument (can be "nop")'
+function usage() {
+	echo $0 '[-r <references>] <destination> [git arguments]'
+	echo '<references>      append "References:" line with this argument'
 	echo '<destination>     destination directory (can be user@machine:dir)'
 	echo "<git arguments>   what's passed to git"
 	echo
 	echo Examples:
-	echo $0 'bnc#12345 /tmp -1 0ea859964fcba'
-	echo $0 'nop krtek@machine.org:/tmp v0.1..v0.2'
+	echo $0 '-r bnc#12345 /tmp -1 0ea859964fcba'
+	echo $0 'krtek@machine.org:/tmp v0.1..v0.2'
 	exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
 fi
 
+MAINLINE="--add-header 'Patch-mainline: no'"
+MAINLINE_EXT=
+REF=
+while getopts "m:r:" OPT; do
+	case "$OPT" in
+		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
+		   MAINLINE_EXT=1
+		;;
+		r) REF="--add-header 'References: $OPTARG'"
+		;;
+		*) usage
+		;;
+	esac
+done
 
-REF="$1"
-shift
+shift $(($OPTIND-1))
 MACHINE="$1"
 shift
 
 PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --no-renames --add-header 'Patch-mainline: no'"
-if [ "$REF" != "nop" ]; then
-	GITARGS="$GITARGS --add-header 'References: $REF'"
-fi
+GITARGS="-o $PATCHES -s -k --no-renames $MAINLINE $REF"
 
 rm -rf $PATCHES
 
