@@ -83,7 +83,10 @@ function find_free_port() {
 
 if which spicy >/dev/null 2>&1 ; then
 	SPICE_PORT=`find_free_port 5924`
-	SPICE="-spice port=$SPICE_PORT,disable-ticketing -device virtio-serial -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
+	SPICE="-spice port=$SPICE_PORT,disable-ticketing -device virtio-serial "
+	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
+	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1"
+	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
 fi
 
 PID_FILE="$TMPDIR/qemu.pid.$RANDOM"
