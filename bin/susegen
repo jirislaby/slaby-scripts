@@ -21,10 +21,13 @@ if [ $# -lt 1 ]; then
 fi
 
 MAINLINE="--add-header 'Patch-mainline: no'"
+GITREPO=
 MAINLINE_EXT=
 REF=
-while getopts "m:r:" OPT; do
+while getopts "g:m:r:" OPT; do
 	case "$OPT" in
+		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
+		;;
 		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
 		   MAINLINE_EXT=1
 		;;
@@ -40,7 +43,7 @@ MACHINE="$1"
 shift
 
 PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --no-renames $MAINLINE $REF"
+GITARGS="-o $PATCHES -s -k --no-renames $GITREPO $MAINLINE $REF"
 
 rm -rf $PATCHES
 
@@ -51,8 +54,11 @@ for patch in $PATCHES/*; do
 	MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
 	sed -ni "2,$ p" $patch
 	if echo "$MAINLINE" | grep -q undefined; then
-		if [ "`git branch -r --contains $SHA linus/master`" = "  linus/master" ]; then
+		CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master`"
+		if [ "$CONTAINED_IN" = "  linus/master" ]; then
 			MAINLINE="no tag yet"
+		elif [ "$CONTAINED_IN" = "  next/master" ]; then
+			MAINLINE="Queued in subsystem maintainer repository"
 		else
 			MAINLINE=""
 		fi
