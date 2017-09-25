@@ -37,7 +37,6 @@ case "$VERSION" in
 	;;
 	12-SP1)
 		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP1/devel:tools:scm.repo'
 		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP1/SUSE:CA.repo'
 		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP1/home:jirislaby:arch-preinstall.repo'
 		REMOUNT_DEV=1
@@ -45,7 +44,7 @@ case "$VERSION" in
 	;;
 	12-SP2)
 		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP1/devel:tools:scm.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP2/devel:tools:scm.repo'
 		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP2/SUSE:CA.repo'
 		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP2/home:jirislaby:arch-preinstall.repo'
 		add_repo 'http://dist.suse.de/install/SLP/SLE-12-SP2-SDK-LATEST/x86_64/DVD1/' sp2-sdk
@@ -54,9 +53,9 @@ case "$VERSION" in
 	;;
 	12-SP3)
 		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_12/SUSE:Tools.repo'
-		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP1/devel:tools:scm.repo'
-		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP2/SUSE:CA.repo'
-		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP2/home:jirislaby:arch-preinstall.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/SLE_12_SP3/devel:tools:scm.repo'
+		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_12_SP3/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_12_SP3/home:jirislaby:arch-preinstall.repo'
 		add_repo 'http://dist.suse.de/install/SLP/SLE-12-SP3-SDK-LATEST/x86_64/DVD1/' sp3-sdk
 		REMOUNT_DEV=1
 		SCM=1
