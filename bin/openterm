@@ -18,7 +18,7 @@ case $DESK in
 	usleep 60000; xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
 	;;
 	2)
-	xdg-su -u ku -c "unset XAUTHORITY; xauth add $DISPLAY . $KEY;"' xterm -geometry 155x25+0+734 & usleep 10000; xterm -geometry 80x24+912+0 & usleep 20000; xterm -geometry 80x42+940+500 & usleep 30000; xterm -geometry 80x42+1432+500 & usleep 40000; xterm -geometry 150x24+0+0 & usleep 100000'
+	xdg-su -u ku -c "unset XAUTHORITY; xauth add $DISPLAY . $KEY;"' xterm -geometry 155x25+0+734 & usleep 10000; xterm -geometry 80x42+940+500 & usleep 30000; xterm -geometry 80x42+1432+500 & usleep 40000; xterm -geometry 150x24+0+0 & usleep 100000'
 	xterm -geometry +912+0 &
 	;;
 esac
