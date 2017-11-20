@@ -54,7 +54,7 @@ for patch in $PATCHES/*; do
 	MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
 	sed -ni "2,$ p" $patch
 	if echo "$MAINLINE" | grep -q undefined; then
-		CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master`"
+		CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master|head -1`"
 		if [ "$CONTAINED_IN" = "  linus/master" ]; then
 			MAINLINE="no tag yet"
 		elif [ "$CONTAINED_IN" = "  next/master" ]; then
