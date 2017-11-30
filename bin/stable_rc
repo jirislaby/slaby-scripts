@@ -6,13 +6,14 @@ use StableHelper;
 
 die "invalid arguments" if (scalar @ARGV < 2);
 
+my $sv = "4.12";
 my $rc = "-rc1";
 
 my $outdir = $ARGV[0];
 my $nrelease = $ARGV[1];
 my $SHA = $ARGV[2] || "HEAD";
 
-die 'bad revision' unless ($nrelease =~ /^(3\.[0-9]+\.)([0-9]+)$/);
+die 'bad revision' unless ($nrelease =~ /^([34]\.[0-9]+\.)([0-9]+)$/);
 my $sublevel = $2;
 my $orelease = $1 . ($sublevel - 1);
 
@@ -48,7 +49,7 @@ print "Done\n\n";
 my @files = $repo->command('format-patch',
 		'--cover-letter',
 		'--thread',
-		'--subject-prefix=PATCH 3.12',
+		"--subject-prefix=PATCH $sv",
 		'-n', '-M', "-o$outdir", "v$orelease..$SHA^");
 
 my $cover = shift @files;
@@ -93,7 +94,7 @@ foreach my $file (@files) {
 	print "$file\n";
 
 	StableHelper::add_header($file, <<EOF);
-3.12-stable review patch.  If anyone has any objections, please let me know.
+$sv-stable review patch.  If anyone has any objections, please let me know.
 
 ===============
 EOF
