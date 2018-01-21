@@ -22,14 +22,12 @@ fi
 
 MAINLINE="--add-header 'Patch-mainline: no'"
 GITREPO=
-MAINLINE_EXT=
 REF=
 while getopts "g:m:r:" OPT; do
 	case "$OPT" in
 		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
 		;;
 		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
-		   MAINLINE_EXT=1
 		;;
 		r) REF="--add-header 'References: $OPTARG'"
 		;;
