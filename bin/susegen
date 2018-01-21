@@ -63,6 +63,8 @@ for patch in $PATCHES/*; do
 	fi
 	if [ -n "$MAINLINE" ]; then
 		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $MAINLINE/" $patch
+	elif [ -n "$GITREPO" ]; then
+		sed -i "s/^Patch-mainline: .*$/Git-commit: $SHA\n&/" $patch
 	fi
 done
 
