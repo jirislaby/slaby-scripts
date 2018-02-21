@@ -9,7 +9,7 @@ die "invalid arguments" if (scalar @ARGV < 2);
 my $sdir = shift @ARGV;
 my $srepo = Git->repository($sdir);
 my $repo = Git->repository();
-my $newer = qr/3\.(1[3-9]|[2-9][0-9])|[4-9]\.|[1-9][0-9]\./;
+my $newer = qr/4\.(1[3-9]|[2-9][0-9])|[5-9]\.|[1-9][0-9]\./;
 my $first_git = "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2";
 my $myver = '4.12';
 my $renames = "/usr/share/slaby-scripts/renames-$myver";
@@ -21,7 +21,7 @@ if (-f $renames) {
 	while (<REN>) {
 		chomp;
 		next if /^#/;
-		die "bad format of renames" unless /^(.*){(.*) => (.*)}(.*)$/;
+		die "bad format of renames" unless /^(.*)\{(.*) => (.*)\}(.*)$/;
 		my $from = $1 . $2 . $4;
 		my $to = $1 . $3 . $4;
 
@@ -201,19 +201,21 @@ foreach my $patch (keys %remaining) {
 
 my $rmregexp = join '|', @removed;
 
-print "Updating series\n";
+if (-f "series") {
+	print "Updating series\n";
 
-open(FILE, "<", "series") || die "cannot open series for r";
-my @series = <FILE>;
-close FILE;
-
-@series = grep(!/^$rmregexp$/, @series);
-if (scalar @series) {
-	open(FILE, ">", 'series') || die "cannot open series for w";
-	print FILE @series;
+	open(FILE, "<", "series") || die "cannot open series for r";
+	my @series = <FILE>;
 	close FILE;
-} else {
-	$repo->command_noisy('rm', 'series');
+
+	@series = grep(!/^$rmregexp$/, @series);
+	if (scalar @series) {
+		open(FILE, ">", 'series') || die "cannot open series for w";
+		print FILE @series;
+		close FILE;
+	} else {
+		$repo->command_noisy('rm', 'series');
+	}
 }
 
 1;
