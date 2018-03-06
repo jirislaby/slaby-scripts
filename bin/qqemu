@@ -82,14 +82,14 @@ function find_free_port() {
 }
 
 if which spicy >/dev/null 2>&1 ; then
-	SPICE_PORT=`find_free_port 5924`
-	SPICE="-spice port=$SPICE_PORT,disable-ticketing -device virtio-serial "
+	SPICE_PORT="/tmp/qemu-spice.$$.sock"
+	SPICE="-spice disable-ticketing,gl=on,unix,addr=$SPICE_PORT -device virtio-serial "
 	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
 fi
 
-PID_FILE="$TMPDIR/qemu.pid.$RANDOM"
+PID_FILE="$TMPDIR/qemu.pid.$$"
 USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
 USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
 USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
@@ -101,17 +101,20 @@ else
 	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial pty -balloon virtio"
 fi
 if [ $FACT = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -vga virtio"
+	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
 else
 	QEMU_ARGS="$QEMU_ARGS -usbdevice tablet"
 fi
 
 QEMU_RUN="qemu-kvm $QEMU_ARGS"
-SCR=$TMPDIR/qemu.$RANDOM
+SCR="$TMPDIR/qemu.$$"
 
 function finish() {
 	echo Cleaning up
-	rm -f "$SCR" >/dev/null 2>&1
+	rm -f "$SCR" &>/dev/null
+	if [ -n "$SPICE_PORT" ]; then
+		rm -f "$SPICE_PORT" &>/dev/null
+	fi
 }
 
 trap finish EXIT
@@ -126,7 +129,7 @@ QEMU=`cat $PID_FILE`
 rm -f $PID_FILE
 
 if [ -n "$SPICE_PORT" ]; then
-	(spicy -p $SPICE_PORT 2>/dev/null; kill $QEMU 2>/dev/null) &
+	(spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null; kill $QEMU 2>/dev/null) &
 fi
 
 if [ $WIN = 0 ]; then
