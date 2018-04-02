@@ -3,6 +3,10 @@ set hlsearch
 set aw
 set t_BE=
 
+if has('mouse')
+	set mouse=a
+endif
+
 if has("cscope") && filereadable("/usr/bin/cscope")
    set csprg=/usr/bin/cscope
    set csto=0
@@ -24,8 +28,8 @@ augroup filetype
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
 augroup END
 
-autocmd FileType c set cin
-autocmd FileType gitcommit set tw=70 nocin
+"autocmd FileType c set cin
+autocmd FileType gitcommit set tw=70 "nocin
 autocmd FileType gitcommit 1
 
 imap <F3> <Esc>:wN<CR>
