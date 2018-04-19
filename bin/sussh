@@ -1,11 +1,13 @@
 #!/bin/sh
 
 USER=jslaby
-SSH='ssh -CX -o StrictHostKeyChecking=no'
+SSH='ssh -CX'
+SSH_PARAMS='-o StrictHostKeyChecking=no'
 
 while getopts "mr" OPT; do
 	case "$OPT" in
 		m) SSH=mosh
+		   SSH_PARAMS='--ssh=ssh -o StrictHostKeyChecking=no'
 		;;
 		r) USER=root
 		;;
@@ -33,4 +35,4 @@ ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
-$SSH "$USER@$IP" $@
+$SSH "$SSH_PARAMS" "$USER@$IP" $@
