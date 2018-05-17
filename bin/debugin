@@ -1,3 +1,3 @@
 #!/bin/bash
 
-zypper -v in `rpm --qf '%{name}-debuginfo\n' -qf $@`
+zypper -v in --no-rec `rpm --qf '%{name}-debuginfo\n' -qf $@`
