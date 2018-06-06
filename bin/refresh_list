@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -x -e
+
+exec 3>&1
+
+git diff --name-only @ -- 'patches.*' | ./scripts/series_sort.py | (
+	read FILE
+	DIR=`./scripts/sequence-patch.sh --quilt --dir=//dev/shm/jslaby/ --fast $FILE | \
+		tee /dev/fd/3 | sed -n 's@Creating tree in @@ p'`
+
+	cd "$DIR"
+	quilt push --fuzz=0
+	~/kernel-source/scripts/refresh_patch.sh
+
+	while read FILE; do
+		quilt push --fuzz=0 $FILE
+		~/kernel-source/scripts/refresh_patch.sh
+	done
+	quilt push --fuzz=0 -a
+)
