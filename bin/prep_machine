@@ -60,6 +60,15 @@ case "$VERSION" in
 		REMOUNT_DEV=1
 		SCM=1
 	;;
+	15)
+		add_repo 'http://dist.suse.de/ibs/SUSE:/Tools/SLE_Factory/SUSE:Tools.repo'
+		add_repo 'http://download.opensuse.org/repositories/devel:/tools:/scm/openSUSE_Leap_15.0/devel:tools:scm.repo'
+		add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_15/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_15/home:jirislaby:arch-preinstall.repo'
+		add_repo 'http://dist.suse.de/install/SLP/SLE-15-Module-Development-Tools-LATEST/x86_64/DVD1/' 15-sdk
+		REMOUNT_DEV=1
+		SCM=1
+	;;
 	13.2\ *)
 	    REMOUNT_DEV=1
 	;;
