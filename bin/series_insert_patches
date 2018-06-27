@@ -1,0 +1,34 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Basename 'basename';
+use File::Copy 'mv';
+
+my @PATCHES;
+
+while (my $SRC = shift @ARGV) {
+	my $DEST = basename($SRC);
+	$DEST =~ s/0001-//;
+	$DEST = "patches.suse/$DEST";
+
+	print("$DEST\n");
+	mv($SRC, $DEST);
+	system('git', 'add', $DEST);
+	push @PATCHES, $DEST;
+}
+
+my $SERIES;
+open(SERIES, "<series.conf") || die "cannot open <series.conf";
+{
+	local $/ = undef;
+	$SERIES = <SERIES>;
+}
+close SERIES;
+
+my $subst = join "\n\t", @PATCHES;
+$SERIES =~ s/sorted patches[\s#]*$/$&\n\t$subst/ms;
+
+open(SERIES, ">series.conf") || die "cannot open >series.conf";
+print SERIES $SERIES;
+close SERIES;
+
+exec('./scripts/series_sort.py', 'series.conf');
