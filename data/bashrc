@@ -23,6 +23,8 @@ alias cdq='cd ~/repos/stable-queue/queue-4.13/'
 alias cdx='cd ~/repos/xf86-video-intel/'
 alias cdk='cd ~/kernel-source'
 
+alias shm='if [ -d /dev/shm/jslaby/ ]; then cd /dev/shm/jslaby/; else cd /dev/shm/; fi'
+
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
 }
