@@ -7,7 +7,7 @@ die "invalid arguments" if (scalar @ARGV < 2);
 
 my $susedir = shift @ARGV;
 my $suserepo = Git->repository($susedir);
-my $susebranch = "origin/SLE15-UPDATE";
+my $susebranch = "origin/SLE15";
 my $susetop = $suserepo->command_oneline('rev-parse', $susebranch);
 my $repo = Git->repository();
 
