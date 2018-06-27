@@ -19,6 +19,7 @@ all:
 clean:
 
 install: bin-install data-install perllib-install
+	@:
 
 bin-install:
 	$(call install,$(INSTALL),bin/,$(BIN_FILES),$(DESTDIR)/$(bindir)/)
