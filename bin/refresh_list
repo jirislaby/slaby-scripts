@@ -4,7 +4,8 @@ set -x -e
 
 exec 3>&1
 
-git diff --name-only @ -- 'patches.*' | ./scripts/series_sort.py | (
+git diff --name-only @ -- 'patches.*' | ./scripts/series_sort.py | \
+	grep -v '#' | (
 	read FILE
 	DIR=`./scripts/sequence-patch.sh --quilt --dir=//dev/shm/jslaby/ --fast $FILE | \
 		tee /dev/fd/3 | sed -n 's@Creating tree in @@ p'`
