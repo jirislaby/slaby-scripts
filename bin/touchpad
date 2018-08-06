@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NEWVAL=`synclient -l|awk '{if (/TouchpadOff/) {print !$3}}'`
+NAME='DLL079F:01 044E:120B'
+NEWVAL=`xinput list-props "$NAME"|awk '{if (/Device Enabled/) {print !$4}}'`
 
-synclient TouchpadOff=$NEWVAL
-xinput set-prop 'TPPS/2 IBM TrackPoint' 'Device Enabled' $NEWVAL
+xinput set-prop "$NAME" 'Device Enabled' $NEWVAL
