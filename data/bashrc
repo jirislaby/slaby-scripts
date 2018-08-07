@@ -15,15 +15,22 @@ alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
 alias tigs='tig v4.12..'
 
-alias cdl='cd ~/linux'
+function cd_existing() {
+	for DIR; do
+		if [ -d "$DIR" ]; then
+			cd "$DIR"
+			break
+		fi
+	done
+}
+
+alias cdl='cd_existing ~/linux ~/linux.git ~/labs/linux.git'
 alias cds='cd ~/tmp/stable-4.12'
-alias cdsl='cd ~/repos/slaby-scripts/'
-alias cdsu='cd ~/repos/suse/kernel-source/'
+alias cdsl='cd_existing ~/repos/slaby-scripts/ ~/labs/slaby-scripts/'
 alias cdq='cd ~/repos/stable-queue/queue-4.13/'
 alias cdx='cd ~/repos/xf86-video-intel/'
-alias cdk='cd ~/kernel-source'
-
-alias shm='if [ -d /dev/shm/jslaby/ ]; then cd /dev/shm/jslaby/; else cd /dev/shm/; fi'
+alias cdk='cd_existing ~/kernel-source ~/repos/suse/kernel-source/'
+alias shm='cd_existing /dev/shm/jslaby/ /dev/shm/'
 
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
