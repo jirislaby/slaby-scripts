@@ -35,6 +35,6 @@ foreach my $file (@patches_sorted) {
 	system('~/kernel-source/scripts/refresh_patch.sh') == 0 or die 'refresh';
 }
 
-system('quilt', 'push', '--fuzz=0', '-a') or die 'push -a';
+system('quilt', 'push', '--fuzz=0', '-a') == 0 or die 'push -a';
 
 1;
