@@ -31,10 +31,12 @@ close(SEQ);
 chdir "$out_dir";
 
 foreach my $file (@patches_sorted) {
-	system('quilt', 'push', '--fuzz=0', $file) == 0 or die 'push';
-	system('~/kernel-source/scripts/refresh_patch.sh') == 0 or die 'refresh';
+	system('quilt', 'push', '--fuzz=0', $file) == 0 or
+		die "push in $out_dir";
+	system('~/kernel-source/scripts/refresh_patch.sh') == 0 or
+		die "refresh in $out_dir";
 }
 
-system('quilt', 'push', '--fuzz=0', '-a') == 0 or die 'push -a';
+system('quilt', 'push', '--fuzz=0', '-a') == 0 or die "push -a in $out_dir";
 
 1;
