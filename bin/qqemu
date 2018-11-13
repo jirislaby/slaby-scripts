@@ -129,7 +129,7 @@ QEMU=`cat $PID_FILE`
 rm -f $PID_FILE
 
 if [ -n "$SPICE_PORT" ]; then
-	(spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null; kill $QEMU 2>/dev/null) &
+	(while :; do spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null; if [ $? -lt 128 ]; then break; fi; done; kill $QEMU 2>/dev/null) &
 fi
 
 if [ $WIN = 0 ]; then
