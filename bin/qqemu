@@ -14,6 +14,13 @@ if [ -z "$TMPDIR" ]; then
 	TMPDIR=/tmp
 fi
 
+WANT_SPICE=1
+
+if [ "$1" = "--nospice" ]; then
+	WANT_SPICE=0
+       shift
+fi
+
 FILE=$1
 shift
 WIN=0
@@ -81,7 +88,7 @@ function find_free_port() {
 	echo "$FREE_PORT"
 }
 
-if which spicy >/dev/null 2>&1 ; then
+if [ "$WANT_SPICE" = 1 ] && which spicy >/dev/null 2>&1 ; then
 	SPICE_PORT="/tmp/qemu-spice.$$.sock"
 	SPICE="-spice disable-ticketing,gl=on,unix,addr=$SPICE_PORT -device virtio-serial "
 	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
