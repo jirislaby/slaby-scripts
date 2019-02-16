@@ -16,8 +16,13 @@ alias qd='quilt diff'
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
 alias tigs='tig v4.12..'
+alias ip='ip $IP_COLOR'
 
-alias ip='ip --color=auto'
+IP_COLOR='--color=auto'
+ip $IP_COLOR l &>/dev/null
+if [ $? != 0 ]; then
+	IP_COLOR='--color'
+fi
 
 function cd_existing() {
 	for DIR; do
