@@ -15,6 +15,8 @@ alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
 alias tigs='tig v4.12..'
 
+alias ip='ip --color=auto'
+
 function cd_existing() {
 	for DIR; do
 		if [ -d "$DIR" ]; then
