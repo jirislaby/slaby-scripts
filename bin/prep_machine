@@ -69,6 +69,14 @@ case "$VERSION" in
 		REMOUNT_DEV=1
 		SCM=1
 	;;
+	15-SP1)
+		add_repo 'https://download.opensuse.org/repositories/openSUSE:/Tools/SLE_15_SP1/openSUSE:Tools.repo'
+		add_repo 'https://download.opensuse.org/repositories/devel:/tools:/scm/SLE_15/devel:tools:scm.repo'
+		#add_repo 'http://dist.suse.de/ibs/SUSE:/CA/SLE_15/SUSE:CA.repo'
+		add_repo 'http://download.suse.de/ibs/home:/jirislaby:/arch-preinstall/SLE_15_SP1/home:jirislaby:arch-preinstall.repo'
+		REMOUNT_DEV=1
+		SCM=1
+	;;
 	13.2\ *)
 	    REMOUNT_DEV=1
 	;;
