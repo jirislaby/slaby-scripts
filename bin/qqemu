@@ -27,6 +27,7 @@ WIN=0
 NBSD=0
 FACT=0
 RAW=""
+OVMF=/usr/share/qemu/ovmf-x86_64-opensuse-4m.bin
 if echo "$FILE" | grep -q win; then
 	WIN=1
 fi
@@ -109,6 +110,9 @@ else
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
+	if [ -f "$OVMF" ]; then
+		QEMU_ARGS="$QEMU_ARGS -bios $OVMF"
+	fi
 else
 	QEMU_ARGS="$QEMU_ARGS -device usb-tablet"
 fi
