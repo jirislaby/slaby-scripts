@@ -15,10 +15,16 @@ if [ -z "$TMPDIR" ]; then
 fi
 
 WANT_SPICE=1
+SPICE_REMOTE=0
 
 if [ "$1" = "--nospice" ]; then
 	WANT_SPICE=0
-       shift
+	shift
+fi
+
+if [ "$1" = "--spiceremote" ]; then
+	SPICE_REMOTE=1
+	shift
 fi
 
 FILE=$1
@@ -89,9 +95,14 @@ function find_free_port() {
 	echo "$FREE_PORT"
 }
 
-if [ "$WANT_SPICE" = 1 ] && which spicy >/dev/null 2>&1 ; then
+if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null 2>&1) ; then
 	SPICE_PORT="/tmp/qemu-spice.$$.sock"
-	SPICE="-spice disable-ticketing,gl=on,unix,addr=$SPICE_PORT -device virtio-serial "
+	SPICE_CONF="gl=on,unix,addr=$SPICE_PORT"
+	if [ "$SPICE_REMOTE" = 1 ]; then
+		SPICE_PORT=`find_free_port 3333`
+		SPICE_CONF="port=$SPICE_PORT"
+	fi
+	SPICE="-spice disable-ticketing,$SPICE_CONF -device virtio-serial "
 	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
@@ -139,8 +150,14 @@ fi
 QEMU=`cat $PID_FILE`
 rm -f $PID_FILE
 
-if [ -n "$SPICE_PORT" ]; then
-	(while :; do spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null; if [ $? -lt 128 ]; then break; fi; done; kill $QEMU 2>/dev/null) &
+if [ -n "$SPICE_PORT" -a "$SPICE_REMOTE" != 1 ]; then
+	(while :; do
+		spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null;
+		if [ $? -lt 128 ]; then
+			break;
+		fi;
+	done;
+	kill $QEMU 2>/dev/null) &
 fi
 
 if [ $WIN = 0 ]; then
