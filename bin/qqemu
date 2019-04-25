@@ -115,10 +115,12 @@ USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
 USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
 USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
 QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $USB $DRIVE $SOUND $SPICE"
+TELNET_PORT=""
 if [ $WIN = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -rtc base=localtime -vga qxl"
 else
-	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial pty --device virtio-balloon"
+	TELNET_PORT=`find_free_port 2323`
+	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial telnet:localhost:$TELNET_PORT,server --device virtio-balloon"
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
@@ -144,9 +146,19 @@ trap finish EXIT
 finish
 
 echo $QEMU_RUN "$@"
-$QEMU_RUN "$@" 2> >(tee $SCR >&2)
+if [ -n "$TELNET_PORT" ]; then
+	$QEMU_RUN "$@" 2> >(tee $SCR >&2) &
+else
+	$QEMU_RUN "$@" 2> >(tee $SCR >&2)
+fi
 if [ $? -ne 0 ]; then
 	exit 1
+fi
+
+if [ -n "$TELNET_PORT" ]; then
+	while ! grep -q 'QEMU waiting for connection.*telnet' "$SCR"; do
+		usleep 100000
+	done
 fi
 QEMU=`cat $PID_FILE`
 rm -f $PID_FILE
@@ -161,11 +173,8 @@ if [ -n "$SPICE_PORT" -a "$SPICE_REMOTE" != 1 ]; then
 	kill $QEMU 2>/dev/null) &
 fi
 
-if [ $WIN = 0 ]; then
-	TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
-	if [ -c "$TTY" ]; then
-		screen "$TTY"
-	fi
+if [ -n "$TELNET_PORT" ]; then
+	telnet localhost $TELNET_PORT
 fi
 
 function kill_qemu() {
