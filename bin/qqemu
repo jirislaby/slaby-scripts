@@ -97,7 +97,8 @@ function find_free_port() {
 
 if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null 2>&1) ; then
 	SPICE_PORT="/tmp/qemu-spice.$$.sock"
-	SPICE_CONF="gl=on,unix,addr=$SPICE_PORT"
+	# gl=on,
+	SPICE_CONF="unix,addr=$SPICE_PORT"
 	if [ "$SPICE_REMOTE" = 1 ]; then
 		SPICE_PORT=`find_free_port 3333`
 		SPICE_CONF="port=$SPICE_PORT"
