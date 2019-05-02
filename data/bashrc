@@ -10,6 +10,8 @@ alias oscss='osc service remoterun home:jirislaby slaby-scripts'
 alias gde='git describe --contains --exact-match'
 alias gpr='git pull --rebase'
 alias gru='git remote update'
+alias gd='git diff'
+alias qd='quilt diff'
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
