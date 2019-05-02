@@ -156,7 +156,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ -n "$TELNET_PORT" ]; then
-	while ! grep -q 'QEMU waiting for connection.*telnet' "$SCR"; do
+	while ! [ -f "$PID_FILE" -a -f "$SCR" ] || ! grep -q 'QEMU waiting for connection.*telnet' "$SCR"; do
 		usleep 100000
 	done
 fi
