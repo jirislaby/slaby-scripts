@@ -49,20 +49,22 @@ eval git format-patch $GITARGS $@ || exit 1
 
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
-	MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
 	sed -ni "2,$ p" $patch
-	if echo "$MAINLINE" | grep -q undefined; then
-		CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master|head -1`"
-		if [ "$CONTAINED_IN" = "  linus/master" ]; then
-			MAINLINE="no tag yet"
-		elif [ "$CONTAINED_IN" = "  next/master" ]; then
-			MAINLINE="Queued in subsystem maintainer repository"
-		else
-			MAINLINE=""
+	if [ -z "$MAINLINE" ]; then
+		AUTO_MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
+		if echo "$AUTO_MAINLINE" | grep -q undefined; then
+			CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master|head -1`"
+			if [ "$CONTAINED_IN" = "  linus/master" ]; then
+				AUTO_MAINLINE="no tag yet"
+			elif [ "$CONTAINED_IN" = "  next/master" ]; then
+				AUTO_MAINLINE="Queued in subsystem maintainer repository"
+			else
+				AUTO_MAINLINE=""
+			fi
 		fi
 	fi
-	if [ -n "$MAINLINE" ]; then
-		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $MAINLINE/" $patch
+	if [ -n "$AUTO_MAINLINE" ]; then
+		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $AUTO_MAINLINE/" $patch
 	elif [ -n "$GITREPO" ]; then
 		sed -i "s/^Patch-mainline: .*$/Git-commit: $SHA\n&/" $patch
 	fi
