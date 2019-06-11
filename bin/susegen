@@ -21,6 +21,7 @@ if [ $# -lt 1 ]; then
 fi
 
 MAINLINE="--add-header 'Patch-mainline: no'"
+MAINLINE_FORCE=
 GITREPO=
 REF=
 while getopts "g:m:r:" OPT; do
@@ -28,6 +29,7 @@ while getopts "g:m:r:" OPT; do
 		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
 		;;
 		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
+		   MAINLINE_FORCE=1
 		;;
 		r) REF="--add-header 'References: $OPTARG'"
 		;;
@@ -50,8 +52,8 @@ eval git format-patch $GITARGS $@ || exit 1
 for patch in $PATCHES/*; do
 	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
 	sed -ni "2,$ p" $patch
-	if [ -z "$MAINLINE" ]; then
-		AUTO_MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/\([a-zA-Z0-9\.-]*\).*$@\1@'`
+	if [ -z "$MAINLINE_FORCE" ]; then
+		AUTO_MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/v*\([a-zA-Z0-9\.-]*\).*$@\1@'`
 		if echo "$AUTO_MAINLINE" | grep -q undefined; then
 			CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master|head -1`"
 			if [ "$CONTAINED_IN" = "  linus/master" ]; then
