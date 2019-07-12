@@ -12,8 +12,14 @@ if [ -z "$SERIES" ]; then
 	exit 1
 fi
 
+FORCE=
+if [ "$1" = "-f" ]; then
+	shift
+	FORCE=-f
+fi
+
 for file; do
-	git rm "$file"
+	git rm $FORCE "$file"
 	grep -v "^\s*$file$" "$SERIES" > series1
 	mv series1 "$SERIES"
 done
