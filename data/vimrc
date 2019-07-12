@@ -3,6 +3,11 @@ set hlsearch
 set aw
 set t_BE=
 
+" highlight trailing whitespace
+let c_space_errors=1
+" highlight WhitespaceEOL ctermbg=red guibg=red
+" match WhitespaceEOL /\s\+$/
+
 if has('mouse')
 	set mouse=a
 endif
