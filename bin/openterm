@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KEY=`xauth list|grep \`uname -n\`|sed 's@.* @@'`
+KEY=`xauth list|grep \`uname -n\`|tail -1|sed 's@.* @@'`
 
 DESK=`xdotool get_desktop`
 case $DESK in
