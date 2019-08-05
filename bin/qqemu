@@ -32,6 +32,7 @@ shift
 WIN=0
 NBSD=0
 FACT=0
+BIT32=0
 RAW=""
 OVMF_CODE=/usr/share/qemu/ovmf-x86_64-opensuse-code.bin
 OVMF_VARS_SRC=/usr/share/qemu/ovmf-x86_64-opensuse-vars.bin
@@ -44,6 +45,9 @@ if echo "$FILE" | grep -q nbsd; then
 fi
 if echo "$FILE" | grep -q fact; then
 	FACT=1
+fi
+if echo "$FILE" | grep -q '32\.img$'; then
+	BIT32=1
 fi
 if echo "$FILE" | grep -q '\.img$'; then
 	RAW=",format=raw"
@@ -126,7 +130,7 @@ else
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
-	if [ -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
+	if [ $BIT32 -ne 1 -a -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
 		if [ ! -f "$OVMF_VARS" ]; then
 			cp -v "$OVMF_VARS_SRC" "$OVMF_VARS"
 		fi
