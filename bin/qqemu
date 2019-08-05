@@ -34,7 +34,8 @@ NBSD=0
 FACT=0
 RAW=""
 OVMF_CODE=/usr/share/qemu/ovmf-x86_64-opensuse-code.bin
-OVMF_VARS=~/.ovmf-x86_64-opensuse-vars.bin
+OVMF_VARS_SRC=/usr/share/qemu/ovmf-x86_64-opensuse-vars.bin
+OVMF_VARS="$FILE.vars"
 if echo "$FILE" | grep -q win; then
 	WIN=1
 fi
@@ -125,7 +126,10 @@ else
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
-	if [ -f "$OVMF_CODE" -a -f "$OVMF_VARS" ]; then
+	if [ -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
+		if [ ! -f "$OVMF_VARS" ]; then
+			cp -v "$OVMF_VARS_SRC" "$OVMF_VARS"
+		fi
 		QEMU_ARGS="$QEMU_ARGS -drive if=pflash,format=raw,unit=0,readonly,file=$OVMF_CODE"
 		QEMU_ARGS="$QEMU_ARGS -drive if=pflash,format=raw,unit=1,file=$OVMF_VARS"
 	fi
