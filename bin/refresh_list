@@ -11,10 +11,25 @@ die 'nothing to do' if (scalar @patches == 0);
 my $regexp = join "|", @patches;
 
 my @patches_sorted = $repo->command('grep', '-Eh', $regexp, 'series.conf');
-
-die 'something went wrong' if (scalar @patches != scalar @patches_sorted);
-
 map { s/\s//g; $_ } @patches_sorted;
+
+sub dump_diff(@) {
+	my %count;
+
+	foreach my $e (@_) {
+		$count{$e}++;
+	}
+
+	foreach my $e (keys %count) {
+		print STDERR "\t$e\n" if ($count{$e} != 2);
+	}
+}
+
+if (scalar @patches != scalar @patches_sorted) {
+	print STDERR "problems:\n";
+	dump_diff(@patches, @patches_sorted);
+	die 'count of patches does not match: ', scalar @patches, " != ", scalar @patches_sorted;
+}
 
 my $out_dir;
 my $file = $patches_sorted[0];
