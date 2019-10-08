@@ -1,19 +1,118 @@
 #!/usr/bin/perl -w
 use strict;
+use Error qw(:try);
 use File::Basename 'basename';
 use File::Copy 'mv';
+use Git;
+use Term::ANSIColor qw(colored);
 
-my @PATCHES;
+my @PATCHES = (qr/sorted patches\n[\h#]*\n/ms);
+my @PATCHES_MINOR = (qr/Stable minor numbers\n[\h#]*\n(?:^\t\S+\n)*/ms);
+my @patches = (\@PATCHES, \@PATCHES_MINOR);
+my $references = qr/^References: (.*)$/m;
+my $tags = qr/^(?:Git-[Cc]ommit: |Patch-[Mm]ainline: |From )/m;
 
-while (my $SRC = shift @ARGV) {
-	my $DEST = basename($SRC);
-	$DEST =~ s/0[0-9][0-9][0-9]-//;
-	$DEST = "patches.suse/$DEST";
+my %shas;
+my %refs;
 
-	print("$DEST\n");
-	mv($SRC, $DEST);
-	system('git', 'add', $DEST);
-	push @PATCHES, $DEST;
+my $repo = Git->repository;
+
+sub get_meta($$) {
+	my ($src, $find_sha) = @_;
+	local $/ = undef;
+
+	open(SRC, "<$src") or die "cannot open $src";
+	my $patch = <SRC>;
+	my $refs = $patch =~ $references ? $1 : undef;
+	my $sha = $patch =~ $find_sha ? $1 : undef;
+	close SRC;
+
+	return ($refs, $sha, $patch);
+}
+
+my $regexp = qr/$tags([a-f0-9]{40})$/m;
+
+foreach my $src (@ARGV) {
+	my ($refs, $sha) = get_meta($src, $regexp);
+	die "no references in $src" if (!defined $refs);
+	if (!defined $sha) {
+		print colored("no SHAs in $src\n", 'yellow');
+		$shas{$src} = $src;
+		next;
+
+	}
+	$shas{$sha} = $src;
+	$refs{$sha} = $refs;
+}
+
+$regexp = join '|', keys %shas;
+my @candidates = ();
+
+if ($regexp eq "") {
+	        print STDERR colored("empty regexp computed? Skipping patches removal...\n",
+				'yellow');
+} else {
+	try {
+		@candidates = $repo->command('grep', '-El', $regexp, '--',
+				'patches.*') or die "cannot execute git grep";
+	} catch Git::Error::Command with {
+		# not found is OK
+	};
+
+	print colored("Handling duplicates\n", 'green');
+
+	$regexp = qr/$tags($regexp)$/m;
+	my $deleted = 0;
+	foreach my $cand (@candidates) {
+		my ($refs, $matched_sha, $patch) = get_meta($cand, $regexp);
+		next if (!defined $matched_sha);
+
+		die "no ref for $cand ($matched_sha)" if (!$refs{$matched_sha});
+
+		if ($patch !~ s/$references/$& $refs{$matched_sha}/) {
+			print STDERR colored("no references in $cand!\n",
+					'red');
+			print colored("match $1 in $&\n", 'blue');
+			print colored("refs: $refs{$matched_sha}\n", 'blue');
+			die "no refs";
+		}
+		open(CAND, ">$cand") or die "cannot open $cand";
+		print CAND $patch;
+		close CAND;
+		print colored("Deleting $shas{$matched_sha}\n", 'yellow'),
+		      "\tdue to dup $cand\n",
+		      "\twith SHA $matched_sha\n";
+		unlink $shas{$matched_sha};
+		delete $shas{$matched_sha};
+		$deleted++;
+	}
+
+	if ($deleted) {
+		print colored("Deleted $deleted patches\n", 'green');
+		print "\tCommit now? (Y/n) ";
+		if (<STDIN> !~ /[nN]/) {
+			system("./scripts/log") == 0 or die 'cannot run log';
+		}
+	}
+}
+
+print colored("Adding patches\n", 'green');
+
+foreach my $src (values %shas) {
+	die unless (-f $src);
+	my $dest = basename($src);
+	$dest =~ s/0[0-9][0-9][0-9]-//;
+	$dest = "patches.suse/$dest";
+
+	print("$dest\n");
+	mv($src, $dest);
+	system('git', 'add', $dest);
+
+	if ($dest =~ /^patches.suse\/Linux-[0-9.]+\.patch$/) {
+		push @PATCHES_MINOR, $dest;
+	} else {
+		push @PATCHES, $dest;
+	}
 }
 
 my $SERIES;
@@ -26,10 +125,15 @@ close SERIES;
 
 my $sort = 1;
 
-my $subst = "\t" . join "\n\t", @PATCHES;
-unless ($SERIES =~ s/sorted patches[\s#]*$/$&\n$subst/ms) {
-	$SERIES .= $subst . "\n";
-	$sort = 0;
+foreach my $p (@patches) {
+	my $put_after = shift @$p;
+	next if (!scalar @$p);
+	my $subst = "\t" . join "\n\t", @$p;
+
+	unless ($SERIES =~ s/$put_after/$&$subst\n/) {
+		$SERIES .= $subst . "\n";
+		$sort = 0;
+	}
 }
 
 open(SERIES, ">series.conf") || die "cannot open >series.conf";
@@ -37,6 +141,7 @@ print SERIES $SERIES;
 close SERIES;
 
 if ($sort) {
+	print colored("Running series_sort\n", 'green');
 	exec('./scripts/series_sort.py', 'series.conf');
 }
 
