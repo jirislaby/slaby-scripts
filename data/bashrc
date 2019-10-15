@@ -11,6 +11,7 @@ alias gde='git describe --contains --exact-match'
 alias gpr='git pull --rebase'
 alias gru='git remote update'
 alias gd='git diff'
+alias glm='git log --author=jslaby'
 alias qd='quilt diff'
 
 alias tigl='tig -1000'
