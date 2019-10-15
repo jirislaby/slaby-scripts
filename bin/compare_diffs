@@ -1,0 +1,18 @@
+#!/bin/bash
+
+OTHER_PATCH_DIR=$1
+if [ -z "$OTHER_PATCH_DIR" -o ! -d "$OTHER_PATCH_DIR" ]; then
+	echo "'$OTHER_PATCH_DIR' does not exist" >&2
+	exit 1
+fi
+
+while read DIFF; do
+	echo DIFF=$DIFF
+	SHA=`git grep -h '^Git-commit:' "$DIFF"`
+	#echo SHA=$SHA
+	OTHER_PATCH=`grep -l "$SHA" "$OTHER_PATCH_DIR"/*tch`
+	#echo OTHER_PATCH=$OTHER_PATCH
+	colordiff -u -I '^@@' \
+		<(filterdiff "$OTHER_PATCH") \
+		<(filterdiff "$DIFF")
+done
