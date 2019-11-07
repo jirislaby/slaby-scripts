@@ -157,9 +157,9 @@ finish
 
 echo $QEMU_RUN "$@"
 if [ -n "$TELNET_PORT" ]; then
-	$QEMU_RUN "$@" 2> >(tee $SCR >&2) &
+	$QEMU_RUN "$@" |& tee $SCR >&2 &
 else
-	$QEMU_RUN "$@" 2> >(tee $SCR >&2)
+	$QEMU_RUN "$@" |& tee $SCR >&2
 fi
 if [ $? -ne 0 ]; then
 	exit 1
