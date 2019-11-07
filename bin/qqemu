@@ -146,7 +146,7 @@ SCR="$TMPDIR/qemu.$$"
 
 function finish() {
 	echo Cleaning up
-	rm -f "$SCR" &>/dev/null
+	rm -f "$SCR" "$PID_FILE" &>/dev/null
 	if [ -n "$SPICE_PORT" ]; then
 		rm -f "$SPICE_PORT" &>/dev/null
 	fi
