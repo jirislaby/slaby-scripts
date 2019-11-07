@@ -16,16 +16,25 @@ fi
 
 WANT_SPICE=1
 SPICE_REMOTE=0
+SCREEN=0
 
-if [ "$1" = "--nospice" ]; then
-	WANT_SPICE=0
+while :; do
+	case "$1" in
+		--nospice)
+			WANT_SPICE=0
+			;;
+		--spiceremote)
+			SPICE_REMOTE=1
+			;;
+		--screen)
+			SCREEN=1
+			;;
+		*)
+			break
+			;;
+	esac
 	shift
-fi
-
-if [ "$1" = "--spiceremote" ]; then
-	SPICE_REMOTE=1
-	shift
-fi
+done
 
 FILE=$1
 shift
@@ -122,11 +131,19 @@ USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
 USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
 QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $USB $DRIVE $SOUND $SPICE"
 TELNET_PORT=""
+SERIAL_WAIT_RE=""
 if [ $WIN = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -rtc base=localtime -vga qxl"
 else
-	TELNET_PORT=`find_free_port 2323`
-	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial telnet:localhost:$TELNET_PORT,server --device virtio-balloon"
+	if [ $SCREEN = 1 ]; then
+		SERIAL="pty"
+		SERIAL_WAIT_RE='redirected to /dev/'
+	else
+		TELNET_PORT=`find_free_port 2323`
+		SERIAL="telnet:localhost:$TELNET_PORT,server"
+		SERIAL_WAIT_RE='QEMU waiting for connection.*telnet'
+	fi
+	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial $SERIAL --device virtio-balloon"
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
@@ -165,8 +182,8 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-if [ -n "$TELNET_PORT" ]; then
-	while ! [ -f "$PID_FILE" -a -f "$SCR" ] || ! grep -q 'QEMU waiting for connection.*telnet' "$SCR"; do
+if [ -n "$SERIAL_WAIT_RE" ]; then
+	while ! [ -f "$PID_FILE" -a -f "$SCR" ] || ! grep -q "$SERIAL_WAIT_RE" "$SCR"; do
 		usleep 100000
 	done
 fi
@@ -185,6 +202,11 @@ fi
 
 if [ -n "$TELNET_PORT" ]; then
 	telnet localhost $TELNET_PORT
+elif [ $SCREEN = 1 ]; then
+	TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+	if [ -c "$TTY" ]; then
+		screen "$TTY"
+	fi
 fi
 
 function kill_qemu() {
