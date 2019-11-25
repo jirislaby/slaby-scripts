@@ -118,7 +118,7 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 		SPICE_PORT=`find_free_port 3333`
 		SPICE_CONF="port=$SPICE_PORT"
 	fi
-	SPICE="-spice disable-ticketing,$SPICE_CONF -device virtio-serial "
+	SPICE="-spice disable-ticketing,$SPICE_CONF -device virtio-serial -monitor pty "
 	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1"
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
@@ -137,7 +137,7 @@ if [ $WIN = 1 ]; then
 else
 	if [ $SCREEN = 1 ]; then
 		SERIAL="pty"
-		SERIAL_WAIT_RE='redirected to /dev/'
+		SERIAL_WAIT_RE='redirected to /dev/.*(label serial'
 	else
 		TELNET_PORT=`find_free_port 2323`
 		SERIAL="telnet:localhost:$TELNET_PORT,server"
@@ -203,7 +203,7 @@ fi
 if [ -n "$TELNET_PORT" ]; then
 	telnet localhost $TELNET_PORT
 elif [ $SCREEN = 1 ]; then
-	TTY=`sed -ne '/redirected to / s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
+	TTY=`sed -ne '/redirected to .*label serial/ s@.*redirected to \(/dev[^ ]*\).*@\1@ p' $SCR`
 	if [ -c "$TTY" ]; then
 		screen "$TTY"
 	fi
