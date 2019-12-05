@@ -28,10 +28,33 @@ if has("cscope") && filereadable("/usr/bin/cscope")
    set csverb
 endif
 
+function InsertInterpreter(pat)
+	if a:pat =~ "sh"
+		call _InsertInterpreter("bash")
+	elseif a:pat =~ "pl"
+		call _InsertInterpreter("perl")
+	elseif a:pat =~ "py"
+		call _InsertInterpreter("python")
+	endif
+endfun
+
+function SetExecutableBit()
+	let fname = expand("%:p")
+	checktime
+	exec "au FileChangedShell " . fname . " :echo"
+	setlocal autoread
+	silent !chmod a+x %
+	checktime
+	exec "au! FileChangedShell " . fname
+endfun
+
 augroup filetype
 	au! BufRead,BufNewFile *.ll	set filetype=llvm
 	au! BufRead,BufNewFile *.g	set filetype=antlr3
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
+	au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
+	au BufNewFile *.{pl,py,sh}      call InsertInterpreter(expand("<afile>"))
+	au BufNewFile *.{pl,py,sh}      call SetExecutableBit()
 augroup END
 
 "autocmd FileType c set cin
