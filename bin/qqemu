@@ -125,10 +125,11 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 fi
 
 PID_FILE="$TMPDIR/qemu.pid.$$"
-USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
-USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
-USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
-USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
+#USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
+#USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
+#USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
+#USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
+USB="-device qemu-xhci,p2=8,p3=8"
 QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $USB $DRIVE $SOUND $SPICE"
 TELNET_PORT=""
 SERIAL_WAIT_RE=""
