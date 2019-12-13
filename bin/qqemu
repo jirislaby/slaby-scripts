@@ -125,17 +125,17 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 fi
 
 PID_FILE="$TMPDIR/qemu.pid.$$"
-#USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
-#USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
-#USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
-#USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
-USB="-device qemu-xhci,p2=8,p3=8"
-QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $USB $DRIVE $SOUND $SPICE"
+QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $DRIVE $SOUND $SPICE"
 TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WIN = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -rtc base=localtime -vga qxl"
+	USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
+	USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
+	USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
+	USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
+	QEMU_ARGS="$QEMU_ARGS $USB -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -rtc base=localtime -vga qxl"
 else
+	USB="-device qemu-xhci,p2=8,p3=8"
 	if [ $SCREEN = 1 ]; then
 		SERIAL="pty"
 		SERIAL_WAIT_RE='redirected to /dev/.*(label serial'
@@ -144,7 +144,7 @@ else
 		SERIAL="telnet:localhost:$TELNET_PORT,server"
 		SERIAL_WAIT_RE='QEMU waiting for connection.*telnet'
 	fi
-	QEMU_ARGS="$QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial $SERIAL --device virtio-balloon"
+	QEMU_ARGS="$QEMU_ARGS $USB -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial $SERIAL --device virtio-balloon"
 fi
 if [ $FACT = 1 ]; then
 	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
