@@ -18,7 +18,7 @@ shift $(($OPTIND-1))
 HOST=$1
 shift
 
-for SUFFIX in arch.suse.de suse.de suse.cz qa.suse.de; do
+for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de; do
 	FQDN=$HOST.$SUFFIX
 	IP=`host $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
 	if [ -n "$IP" ]; then
