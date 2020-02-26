@@ -2,6 +2,7 @@
 use strict;
 use Error qw(:try);
 use Git;
+use Storable;
 use StableHelper;
 
 die "invalid arguments" if (scalar @ARGV < 2);
@@ -46,22 +47,15 @@ my %full_history;
 my $full_history_file = "/tmp/full-hist-$myver";
 if (-f "$full_history_file") {
 	print "\t... from cache $full_history_file\n";
-	open(HIST, "<$full_history_file") or die "cannot open $full_history_file for r";
-	%full_history = map {
-		chomp;
-		$_ => 1
-	} <HIST>;
-	close HIST;
+	my $h = retrieve($full_history_file);
+	%full_history = %$h;
 } else {
-	open(HIST, ">$full_history_file") or die "cannot open $full_history_file for w";
 	%full_history = map {
 		chomp;
-		print HIST "$_\n";
 		$_ => 1
 	} $srepo->command('rev-list', "$first_git..v$myver");
-	print HIST "$first_git\n";
 	$full_history{$first_git} = 1;
-	close HIST;
+	store(\%full_history, $full_history_file);
 }
 
 print "Parsing history v$myver..stable/linux-$myver.y\n";
