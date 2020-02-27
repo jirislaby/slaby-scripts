@@ -4,16 +4,15 @@ use Error qw(:try);
 use Git;
 use Storable;
 use StableHelper;
-
-die "invalid arguments" if (scalar @ARGV < 2);
+use Getopt::Long qw(GetOptions);
 
 my $myver = '4.12';
-if ($ARGV[0] eq '-v') {
-	shift @ARGV;
-	$myver = shift @ARGV;
-}
+my $sdir = glob '~/linux';
+GetOptions("ver=s" => \$myver,
+	   "ldir=s" => \$sdir);
 
-my $sdir = shift @ARGV;
+die "invalid arguments" if (!scalar @ARGV);
+
 my $srepo = Git->repository($sdir);
 my $repo = Git->repository();
 my $newer = qr/4\.(1[3-9]|[2-9][0-9])|[5-9]\.|[1-9][0-9]\./;
