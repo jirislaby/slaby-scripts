@@ -2,12 +2,18 @@
 use strict;
 use Git;
 use StableHelper;
+use Getopt::Long qw(GetOptions);
 
-die "invalid arguments" if (scalar @ARGV < 2);
+my $susebranch = "fixes/linux-4.12";
+my $susedir;
+GetOptions("branch=s" => \$susebranch,
+	   "dir=s" => \$susedir);
 
-my $susedir = shift @ARGV;
+die "invalid arguments" if (!scalar @ARGV || !defined $susedir);
+
+$susebranch = "origin/" . $susebranch;
+
 my $suserepo = Git->repository($susedir);
-my $susebranch = "origin/fixes/linux-4.12";
 my $susetop = $suserepo->command_oneline('rev-parse', $susebranch);
 my $repo = Git->repository();
 
