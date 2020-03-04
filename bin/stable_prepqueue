@@ -5,6 +5,7 @@ use Git;
 use Storable;
 use StableHelper;
 use Getopt::Long qw(GetOptions);
+use Term::ANSIColor qw(colored color);
 
 my $myver = '4.12';
 my $sdir = glob '~/linux';
@@ -20,7 +21,7 @@ my $first_git = "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2";
 my $renames = "/usr/share/slaby-scripts/renames-$myver";
 my %renames;
 
-print "Parsing renames for v$myver\n";
+print colored("Parsing renames for v$myver\n", 'green');
 if (-f $renames) {
 	open(REN, "<$renames") or die "cannot open $renames";
 	while (<REN>) {
@@ -37,15 +38,15 @@ if (-f $renames) {
 	}
 	close REN;
 } else {
-	print "\tNo renames at $renames\n"
+	print "  No renames at $renames\n"
 }
 
-print "Parsing full history up to v$myver\n";
+print colored("Parsing full history up to v$myver\n", 'green');
 
 my %full_history;
 my $full_history_file = "/tmp/full-hist-$myver";
 if (-f "$full_history_file") {
-	print "\t... from cache $full_history_file\n";
+	print "  ... from cache $full_history_file\n";
 	my $h = retrieve($full_history_file);
 	%full_history = %$h;
 } else {
@@ -57,7 +58,7 @@ if (-f "$full_history_file") {
 	store(\%full_history, $full_history_file);
 }
 
-print "Parsing history v$myver..stable/linux-$myver.y\n";
+print colored("Parsing history v$myver..stable/linux-$myver.y\n", 'green');
 
 my @history = $srepo->command('log', '--format=%B', "v$myver..stable/linux-$myver.y");
 @history = StableHelper::get_upstream_commits(@history);
@@ -70,13 +71,13 @@ my %localSHAs;
 my @removed;
 my %header_off;
 
-sub remove($$) {
+sub remove($$) {;
 	my ($msg, $file) = @_;
 	print $msg, " ", scalar $repo->command('rm', $file);
 	push @removed, $file;
 }
 
-print "Parsing ", scalar @ARGV, " patches\n";
+print color('green'), "Parsing ", scalar @ARGV, " patches\n", color('reset');
 
 foreach my $patch (@ARGV) {
 	print "  Handling $patch\n";
@@ -155,7 +156,7 @@ foreach my $patch (@ARGV) {
 	}
 }
 
-print "Removing\n";
+print colored("Removing\n", 'green');
 
 whole:
 foreach my $patch (keys %maybe_remove) {
@@ -167,11 +168,11 @@ foreach my $patch (keys %maybe_remove) {
 		}
 	}
 
-	remove("FIX", $patch);
+	remove("  FIX", $patch);
 	delete $remaining{$patch};
 }
 
-print "Mangling patches (s-o-b, renames, ...)\n";
+print colored("Mangling patches (s-o-b, renames, ...)\n", 'green');
 
 foreach my $patch (keys %remaining) {
 	open(FILE, "<", $patch) || die "cannot open $patch for r";
@@ -200,7 +201,7 @@ foreach my $patch (keys %remaining) {
 my $rmregexp = join '|', @removed;
 
 if (-f "series") {
-	print "Updating series\n";
+	print colored("Updating series\n", 'green');
 
 	open(FILE, "<", "series") || die "cannot open series for r";
 	my @series = <FILE>;
