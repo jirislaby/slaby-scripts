@@ -51,7 +51,9 @@ foreach my $patch (@ARGV) {
 	die "no '---' in $patch" unless ($has_delim);
 
 	my @SHAs = StableHelper::get_upstream_commits(@header);
-	if (scalar @SHAs == 1 && exists $git_commits{$SHAs[0]}) {
+	if (scalar @SHAs == 0) {
+		print colored("\tNo SHAS!\n", 'red');
+	} elsif (scalar @SHAs == 1 && exists $git_commits{$SHAs[0]}) {
 		$repo->command_noisy('rm', $patch);
 	} else {
 		push @to_apply, @SHAs;
