@@ -3,6 +3,7 @@ use strict;
 use Git;
 use StableHelper;
 use Getopt::Long qw(GetOptions);
+use Term::ANSIColor qw(colored color);
 
 my $susebranch = "fixes/linux-4.12";
 my $susedir;
@@ -17,7 +18,8 @@ my $suserepo = Git->repository($susedir);
 my $susetop = $suserepo->command_oneline('rev-parse', $susebranch);
 my $repo = Git->repository();
 
-print "Parsing Git-commits from $susedir\n";
+print colored("Parsing Git-commits from ", 'green'),
+	colored("$susedir#$susebranch\n", 'yellow');
 
 my %git_commits = map {
 	if (/^Git-commit:\s*([0-9a-f]{40})/) {
@@ -27,7 +29,7 @@ my %git_commits = map {
 	}
 } $suserepo->command('grep', '-h', '^Git-commit:', $susebranch, '--', 'patches.*');
 
-print "Parsing ", scalar @ARGV, " patches\n";
+print color('green'), "Parsing ", scalar @ARGV, " patches\n", color('reset');
 
 my @to_apply;
 
@@ -56,7 +58,7 @@ foreach my $patch (@ARGV) {
 	}
 }
 
-print "To be applied:\n";
+print colored("To be applied:\n", 'green');
 
 foreach (@to_apply) {
 	print "$_\n";
