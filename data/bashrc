@@ -13,7 +13,7 @@ alias gru='git remote update'
 alias gd='git diff'
 alias glm='git log --author=jslaby'
 alias qd='quilt diff'
-alias qdig='dig_patch `quilt next`'
+alias qdig='echo "vim `quilt next`" | xclip; dig_patch `quilt next`'
 alias qpr='quilt push && ~/kernel-source/scripts/refresh_patch.sh'
 alias ref='~/kernel-source/scripts/refresh_patch.sh'
 
