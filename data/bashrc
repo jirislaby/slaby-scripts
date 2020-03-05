@@ -28,6 +28,14 @@ if [ $? != 0 ]; then
 	IP_COLOR='--color'
 fi
 
+function vimp() {
+	REV="$1"
+	if [ -z "$REV" ]; then
+		REV="@{u}"
+	fi
+	vim `gd --name-only "$REV" -- 'patches.*' | ./scripts/series_sort.py`
+}
+
 function cd_existing() {
 	for DIR; do
 		if [ -d "$DIR" ]; then
