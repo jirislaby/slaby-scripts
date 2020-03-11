@@ -93,7 +93,7 @@ if ! echo $@ | grep -q -- '-smp '; then
 fi
 
 SOUND=""
-if [ -f /proc/asound/cards ]; then
+if which pulseaudio &>/dev/null && pulseaudio --check; then
 	if [ $WIN = 1 ]; then
 		SOUND='-soundhw ac97'
 	else
