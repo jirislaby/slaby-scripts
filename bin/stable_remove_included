@@ -5,12 +5,19 @@ use StableHelper;
 use Getopt::Long qw(GetOptions);
 use Term::ANSIColor qw(colored color);
 
+my $host;
+my $refdate;
+my $sdir = glob '~/linux';
 my $susebranch = "fixes/linux-4.12";
 my $susedir;
 GetOptions("branch=s" => \$susebranch,
-	   "dir=s" => \$susedir);
-
-die "invalid arguments" if (!scalar @ARGV || !defined $susedir);
+	   "dir=s" => \$susedir,
+	   "ldir=s" => \$sdir,
+	   "refdate=s" => \$refdate,
+	   "host=s" => \$host);
+die "invalid arguments" if (!scalar @ARGV || !defined $susedir ||
+	(defined $refdate && !defined $host) ||
+	(!defined $refdate && defined $host));
 
 $susebranch = "origin/" . $susebranch;
 
@@ -58,6 +65,17 @@ foreach my $patch (@ARGV) {
 	} else {
 		push @to_apply, @SHAs;
 	}
+}
+
+if (defined $host) {
+	print colored("Generating:\n", 'green');
+
+	foreach (@to_apply) {
+		my @cmd = ('susegen', '-r', "networking-stable-$refdate", $host, '-1', $_);
+		chdir($sdir);
+		system(@cmd) == 0 or die "cannot run susegen";
+	}
+	exit 0;
 }
 
 print colored("To be applied:\n", 'green');
