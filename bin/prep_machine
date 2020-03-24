@@ -82,7 +82,7 @@ case "$VERSION" in
 	;;
 esac
 
-sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
+sudo zypper -v --gpg-auto-import-keys -n in --no-recommends \
 	bc cscope $QEMU quilt mosh \
 	osc build flex gcc git-core libelf-devel make \
 	obs-service-download_files obs-service-download_url \
@@ -95,7 +95,7 @@ sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
 	perl-libwww-perl tig || :
 
 for P in ca-certificates-suse dwarves python-packaging; do
-	sudo zypper -v --gpg-auto-import-keys -n in --no-rec \
+	sudo zypper -v --gpg-auto-import-keys -n in --no-recommends \
 		$P || :
 done
 
