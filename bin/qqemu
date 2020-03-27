@@ -38,7 +38,8 @@ done
 
 FILE=$1
 shift
-WIN=0
+WIN10=0
+WINOLD=0
 NBSD=0
 FACT=0
 BIT32=0
@@ -46,8 +47,10 @@ RAW=""
 OVMF_CODE=/usr/share/qemu/ovmf-x86_64-opensuse-code.bin
 OVMF_VARS_SRC=/usr/share/qemu/ovmf-x86_64-opensuse-vars.bin
 OVMF_VARS="$FILE.vars"
-if echo "$FILE" | grep -q win; then
-	WIN=1
+if echo "$FILE" | grep -q win10; then
+	WIN10=1
+elif echo "$FILE" | grep -q win; then
+	WINOLD=1
 fi
 if echo "$FILE" | grep -q nbsd; then
 	NBSD=1
@@ -68,7 +71,7 @@ QEMU_MAJOR=${QEMU_VER%%.*}
 DRIVE="-drive file=$FILE$RAW"
 if [ "$QEMU_MAJOR" -ge 2 ]; then
 	DRIVE="$DRIVE,discard=unmap"
-	if [ $WIN = 0 -a $NBSD = 0 ]; then
+	if [ $WINOLD = 0 -a $WIN10 = 0 -a $NBSD = 0 ]; then
 		DRIVE="$DRIVE,if=none,id=hd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd"
 	fi
 fi
@@ -94,7 +97,7 @@ fi
 
 SOUND=""
 if which pulseaudio &>/dev/null && pulseaudio --check; then
-	if [ $WIN = 1 ]; then
+	if [ $WINOLD = 1 ]; then
 		SOUND='-soundhw ac97'
 	else
 		SOUND='-soundhw hda'
@@ -124,18 +127,26 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
 fi
 
-PID_FILE="$TMPDIR/qemu.pid.$$"
-QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $DRIVE $SOUND $SPICE"
-TELNET_PORT=""
-SERIAL_WAIT_RE=""
-if [ $WIN = 1 ]; then
+NET="-net nic,model=virtio"
+USB=""
+if [ $WINOLD = 1 ]; then
 	USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
 	USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
 	USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
 	USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
-	QEMU_ARGS="$USB $QEMU_ARGS -net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 -net nic,model=rtl8139 -rtc base=localtime -vga qxl"
+	NET="-net nic,model=rtl8139"
 else
 	USB="-device qemu-xhci,p2=8,p3=8"
+fi
+
+OTHER=""
+if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
+	NET="-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 $NET"
+	OTHER="-rtc base=localtime -vga qxl"
+	if [ $WIN10 = 1 ]; then
+		OTHER="$OTHER --device virtio-balloon"
+	fi
+else
 	if [ $SCREEN = 1 ]; then
 		SERIAL="pty"
 		SERIAL_WAIT_RE='redirected to /dev/.*(label serial'
@@ -144,20 +155,27 @@ else
 		SERIAL="telnet:localhost:$TELNET_PORT,server"
 		SERIAL_WAIT_RE='QEMU waiting for connection.*telnet'
 	fi
-	QEMU_ARGS="$USB $QEMU_ARGS -net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 -net nic,model=virtio -serial $SERIAL --device virtio-balloon"
+	NET="-net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 $NET"
+	OTHER="-serial $SERIAL --device virtio-balloon"
 fi
+
 if [ $FACT = 1 ]; then
-	QEMU_ARGS="$QEMU_ARGS -device virtio-tablet-pci -device virtio-vga,virgl=on"
+	OTHER="$OTHER -device virtio-tablet-pci -device virtio-vga,virgl=on"
 	if [ $BIT32 -ne 1 -a -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
 		if [ ! -f "$OVMF_VARS" ]; then
 			cp -v "$OVMF_VARS_SRC" "$OVMF_VARS"
 		fi
-		QEMU_ARGS="$QEMU_ARGS -drive if=pflash,format=raw,unit=0,readonly,file=$OVMF_CODE"
-		QEMU_ARGS="$QEMU_ARGS -drive if=pflash,format=raw,unit=1,file=$OVMF_VARS"
+		OTHER="$OTHER -drive if=pflash,format=raw,unit=0,readonly,file=$OVMF_CODE"
+		OTHER="$OTHER -drive if=pflash,format=raw,unit=1,file=$OVMF_VARS"
 	fi
 else
-	QEMU_ARGS="$QEMU_ARGS -device usb-tablet"
+	OTHER="$OTHER -device usb-tablet"
 fi
+
+PID_FILE="$TMPDIR/qemu.pid.$$"
+QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $DRIVE $SOUND $USB $SPICE $NET $OTHER"
+TELNET_PORT=""
+SERIAL_WAIT_RE=""
 
 QEMU_RUN="qemu-kvm $QEMU_ARGS"
 SCR="$TMPDIR/qemu.$$"
