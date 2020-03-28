@@ -2,7 +2,7 @@
 
 PNM=`mktemp --suffix .pnm`
 PNG=`mktemp --suffix .png`
-scanimage $@ > "$PNM"
+scanimage --format=pnm $@ > "$PNM"
 convert "$PNM" -level 6%,90% "$PNG"
 cat "$PNG"
 rm -f "$PNM" "$PNG"
