@@ -140,6 +140,8 @@ else
 fi
 
 OTHER=""
+TELNET_PORT=""
+SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
 	NET="-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 $NET"
 	OTHER="-rtc base=localtime -vga qxl"
@@ -174,8 +176,6 @@ fi
 
 PID_FILE="$TMPDIR/qemu.pid.$$"
 QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $DRIVE $SOUND $USB $SPICE $NET $OTHER"
-TELNET_PORT=""
-SERIAL_WAIT_RE=""
 
 QEMU_RUN="qemu-kvm $QEMU_ARGS"
 SCR="$TMPDIR/qemu.$$"
