@@ -22,6 +22,8 @@ alias tign='tig korg/next_master..'
 alias tigs='tig v4.12..'
 alias ip='ip $IP_COLOR'
 
+alias awrap='echo -ne "\x1b[?7h"'
+
 IP_COLOR='--color=auto'
 ip $IP_COLOR l &>/dev/null
 if [ $? != 0 ]; then
