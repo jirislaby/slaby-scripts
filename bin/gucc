@@ -31,4 +31,4 @@ case $CONFIG_SUSE_VERSION in
 	esac ;;
 esac
 
-exec gcc-$GCCVER $@
+exec gcc-$GCCVER "$@"
