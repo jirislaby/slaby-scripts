@@ -1,12 +1,21 @@
 #!/usr/bin/perl -w
 use strict;
+use Getopt::Long qw(GetOptions);
 use Git;
 
 my $repo = Git->repository;
+my $rev = '@';
+GetOptions("rev=s" => \$rev);
 
-my @patches = $repo->command('diff', '--name-only', '@', '--', 'patches.*');
+my @patches;
 
-die 'nothing to do' if (scalar @patches == 0);
+if (scalar @ARGV) {
+	@patches = @ARGV;
+} else {
+	@patches = $repo->command('diff', '--name-only', $rev, '--',
+		'patches.*');
+	die 'nothing to do' if (scalar @patches == 0);
+}
 
 my $regexp = join "|", @patches;
 
