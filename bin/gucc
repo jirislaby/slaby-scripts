@@ -27,7 +27,7 @@ GCCVER=10
 case $CONFIG_SUSE_VERSION in
 	15) case $CONFIG_SUSE_PATCHLEVEL in
 		0) GCCVER=4.8 ;;
-		1 | 2) GCCVER=7 ;;
+		1 | 2 | 3) GCCVER=7 ;;
 	esac ;;
 esac
 
