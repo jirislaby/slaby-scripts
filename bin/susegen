@@ -20,6 +20,7 @@ if [ $# -lt 1 ]; then
 	usage
 fi
 
+AUTO_MAINLINE=
 MAINLINE="--add-header 'Patch-mainline: no'"
 MAINLINE_FORCE=
 GITREPO=
@@ -29,7 +30,7 @@ while getopts "g:m:r:" OPT; do
 		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
 		;;
 		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
-		   MAINLINE_FORCE=1
+		   MAINLINE_FORCE="$OPTARG"
 		;;
 		r) REF="--add-header 'References: $OPTARG'"
 		;;
@@ -67,7 +68,7 @@ for patch in $PATCHES/*; do
 	fi
 	if [ -n "$AUTO_MAINLINE" ]; then
 		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $AUTO_MAINLINE/" $patch
-	elif [ -n "$GITREPO" ]; then
+	elif [[ -n "$GITREPO" || "$MAINLINE_FORCE" =~ ^v[0-9] ]]; then
 		sed -i "s/^Patch-mainline: .*$/Git-commit: $SHA\n&/" $patch
 	fi
 done
