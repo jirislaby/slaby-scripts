@@ -98,9 +98,9 @@ fi
 SOUND=""
 if which pulseaudio &>/dev/null && pulseaudio --check; then
 	if [ $WINOLD = 1 ]; then
-		SOUND='-soundhw ac97'
+		SOUND='-device AC97'
 	else
-		SOUND='-soundhw hda'
+		SOUND='-device intel-hda -device hda-duplex'
 	fi
 fi
 
