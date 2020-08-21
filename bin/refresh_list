@@ -57,7 +57,7 @@ chdir "$out_dir";
 foreach my $file (@patches_sorted) {
 	system('quilt', 'push', '--fuzz=0', $file) == 0 or
 		die "push in $out_dir";
-	system('~/kernel-source/scripts/refresh_patch.sh') == 0 or
+	system('./patches/scripts/refresh_patch.sh') == 0 or
 		die "refresh in $out_dir";
 }
 
