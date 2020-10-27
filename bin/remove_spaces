@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for FILE; do
+	NEW="${FILE// /_}"
+	if [ "$FILE" != "$NEW" ]; then
+		mv "$FILE" "$NEW"
+	fi
+done
