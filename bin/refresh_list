@@ -5,7 +5,10 @@ use Git;
 
 my $repo = Git->repository;
 my $rev = '@';
-GetOptions("rev=s" => \$rev);
+my $from;
+GetOptions("rev=s" => \$rev,
+	"from=s" => \$from) or
+	die("Error in command line arguments\n");
 
 my @patches;
 
@@ -14,8 +17,16 @@ if (scalar @ARGV) {
 } else {
 	@patches = $repo->command('diff', '--name-only', $rev, '--',
 		'patches.*');
-	die 'nothing to do' if (scalar @patches == 0);
+
+	if (defined $from) {
+		my $found = 0;
+		while (scalar @patches && $patches[0] ne $from) {
+			shift @patches;
+		}
+	}
 }
+
+die 'nothing to do' if (scalar @patches == 0);
 
 my $regexp = join "|", @patches;
 
