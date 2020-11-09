@@ -25,7 +25,8 @@ MAINLINE="--add-header 'Patch-mainline: no'"
 MAINLINE_FORCE=
 GITREPO=
 REF=
-while getopts "g:m:r:" OPT; do
+STARTNR=
+while getopts "g:m:r:s:" OPT; do
 	case "$OPT" in
 		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
 		;;
@@ -33,6 +34,8 @@ while getopts "g:m:r:" OPT; do
 		   MAINLINE_FORCE="$OPTARG"
 		;;
 		r) REF="--add-header 'References: $OPTARG'"
+		;;
+		s) STARTNR="--start-number $OPTARG"
 		;;
 		*) usage
 		;;
@@ -44,7 +47,7 @@ MACHINE="$1"
 shift
 
 PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --no-renames $GITREPO $MAINLINE $REF"
+GITARGS="-o $PATCHES -s -k --no-renames $GITREPO $MAINLINE $REF $STARTNR"
 
 rm -rf $PATCHES
 
