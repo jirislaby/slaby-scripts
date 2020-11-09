@@ -17,13 +17,6 @@ if (scalar @ARGV) {
 } else {
 	@patches = $repo->command('diff', '--name-only', $rev, '--',
 		'patches.*');
-
-	if (defined $from) {
-		my $found = 0;
-		while (scalar @patches && $patches[0] ne $from) {
-			shift @patches;
-		}
-	}
 }
 
 die 'nothing to do' if (scalar @patches == 0);
@@ -49,6 +42,12 @@ if (scalar @patches != scalar @patches_sorted) {
 	print STDERR "problems:\n";
 	dump_diff(@patches, @patches_sorted);
 	die 'count of patches does not match: ', scalar @patches, " != ", scalar @patches_sorted;
+}
+
+if (defined $from) {
+	while (scalar @patches_sorted && $patches_sorted[0] ne $from) {
+		shift @patches_sorted;
+	}
 }
 
 my $out_dir;
