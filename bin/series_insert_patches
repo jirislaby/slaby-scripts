@@ -100,9 +100,19 @@ print colored("Adding patches\n", 'green');
 
 foreach my $src (values %shas) {
 	die unless (-f $src);
-	my $dest = basename($src);
-	$dest =~ s/0[0-9][0-9][0-9]-//;
-	$dest = "patches.suse/$dest";
+	my $destbase = basename($src);
+	die if ($destbase !~ /^0[0-9]{3}-(.*)\.patch$/);
+	$destbase = $1;
+	my $suffix = "";
+	my $dest;
+	do {
+		if ($suffix) {
+			print colored("$dest already exists, trying with $suffix\n",
+				'yellow');
+		}
+		$dest = "patches.suse/$destbase$suffix.patch";
+		$suffix++;
+	} while (-f $dest);
 
 	print("$dest\n");
 	mv($src, $dest);
