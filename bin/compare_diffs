@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 OTHER_PATCH_DIR=$1
 if [ -z "$OTHER_PATCH_DIR" -o ! -d "$OTHER_PATCH_DIR" ]; then

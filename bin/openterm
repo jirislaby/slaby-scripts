@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 KEY=`xauth list|grep \`uname -n\`|tail -1|sed 's@.* @@'`
 

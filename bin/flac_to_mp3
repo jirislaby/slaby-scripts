@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 for FLAC; do
 	flac -d -F -s -c "$FLAC" | \

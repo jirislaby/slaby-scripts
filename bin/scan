@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 PNM=`mktemp --suffix .pnm`
 PNG=`mktemp --suffix .png`

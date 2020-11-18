@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 NAME='DLL079F:01 044E:120B'
 NEWVAL=`xinput list-props "$NAME"|awk '{if (/Device Enabled/) {print !$4}}'`

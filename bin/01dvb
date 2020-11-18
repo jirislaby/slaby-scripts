@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # Abort the hibernation process if there are DVB adapter open.
 
 . "${PM_FUNCTIONS}"

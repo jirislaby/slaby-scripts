@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 for CONFIG in .config $abs_srctree/.config $objtree/.config; do
 	if [ -f "$CONFIG" ]; then

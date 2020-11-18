@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if [ $# -lt 1 ]; then
 	echo $0 '<file.img> [qemu arguments]'

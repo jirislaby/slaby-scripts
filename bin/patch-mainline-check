@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 git grep -i -L -E '^patch-mainline:\s*(yes|never.*|v?[-0-9.rc~^]*|[0-9a-f]{40})\s*$' patches.*/* | grep -v '^patches\.xen\/' >/tmp/no_main.$$
 

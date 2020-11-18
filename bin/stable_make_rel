@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 REMOTE_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/jirislaby/linux-stable.git
 sv=4.12
