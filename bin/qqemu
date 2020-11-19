@@ -71,7 +71,7 @@ QEMU_MAJOR=${QEMU_VER%%.*}
 DRIVE="-drive file=$FILE$RAW"
 if [ "$QEMU_MAJOR" -ge 2 ]; then
 	DRIVE="$DRIVE,discard=unmap"
-	if [ $WINOLD = 0 -a $WIN10 = 0 -a $NBSD = 0 ]; then
+	if [ $WINOLD = 0 -a $NBSD = 0 ]; then
 		DRIVE="$DRIVE,if=none,id=hd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd"
 	fi
 fi
