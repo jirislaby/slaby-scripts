@@ -30,17 +30,22 @@ if [ $? != 0 ]; then
 	IP_COLOR='--color'
 fi
 
+function join_by() {
+	local IFS="$1"
+	shift
+	echo "$*"
+}
+
 function show_patch {
 	SHA="$1"
-	HEAD="${2}"
+	HEAD="$2"
 	declare -a PATCHES
 	PATCHES=( $(git grep -l "Git-commit: $SHA" $HEAD -- 'patches.*') )
 	if [ ${#PATCHES[*]} -eq 0 ]; then
 		echo no patch found >&2
 	elif [ ${#PATCHES[*]} -gt 1 ]; then
 		echo more than one patch found: >&2
-		local IFS=$'\n'
-		echo "${PATCHES[*]}" >&2
+		echo `join_by $'\n' "${PATCHES[*]}"` >&2
 	elif [ -n "$HEAD" ]; then
 		git show ${PATCHES[0]} | view '+set ft=diff' -
 	else
@@ -53,7 +58,11 @@ function vimp() {
 	if [ -z "$REV" ]; then
 		REV="@{u}"
 	fi
-	${EDITOR:-vim} `gd --name-only "$REV" -- 'patches.*' | ./scripts/series_sort.py | grep -v '^\s*#'`
+	declare -a PATCHES
+	PATCHES=( $(gd --name-only "$REV" -- 'patches.*') )
+	PATCHES=( $(git grep -hE "`join_by '|' \"${PATCHES[@]}\"`" series.conf) )
+#	| grep -v '^\s*#'`
+	${EDITOR:-vim} "${PATCHES[@]}"
 }
 
 function cd_existing() {
