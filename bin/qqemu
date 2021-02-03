@@ -42,6 +42,7 @@ WIN10=0
 WINOLD=0
 NBSD=0
 FACT=0
+EFI=0
 BIT32=0
 RAW=""
 OVMF_CODE=/usr/share/qemu/ovmf-x86_64-opensuse-code.bin
@@ -57,9 +58,14 @@ if echo "$FILE" | grep -q nbsd; then
 fi
 if echo "$FILE" | grep -q fact; then
 	FACT=1
+	EFI=1
+fi
+if echo "$FILE" | grep -q -- -efi; then
+	EFI=1
 fi
 if echo "$FILE" | grep -q '32\.img$'; then
 	BIT32=1
+	EFI=0
 fi
 if echo "$FILE" | grep -q '\.img$'; then
 	RAW=",format=raw"
@@ -161,15 +167,18 @@ else
 	OTHER="-serial $SERIAL --device virtio-balloon"
 fi
 
-if [ $FACT = 1 ]; then
-	OTHER="$OTHER -device virtio-tablet-pci -device virtio-vga,virgl=on"
-	if [ $BIT32 -ne 1 -a -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
+if [ $EFI = 1 ]; then
+	if [ -f "$OVMF_CODE" -a -f "$OVMF_VARS_SRC" ]; then
 		if [ ! -f "$OVMF_VARS" ]; then
 			cp -v "$OVMF_VARS_SRC" "$OVMF_VARS"
 		fi
 		OTHER="$OTHER -drive if=pflash,format=raw,unit=0,readonly,file=$OVMF_CODE"
 		OTHER="$OTHER -drive if=pflash,format=raw,unit=1,file=$OVMF_VARS"
 	fi
+fi
+
+if [ $FACT = 1 ]; then
+	OTHER="$OTHER -device virtio-tablet-pci -device virtio-vga,virgl=on"
 else
 	OTHER="$OTHER -device usb-tablet"
 fi
