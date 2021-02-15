@@ -1,5 +1,11 @@
 #!/usr/bin/bash
 
+DELETE_OK=0
+if [ $1 = "-d" ]; then
+	DELETE_OK=1
+	shift
+fi
+
 declare -A TAGS_CONV=(
 	[ARTIST]=a
 	[TITLE]=t
@@ -31,7 +37,7 @@ for FLAC; do
 	done
 
 	flac -d -F -s -c "$FLAC" | \
-		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" &
+		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" && test "$DELETE_OK" -eq 1 && rm "${FLAC%.flac}.flac" &
 done
 
 wait
