@@ -1,8 +1,37 @@
 #!/usr/bin/bash
 
+declare -A TAGS_CONV=(
+	[ARTIST]=a
+	[TITLE]=t
+	[ALBUM]=l
+	[DATE]=y
+	[TRACKNUMBER]=n
+	[GENRE]=g
+)
+
+declare -a METAFLAG_CMD=()
+for TAG in "${!TAGS_CONV[@]}"; do
+	METAFLAG_CMD+=(--show-tag=$TAG)
+done
+
 for FLAC; do
+	declare -a TAGS_CMD=(--id3v2-only --pad-id3v2)
+	declare -A TAGS=()
+
+	while read LINE; do
+		tag="${LINE%%=*}"
+		val="${LINE#*=}"
+		TAGS[$tag]="$val"
+	done < <(metaflac "${METAFLAG_CMD[@]}" "$FLAC")
+
+	for TAG in "${!TAGS_CONV[@]}"; do
+		if [ -n "${TAGS[$TAG]}" ]; then
+			TAGS_CMD+=(--t${TAGS_CONV[$TAG]} "${TAGS[$TAG]}")
+		fi
+	done
+
 	flac -d -F -s -c "$FLAC" | \
-		lame -V0 -m stereo - -o "${FLAC%.flac}.mp3" &
+		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" &
 done
 
 wait
