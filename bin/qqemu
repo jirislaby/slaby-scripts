@@ -102,7 +102,7 @@ if ! echo $@ | grep -q -- '-smp '; then
 fi
 
 SOUND=""
-if which pulseaudio &>/dev/null && pulseaudio --check; then
+if ( which pulseaudio &>/dev/null && pulseaudio --check) || which pipewire &>/dev/null; then
 	if [ $WINOLD = 1 ]; then
 		SOUND='-device AC97'
 	else
