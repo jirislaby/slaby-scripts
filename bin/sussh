@@ -2,12 +2,12 @@
 
 USER=jslaby
 SSH='ssh -CX'
-SSH_PARAMS='-o StrictHostKeyChecking=no'
+declare -a SSH_PARAMS=(-o StrictHostKeyChecking=no)
 
 while getopts "mr" OPT; do
 	case "$OPT" in
 		m) SSH=mosh
-		   SSH_PARAMS='--ssh=ssh -o StrictHostKeyChecking=no'
+		   SSH_PARAMS+=(--ssh=ssh)
 		;;
 		r) USER=root
 		;;
@@ -20,8 +20,11 @@ shift
 
 for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de; do
 	FQDN=$HOST.$SUFFIX
-	IP=`host $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
+	IP=`host -t A $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
 	if [ -n "$IP" ]; then
+		if [[ "$SUFFIX" == *.de ]]; then
+			SSH_PARAMS+=(-o ServerAliveInterval=60)
+		fi
 		break
 	fi
 done
@@ -35,4 +38,4 @@ ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
-$SSH "$SSH_PARAMS" "$USER@$IP" $@
+exec $SSH "${SSH_PARAMS[@]}" "$USER@$IP" $@
