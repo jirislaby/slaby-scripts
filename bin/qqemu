@@ -43,70 +43,67 @@ WINOLD=0
 NBSD=0
 FACT=0
 EFI=0
-BIT32=0
 RAW=""
 OVMF_CODE=/usr/share/qemu/ovmf-x86_64-opensuse-code.bin
 OVMF_VARS_SRC=/usr/share/qemu/ovmf-x86_64-opensuse-vars.bin
 OVMF_VARS="$FILE.vars"
-if echo "$FILE" | grep -q win10; then
+if [[ "$FILE" == *win10* ]]; then
 	WIN10=1
-elif echo "$FILE" | grep -q win; then
+elif [[ "$FILE" == *win* ]]; then
 	WINOLD=1
 fi
-if echo "$FILE" | grep -q nbsd; then
+if [[ "$FILE" == *nbsd* ]]; then
 	NBSD=1
 fi
-if echo "$FILE" | grep -q fact; then
+if [[ "$FILE" == *fact* ]]; then
 	FACT=1
 	EFI=1
 fi
-if echo "$FILE" | grep -q -- -efi; then
+if [[ "$FILE" == *-efi* ]]; then
 	EFI=1
 fi
-if echo "$FILE" | grep -q '32\.img$'; then
-	BIT32=1
+if [[ "$FILE" == *32.* ]]; then
 	EFI=0
 fi
-if echo "$FILE" | grep -q '\.img$'; then
+if [[ "$FILE" == *.img ]]; then
 	RAW=",format=raw"
 fi
 
 QEMU_VER=`qemu-kvm --version | sed 's@.*version \([0-9.]*\)[ ,(].*@\1@'`
 QEMU_MAJOR=${QEMU_VER%%.*}
 
-DRIVE="-drive file=$FILE$RAW"
+declare -a DRIVE=(-drive file="$FILE$RAW")
 if [ "$QEMU_MAJOR" -ge 2 ]; then
-	DRIVE="$DRIVE,discard=unmap"
+	DRIVE[-1]="${DRIVE[-1]},discard=unmap"
 	if [ $WINOLD = 0 -a $NBSD = 0 ]; then
-		DRIVE="$DRIVE,if=none,id=hd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd"
+		DRIVE[-1]="${DRIVE[-1]},if=none,id=hd"
+		DRIVE+=(-device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd)
 	fi
 fi
 
-MEM=""
+declare -a HW=()
 if ! echo $@ | grep -q -- '-m '; then
-	MEM=`grep 'MemTotal:' /proc/meminfo|sed 's/^.*: *\([0-9]*\) *kB$/\1/'`
+	MEM=`sed -ne 's/^MemTotal: *\([0-9]*\) *kB$/\1/p' /proc/meminfo`
 	MEM=$(($MEM/5/1024))
 
 	if [ $MEM -lt 100 ]; then
 		MEM=100
 	fi
 
-	MEM="-m $MEM"
+	HW+=(-m $MEM)
 fi
 
-SMP=""
 if ! echo $@ | grep -q -- '-smp '; then
-	SMP=`grep '^processor' /proc/cpuinfo | tail -1 | sed 's@.* @@'`
-	SMP=$(($SMP + 1))
-	SMP="-smp $SMP"
+	SMP=`grep -c ^processor.*: /proc/cpuinfo`
+	HW+=(-smp $SMP)
 fi
 
-SOUND=""
+declare -a SOUND=()
 if ( which pulseaudio &>/dev/null && pulseaudio --check) || which pipewire &>/dev/null; then
 	if [ $WINOLD = 1 ]; then
-		SOUND='-device AC97'
+		SOUND=(-device AC97)
 	else
-		SOUND='-device intel-hda -device hda-duplex'
+		SOUND=(-device intel-hda -device hda-duplex)
 	fi
 fi
 
@@ -119,6 +116,7 @@ function find_free_port() {
 	echo "$FREE_PORT"
 }
 
+declare -a SPICE=()
 if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null 2>&1) ; then
 	SPICE_PORT="/tmp/qemu-spice.$$.sock"
 	# gl=on,
@@ -127,32 +125,32 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 		SPICE_PORT=`find_free_port 3333`
 		SPICE_CONF="port=$SPICE_PORT"
 	fi
-	SPICE="-spice disable-ticketing,$SPICE_CONF -device virtio-serial -monitor pty "
-	SPICE="$SPICE -chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0"
-	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1"
-	SPICE="$SPICE -chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2"
+	SPICE=(-spice disable-ticketing,$SPICE_CONF -device virtio-serial -monitor pty)
+	SPICE+=(-chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0)
+	SPICE+=(-chardev spicevmc,name=usbredir,id=usbredirchardev1 -device usb-redir,chardev=usbredirchardev1,id=usbredirdev1)
+	SPICE+=(-chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2)
 fi
 
-NET="-net nic,model=virtio"
-USB=""
+declare -a NET=(-net nic,model=virtio)
+declare -a USB=()
 if [ $WINOLD = 1 ]; then
-	USB="-device ich9-usb-ehci1,multifunction=on,id=ehci "
-	USB="$USB -device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on"
-	USB="$USB -device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on"
-	USB="$USB -device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on"
-	NET="-net nic,model=rtl8139"
+	USB+=(-device ich9-usb-ehci1,multifunction=on,id=ehci)
+	USB+=(-device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on)
+	USB+=(-device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on)
+	USB+=(-device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on)
+	NET+=(-net nic,model=rtl8139)
 else
-	USB="-device qemu-xhci,p2=8,p3=8"
+	USB+=(-device qemu-xhci,p2=8,p3=8)
 fi
 
-OTHER=""
+declare -a OTHER=()
 TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
-	NET="-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 $NET"
-	OTHER="-rtc base=localtime -vga qxl"
+	NET=(-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 "${NET[@]}")
+	OTHER+=(-rtc base=localtime -vga qxl)
 	if [ $WIN10 = 1 ]; then
-		OTHER="$OTHER --device virtio-balloon"
+		OTHER+=(--device virtio-balloon)
 	fi
 else
 	if [ $SCREEN = 1 ]; then
@@ -163,8 +161,8 @@ else
 		SERIAL="telnet:localhost:$TELNET_PORT,server"
 		SERIAL_WAIT_RE='QEMU waiting for connection.*telnet'
 	fi
-	NET="-net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 $NET"
-	OTHER="-serial $SERIAL --device virtio-balloon"
+	NET=(-net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 "${NET[@]}")
+	OTHER+=(-serial $SERIAL --device virtio-balloon)
 fi
 
 if [ $EFI = 1 ]; then
@@ -172,21 +170,22 @@ if [ $EFI = 1 ]; then
 		if [ ! -f "$OVMF_VARS" ]; then
 			cp -v "$OVMF_VARS_SRC" "$OVMF_VARS"
 		fi
-		OTHER="$OTHER -drive if=pflash,format=raw,unit=0,readonly,file=$OVMF_CODE"
-		OTHER="$OTHER -drive if=pflash,format=raw,unit=1,file=$OVMF_VARS"
+		OTHER+=(-drive if=pflash,format=raw,unit=0,readonly,file="$OVMF_CODE")
+		OTHER+=(-drive if=pflash,format=raw,unit=1,file="$OVMF_VARS")
 	fi
 fi
 
 if [ $FACT = 1 ]; then
-	OTHER="$OTHER -device virtio-tablet-pci -device virtio-vga,virgl=on"
+	OTHER+=(-device virtio-tablet-pci -device virtio-vga,virgl=on)
 else
-	OTHER="$OTHER -device usb-tablet"
+	OTHER+=(-device usb-tablet)
 fi
 
 PID_FILE="$TMPDIR/qemu.pid.$$"
-QEMU_ARGS="-k en-us $SMP $MEM -daemonize -pidfile $PID_FILE -device virtio-rng-pci $DRIVE $SOUND $USB $SPICE $NET $OTHER"
+declare -a QEMU_RUN=(qemu-kvm -k en-us -daemonize -pidfile "$PID_FILE")
+QEMU_RUN+=("${HW[@]}" -device virtio-rng-pci "${DRIVE[@]}" "${SOUND[@]}")
+QEMU_RUN+=("${USB[@]}" "${SPICE[@]}" "${NET[@]}" "${OTHER[@]}" "$@")
 
-QEMU_RUN="qemu-kvm $QEMU_ARGS"
 SCR="$TMPDIR/qemu.$$"
 
 function finish() {
@@ -200,11 +199,11 @@ function finish() {
 trap finish EXIT
 finish
 
-echo $QEMU_RUN "$@"
+echo "${QEMU_RUN[@]}"
 if [ -n "$TELNET_PORT" ]; then
-	$QEMU_RUN "$@" |& tee $SCR >&2 &
+	"${QEMU_RUN[@]}" |& tee $SCR >&2 &
 else
-	$QEMU_RUN "$@" |& tee $SCR >&2
+	"${QEMU_RUN[@]}" |& tee $SCR >&2
 fi
 if [ $? -ne 0 ]; then
 	exit 1
