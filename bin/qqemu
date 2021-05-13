@@ -138,7 +138,6 @@ if [ $WINOLD = 1 ]; then
 	USB+=(-device ich9-usb-uhci1,masterbus=ehci.0,multifunction=on)
 	USB+=(-device ich9-usb-uhci2,masterbus=ehci.0,firstport=2,multifunction=on)
 	USB+=(-device ich9-usb-uhci3,masterbus=ehci.0,firstport=4,multifunction=on)
-	NET+=(-net nic,model=rtl8139)
 else
 	USB+=(-device qemu-xhci,p2=8,p3=8)
 fi
