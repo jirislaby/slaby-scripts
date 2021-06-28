@@ -18,8 +18,12 @@ if [ "$1" = "-f" ]; then
 	FORCE=-f
 fi
 
-for file; do
-	git rm $FORCE "$file"
-	grep -v "^\s*$file$" "$SERIES" > series1
-	mv series1 "$SERIES"
-done
+git rm $FORCE "$@"
+
+OLD_IFS="$IFS"
+IFS='|'
+RE="'$*'"
+IFS="$OLD_IFS"
+
+grep -vE "^\s*($RE)$" "$SERIES" > series1
+mv series1 "$SERIES"
