@@ -20,10 +20,17 @@ fi
 
 git rm $FORCE "$@"
 
-OLD_IFS="$IFS"
-IFS='|'
-RE="'$*'"
-IFS="$OLD_IFS"
+declare -A FILES_HASH=()
+for file; do
+	FILES_HASH["$file"]=1
+done
 
-grep -vE "^\s*($RE)$" "$SERIES" > series1
-mv series1 "$SERIES"
+declare -a OUTPUT=()
+while IFS= read -r LINE; do
+	P=${LINE##*[ $'\t']}
+	if [ ! -v FILES_HASH["$P"] ]; then
+		OUTPUT+=( "$LINE" )
+	fi
+done < "$SERIES"
+
+printf "%s\n" "${OUTPUT[@]}" > "$SERIES"
