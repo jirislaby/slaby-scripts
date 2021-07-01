@@ -1,5 +1,9 @@
 HISTSIZE=10000
-LESS="-M -R -X -F -i --mouse --wheel-lines=3"
+LESS="-M -R -X -F -i"
+
+if less --help|grep -q -- --mouse; then
+	LESS="$LESS --mouse --wheel-lines=3"
+fi
 
 if [ -d "/opt/cross/" ]; then
 	for C in /opt/cross/*/bin/; do
