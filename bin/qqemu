@@ -142,7 +142,7 @@ else
 	USB+=(-device qemu-xhci,p2=8,p3=8)
 fi
 
-declare -a OTHER=()
+declare -a OTHER=(-watchdog i6300esb)
 TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
