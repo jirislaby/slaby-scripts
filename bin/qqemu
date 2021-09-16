@@ -175,7 +175,7 @@ if [ $EFI = 1 ]; then
 fi
 
 if [ $FACT = 1 ]; then
-	OTHER+=(-device virtio-tablet-pci -device virtio-vga,virgl=on)
+	OTHER+=(-device virtio-tablet-pci -device virtio-vga)
 else
 	OTHER+=(-device usb-tablet)
 fi
