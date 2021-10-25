@@ -12,4 +12,4 @@ shift
 
 set -x
 
-ffmpeg -i "$SRC" $@ -c:v libx265 -crf 23 -preset:v slow -vf hqdn3d -c:a libfdk_aac -vbr 3 "$DST"
+ffmpeg -i "$SRC" $@ -c:v libx265 -crf 23 -preset:v medium -vf hqdn3d -c:a libfdk_aac -vbr 3 "$DST"
