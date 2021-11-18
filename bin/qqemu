@@ -160,7 +160,12 @@ else
 		SERIAL="telnet:localhost:$TELNET_PORT,server"
 		SERIAL_WAIT_RE='QEMU waiting for connection.*telnet'
 	fi
-	NET=(-net user,tftp=/home/xslaby/tftp,bootfile=/pxelinux.0,hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 "${NET[@]}")
+	if [ $EFI = 1 ]; then
+		BOOTFILE=/grub.efi
+	else
+		BOOTFILE=/pxelinux.0
+	fi
+	NET=(-net user,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 "${NET[@]}")
 	OTHER+=(-serial $SERIAL --device virtio-balloon)
 fi
 
