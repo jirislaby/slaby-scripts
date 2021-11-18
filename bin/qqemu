@@ -165,7 +165,7 @@ else
 	else
 		BOOTFILE=/pxelinux.0
 	fi
-	NET=(-net user,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632 "${NET[@]}")
+	NET=(-net user,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632,hostfwd=tcp::`find_free_port 5900`-:5900 "${NET[@]}")
 	OTHER+=(-serial $SERIAL --device virtio-balloon)
 fi
 
