@@ -55,7 +55,7 @@ my $file = $patches_sorted[0];
 
 print "Applying up to '$file'\n";
 
-open(SEQ, "./scripts/sequence-patch.sh --quilt --dir=/dev/shm/jslaby/ --fast $file |") or die 'cannot run ./scripts/sequence-patch.sh';
+open(SEQ, "./scripts/sequence-patch.sh --quilt --dir=/dev/shm/jslaby/ --rapid $file |") or die 'cannot run ./scripts/sequence-patch.sh';
 while (<SEQ>) {
 	$out_dir = $1 if (/Creating tree in (.*)/);
 	print;
