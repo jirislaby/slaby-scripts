@@ -1,0 +1,14 @@
+[Unit]
+Description=NVR %I
+Requires=var-run.mount
+After=network.target
+
+[Service]
+Type=simple
+User=nvr
+WorkingDirectory=/mnt/2G/nvr
+ExecStart=/usr/bin/nvr.pl %i
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
