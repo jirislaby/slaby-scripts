@@ -19,11 +19,9 @@ alias qpr='quilt push && ~/kernel-source/scripts/refresh_patch.sh'
 alias ref='~/kernel-source/scripts/refresh_patch.sh'
 
 function tig() {
-	if [ -n "$XTERM_VERSION" ]; then
-		( unset XTERM_VERSION; TERM_PROGRAM=gnome-terminal /usr/bin/tig "$@" )
-		return
-	fi
-	/usr/bin/tig "$@"
+	local PREFIX
+	test -n "$XTERM_VERSION" && PREFIX='env -u XTERM_VERSION TERM_PROGRAM=gnome-terminal'
+	$PREFIX /usr/bin/tig "$@"
 }
 
 alias tigl='tig -1000'
