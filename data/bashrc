@@ -18,6 +18,14 @@ alias qdig='echo "vim `quilt next`" | xclip; dig_patch `quilt next`'
 alias qpr='quilt push && ~/kernel-source/scripts/refresh_patch.sh'
 alias ref='~/kernel-source/scripts/refresh_patch.sh'
 
+function tig() {
+	if [ -n "$XTERM_VERSION" ]; then
+		( unset XTERM_VERSION; TERM_PROGRAM=gnome-terminal /usr/bin/tig "$@" )
+		return
+	fi
+	/usr/bin/tig "$@"
+}
+
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
 alias tigs='tig v4.12..'
