@@ -147,7 +147,7 @@ TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
 	NET=(-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 "${NET[@]}")
-	OTHER+=(-rtc base=localtime -vga qxl)
+	OTHER+=(-rtc base=localtime -vga qxl -device usb-tablet)
 	if [ $WIN10 = 1 ]; then
 		OTHER+=(--device virtio-balloon)
 	fi
@@ -166,7 +166,8 @@ else
 		BOOTFILE=/pxelinux.0
 	fi
 	NET=(-net user,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632,hostfwd=tcp::`find_free_port 5901`-:5901 "${NET[@]}")
-	OTHER+=(-serial $SERIAL --device virtio-balloon)
+	OTHER+=(-serial $SERIAL --device virtio-balloon -device virtio-tablet-pci)
+	OTHER+=(-device virtio-vga)
 fi
 
 if [ $EFI = 1 ]; then
@@ -177,12 +178,6 @@ if [ $EFI = 1 ]; then
 		OTHER+=(-drive if=pflash,format=raw,unit=0,readonly=on,file="$OVMF_CODE")
 		OTHER+=(-drive if=pflash,format=raw,unit=1,file="$OVMF_VARS")
 	fi
-fi
-
-if [ $FACT = 1 ]; then
-	OTHER+=(-device virtio-tablet-pci -device virtio-vga)
-else
-	OTHER+=(-device usb-tablet)
 fi
 
 PID_FILE="$TMPDIR/qemu.pid.$$"
