@@ -1,6 +1,17 @@
-#!/usr/bin/bash
+#!/usr/bin/perl
+use warnings;
+use strict;
+use Net::DBus;
 
-NAME='DLL079F:01 044E:120B'
-NEWVAL=`xinput list-props "$NAME"|awk '{if (/Device Enabled/) {print !$4}}'`
+my $bus = Net::DBus->session;
+my $kwin = $bus->get_service('org.kde.KWin');
+my $dev_man = $kwin->get_object('/org/kde/KWin/InputDevice', 'org.kde.KWin.InputDeviceManager');
 
-xinput set-prop "$NAME" 'Device Enabled' $NEWVAL
+for my $ev (@{$dev_man->devicesSysNames}) {
+	my $dev = $kwin->get_object("/org/kde/KWin/InputDevice/$ev", 'org.kde.KWin.InputDevice');
+	next unless $dev->touchpad;
+	print "$ev: ", ($dev->enabled ? "dis" : "en"), "abling\n";
+	$dev->enabled(!$dev->enabled);
+}
+
+1;
