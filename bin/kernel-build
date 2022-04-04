@@ -67,6 +67,7 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/pic32_uart.o mips
 	drivers/tty/serial/pmac_zilog.o powerpc
 	drivers/tty/serial/pxa.o arm_pxa
+	drivers/tty/serial/sb1250-duart.o mips_sb1250
 	drivers/tty/serial/serial_txx9.o mips_rbtx49xx
 	drivers/tty/serial/sa1100.o arm_sa1100
 	drivers/tty/serial/sunsab.o sparc
@@ -85,7 +86,6 @@ declare -A DRV_ARCH=(
 	drivers/tty/vcc.o sparc
 
 	drivers/tty/mips_ejtag_fdc.o mips_special # MIPS_EJTAG_FDC_TTY -> MIPS_CDMM -> CPU_MIPSR2 || CPU_MIPSR5
-	drivers/tty/serial/sb1250-duart.o mips #SIBYTE_SB1xxx_SOC
 	drivers/tty/serial/8250/8250_ioc3.o mips_special # SGI_MFD_IOC3 -> 64BIT
 	sound/soc/ti/ams-delta.o arm_special # SND_SOC_OMAP_AMS_DELTA -> MACH_AMS_DELTA -> OMAP1
 )

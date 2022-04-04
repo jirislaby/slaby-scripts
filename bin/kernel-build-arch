@@ -41,6 +41,7 @@ declare -A DEFCONFIGS=(
 	[mips_decstation]='decstation_defconfig'
 	[mips_e55]='e55_defconfig'
 	[mips_rbtx49xx]='rbtx49xx_defconfig'
+	[mips_sb1250]='sb1250_swarm_defconfig'
 	[powerpc_mpc5200]='mpc5200_defconfig'
 )
 
@@ -82,6 +83,7 @@ if [ ! -f "$DESTDIR/$DIR/.config" ]; then
 		echo "no config in $DESTDIR/$DIR/.config"
 		exit 200
 	fi
+	set -xx
 	"${make[@]}" "${DEFCONFIGS[$DIR]}" || exit 1
 fi
 
