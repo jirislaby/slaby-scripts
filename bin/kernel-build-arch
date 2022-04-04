@@ -1,0 +1,80 @@
+#!/bin/bash
+
+ARCH=""
+DIR=""
+declare -a MAKE_OPTS=()
+
+while getopts "a:cD:" OPT; do
+	case "$OPT" in
+		a) 
+			ARCH="${OPTARG%_*}"
+			DIR="$OPTARG"
+			;;
+		c) 
+			MAKE_OPTS+=('C=1')
+			;;
+		D) 
+			DESTDIR="$OPTARG"
+			;;
+		*) exit 1
+			;;
+	esac
+done
+
+if [ -z "$DIR" -o -z "$DESTDIR" ]; then
+	echo "Either -a ($DIR) or -D ($DESTDIR) missing" >&2
+	exit 1
+fi
+
+shift $(($OPTIND-1))
+
+declare -A DEFCONFIGS=(
+	[arm_footbridge]='footbridge_defconfig'
+	[arm_pxa]='pxa_defconfig'
+	[arm_rpc]='rpc_defconfig'
+	[arm_sa1100]='assabet_defconfig'
+	[m68k_coldfire]='m5475evb_defconfig'
+	[mips_decstation]='decstation_defconfig'
+	[mips_e55]='e55_defconfig'
+	[mips_rbtx49xx]='rbtx49xx_defconfig'
+	[powerpc_mpc5200]='mpc5200_defconfig'
+)
+
+declare -A CROSS_COMPILE=(
+	[alpha]="/opt/cross/gcc-10.1.0-nolibc/alpha-linux/bin/alpha-linux-"
+	[arm]="arm-suse-linux-gnueabi-"
+	[arm64]="aarch64-suse-linux-"
+	[m68k]="m68k-suse-linux-"
+	[mips]="mips-suse-linux-"
+	[parisc]="hppa-suse-linux-"
+	[powerpc]="powerpc64-suse-linux-"
+	[riscv]="riscv64-suse-linux-"
+	[sh]="/opt/cross/gcc-10.1.0-nolibc/sh4-linux/bin/sh4-linux-"
+	[sparc]="sparc64-suse-linux-"
+	[s390]="s390x-suse-linux-"
+	[xtensa]="/opt/cross/gcc-10.1.0-nolibc/xtensa-linux/bin/xtensa-linux-"
+)
+
+if [ -z "${CROSS_COMPILE[$ARCH]}" ]; then
+	exit 1
+fi
+
+if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARCH]}gcc" ]; then
+	exit 1
+fi
+
+JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
+declare -a make=(make O="$DESTDIR/$DIR/" "-j$JOBS" "${MAKE_OPTS[@]}" CROSS_COMPILE="${CROSS_COMPILE[$ARCH]}" ARCH="$ARCH")
+
+if [ ! -f "$DESTDIR/$DIR/.config" ]; then
+	if [ -z "${DEFCONFIGS[$DIR]}" ]; then
+		echo "no config in $DESTDIR/$DIR/.config"
+		exit 200
+	fi
+	"${make[@]}" "${DEFCONFIGS[$DIR]}" || exit 1
+fi
+
+set -xx
+
+"${make[@]}" olddefconfig
+exec "${make[@]}" "$@"

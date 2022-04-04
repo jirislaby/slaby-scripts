@@ -1,0 +1,154 @@
+#!/bin/bash
+
+declare -a CROSS_OPTS=()
+declare -a DFF=()
+declare -a MAKE_OPTS=()
+DESTDIR="../bu"
+CROSS_DESTDIR="../a/arch"
+
+while getopts "a:A:d:cC:" OPT; do
+	case "$OPT" in
+		a)
+			DESTDIR="$OPTARG"
+			;;
+		A)
+			CROSS_DESTDIR="$OPTARG"
+			;;
+		c)
+			MAKE_OPTS+=('C=1')
+			CROSS_OPTS+=('-c')
+			;;
+		C)
+			MAKE_OPTS+=("CC=$OPTARG")
+			;;
+		d) readarray -t DFF < <(git diff --name-only "$OPTARG"|sed -n 's@\.c$@.o@ p')
+			echo Files: "${DFF[@]}"
+			if [ "${#DFF[@]}" -eq 0 ]; then
+				exit 1
+			fi
+			;;
+		*) exit 1
+			;;
+	esac
+done
+
+if [ "${#DFF[@]}" -ne 0 ]; then
+	set -- "${DFF[@]}"
+else
+	shift $(($OPTIND-1))
+fi
+
+declare -A DRV_ARCH=(
+	arch/m68k/emu/nfcon.o m68k
+	arch/parisc/kernel/pdc_cons.o parisc
+	arch/xtensa/platforms/iss/console.o xtensa
+	drivers/s390/char/con3215.o s390
+	drivers/s390/char/sclp_rw.o s390
+	drivers/s390/char/sclp_tty.o s390
+	drivers/s390/char/sclp_vt220.o s390
+	drivers/s390/char/tty3270.o s390
+	drivers/tty/amiserial.o m68k
+	drivers/tty/ehv_bytechan.o powerpc
+	drivers/tty/hvc/hvc_dcc.o arm64
+	drivers/tty/hvc/hvcs.o powerpc
+	drivers/tty/hvc/hvsi.o powerpc
+	drivers/tty/serial/amba-pl010.o arm64
+	drivers/tty/serial/amba-pl011.o arm64
+	drivers/tty/serial/apbuart.o sparc
+	drivers/tty/serial/ar933x_uart.o mips
+	drivers/tty/serial/cpm_uart/cpm_uart_core.o powerpc_mpc5200
+	drivers/tty/serial/dz.o mips_decstation
+	drivers/tty/serial/earlycon-arm-semihost.o arm64
+	drivers/tty/serial/earlycon-riscv-sbi.o riscv
+	drivers/tty/serial/ip22zilog.o mips
+	drivers/tty/serial/mcf.o m68k_coldfire
+	drivers/tty/serial/mpc52xx_uart.o powerpc_mpc5200
+	drivers/tty/serial/mux.o parisc
+	drivers/tty/serial/pic32_uart.o mips
+	drivers/tty/serial/pmac_zilog.o powerpc
+	drivers/tty/serial/pxa.o arm_pxa
+	drivers/tty/serial/serial_txx9.o mips_rbtx49xx
+	drivers/tty/serial/sa1100.o arm_sa1100
+	drivers/tty/serial/sunsab.o sparc
+	drivers/tty/serial/sunsu.o sparc
+	drivers/tty/serial/sunzilog.o sparc
+	drivers/tty/serial/vr41xx_siu.o mips_e55
+	drivers/tty/serial/zs.o mips_decstation
+	drivers/tty/serial/21285.o arm_footbridge
+	drivers/tty/serial/8250/8250_aspeed_vuart.o arm64
+	drivers/tty/serial/8250/8250_em.o arm
+	drivers/tty/serial/8250/8250_fsl.o arm64
+	drivers/tty/serial/8250/8250_gsc.o parisc
+	drivers/tty/serial/8250/8250_acorn.o arm_rpc
+	drivers/tty/serial/8250/8250_hp300.o m68k
+	drivers/tty/serial/8250/8250_pxa.o arm_pxa
+	drivers/tty/vcc.o sparc
+
+	drivers/tty/mips_ejtag_fdc.o mips_special # MIPS_EJTAG_FDC_TTY -> MIPS_CDMM -> CPU_MIPSR2 || CPU_MIPSR5
+	drivers/tty/serial/sb1250-duart.o mips #SIBYTE_SB1xxx_SOC
+	drivers/tty/serial/8250/8250_ioc3.o mips_special # SGI_MFD_IOC3 -> 64BIT
+	sound/soc/ti/ams-delta.o arm_special # SND_SOC_OMAP_AMS_DELTA -> MACH_AMS_DELTA -> OMAP1
+)
+
+function echo_red() {
+	tput setaf 9
+	echo "$@"
+	tput sgr0
+}
+
+declare -a UNHANDLED
+declare -a BU
+declare -A ARCHS
+
+for FILE; do
+	ARCH="${DRV_ARCH[$FILE]}"
+	if [ -n "$ARCH" ]; then
+		declare -n ref="$ARCH"
+		ref+=($FILE)
+		ARCHS[$ARCH]=1
+	else
+		BU+=($FILE)
+	fi
+done
+
+for ARCH in "${!ARCHS[@]}"; do
+	if [ -z "$CROSS_DESTDIR" ]; then
+		echo_red "no -A specified" >&2
+		exit 1
+	fi
+
+	declare -n ref="$ARCH"
+	echo
+	echo_red "=== BUILDING for $ARCH ==="
+	echo Files: "${ref[@]}"
+	kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${ref[@]}"
+	RETVAL=$?
+	if [ $RETVAL -eq 200 ]; then
+		UNHANDLED+=("${ref[@]}")
+	elif [ $RETVAL -ne 0 ]; then
+	       exit 1
+	fi
+	echo "=== done $ARCH ==="
+	echo
+done
+
+if [ "${#BU[@]}" -ne 0 ]; then
+	if [ -z "$DESTDIR" ]; then
+		echo_red "no -a specified" >&2
+		exit 1
+	fi
+
+	JOBS=$((`grep -c ^processor /proc/cpuinfo`+1))
+	echo_red "=== BUILDING ==="
+	echo Files: "${BU[@]}"
+	set -x
+	make O="$DESTDIR" -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
+	set +x
+	echo "=== done ==="
+fi
+
+if [ "${#UNHANDLED[@]}" -ne 0 ]; then
+	echo
+	echo_red "=== UNHANDLED files ==="
+	( IFS=$'\n'; echo "${UNHANDLED[*]}" )
+fi
