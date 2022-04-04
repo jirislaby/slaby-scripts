@@ -2,27 +2,31 @@
 
 ARCH=""
 DIR=""
+HELP=0
 declare -a MAKE_OPTS=()
 
-while getopts "a:cD:" OPT; do
+while getopts "a:cD:h" OPT; do
 	case "$OPT" in
-		a) 
+		a)
 			ARCH="${OPTARG%_*}"
 			DIR="$OPTARG"
 			;;
-		c) 
+		c)
 			MAKE_OPTS+=('C=1')
 			;;
-		D) 
+		D)
 			DESTDIR="$OPTARG"
+			;;
+		h)
+			HELP=1
 			;;
 		*) exit 1
 			;;
 	esac
 done
 
-if [ -z "$DIR" -o -z "$DESTDIR" ]; then
-	echo "Either -a ($DIR) or -D ($DESTDIR) missing" >&2
+if [ -z "$DIR" -o \( -z "$DESTDIR" -a "$HELP" -eq 0 \) ]; then
+	echo "Either -a ($DIR), or -D ($DESTDIR), or -h missing" >&2
 	exit 1
 fi
 
@@ -64,7 +68,14 @@ if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARC
 fi
 
 JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
-declare -a make=(make O="$DESTDIR/$DIR/" "-j$JOBS" "${MAKE_OPTS[@]}" CROSS_COMPILE="${CROSS_COMPILE[$ARCH]}" ARCH="$ARCH")
+declare -a make=(make)
+test "$HELP" -eq 0 && make+=(O="$DESTDIR/$DIR/")
+make+=("-j$JOBS" "${MAKE_OPTS[@]}" CROSS_COMPILE="${CROSS_COMPILE[$ARCH]}" ARCH="$ARCH")
+
+if [ "$HELP" -eq 1 ]; then
+	set -xx
+	exec "${make[@]}" help
+fi
 
 if [ ! -f "$DESTDIR/$DIR/.config" ]; then
 	if [ -z "${DEFCONFIGS[$DIR]}" ]; then
