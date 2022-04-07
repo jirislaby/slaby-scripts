@@ -84,7 +84,7 @@ function cd_existing() {
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
 alias cds='cd ~/tmp/stable-4.12'
 alias cdsl='cd_existing ~/repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
-alias cdq='cd ~/repos/stable-queue/queue-4.13/'
+alias cdq='cd ~/repos/stable-queue/'
 alias cdx='cd ~/repos/xf86-video-intel/'
 alias cdk='cd_existing ~/kernel-source ~/repos/suse/kernel-source/'
 alias shm='cd_existing /dev/shm/jslaby/ /dev/shm/'
