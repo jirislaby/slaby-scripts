@@ -70,6 +70,7 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/sb1250-duart.o mips_sb1250
 	drivers/tty/serial/serial_txx9.o mips_rbtx49xx
 	drivers/tty/serial/sa1100.o arm_sa1100
+	drivers/tty/serial/sunhv.o sparc
 	drivers/tty/serial/sunsab.o sparc
 	drivers/tty/serial/sunsu.o sparc
 	drivers/tty/serial/sunzilog.o sparc
