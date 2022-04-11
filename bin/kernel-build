@@ -122,12 +122,36 @@ for ARCH in "${!ARCHS[@]}"; do
 	echo
 	echo_red "=== BUILDING for $ARCH ==="
 	echo Files: "${ref[@]}"
-	kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${ref[@]}"
-	RETVAL=$?
-	if [ $RETVAL -eq 200 ]; then
-		UNHANDLED+=("${ref[@]}")
-	elif [ $RETVAL -ne 0 ]; then
-	       exit 1
+	FILTERED_MAKE=`mktemp --tmpdir Makefile.XXXXXXXXXX`
+	cat >"$FILTERED_MAKE" <<EOF
+BUILD=$PWD/$CROSS_DESTDIR/$ARCH
+DRVS=${ref[@]}
+EOF
+cat >>"$FILTERED_MAKE" <<'EOF'
+MAKEFLAGS += --no-builtin-rules
+CMD=$(foreach drv,$(DRVS),$(BUILD)/$(dir $(drv)).$(notdir $(drv)).cmd)
+
+all: $(DRVS)
+
+-include $(CMD)
+
+define ONE_DRV
+$(1):
+	@echo $(1)
+endef
+
+$(foreach drv,$(DRVS),$(eval $(call ONE_DRV,$(drv))))
+EOF
+	readarray -t FILTERED < <(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
+	rm -f "$FILTERED_MAKE"
+	if [ "${#FILTERED[@]}" -ne 0 ]; then
+		kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${FILTERED[@]}"
+		RETVAL=$?
+		if [ $RETVAL -eq 200 ]; then
+			UNHANDLED+=("${ref[@]}")
+		elif [ $RETVAL -ne 0 ]; then
+		       exit 1
+		fi
 	fi
 	echo "=== done $ARCH ==="
 	echo
