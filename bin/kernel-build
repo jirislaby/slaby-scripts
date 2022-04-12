@@ -3,32 +3,24 @@
 declare -a CROSS_OPTS=()
 declare -a DFF=()
 declare -a MAKE_OPTS=()
-DESTDIR="../bu"
 CROSS_DESTDIR="../a/arch"
+DESTDIR="../bu"
 
 while getopts "a:A:d:cC:" OPT; do
 	case "$OPT" in
-		a)
-			DESTDIR="$OPTARG"
-			;;
-		A)
-			CROSS_DESTDIR="$OPTARG"
-			;;
-		c)
-			MAKE_OPTS+=('C=1')
-			CROSS_OPTS+=('-c')
-			;;
-		C)
-			MAKE_OPTS+=("CC=$OPTARG")
-			;;
+		a) DESTDIR="$OPTARG" ;;
+		A) CROSS_DESTDIR="$OPTARG" ;;
+		c) MAKE_OPTS+=('C=1')
+		   CROSS_OPTS+=('-c')
+		   ;;
+		C) MAKE_OPTS+=("CC=$OPTARG") ;;
 		d) readarray -t DFF < <(git diff --name-only "$OPTARG"|sed -n 's@\.c$@.o@ p')
-			echo Files: "${DFF[@]}"
-			if [ "${#DFF[@]}" -eq 0 ]; then
-				exit 1
-			fi
-			;;
-		*) exit 1
-			;;
+		   echo Files: "${DFF[@]}"
+		   if [ "${#DFF[@]}" -eq 0 ]; then
+			   exit 1
+		   fi
+		   ;;
+		*) exit 1 ;;
 	esac
 done
 
