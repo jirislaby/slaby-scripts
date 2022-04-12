@@ -118,23 +118,21 @@ for ARCH in "${!ARCHS[@]}"; do
 	echo Files: "${ref[@]}"
 	FILTERED_MAKE=`mktemp --tmpdir Makefile.XXXXXXXXXX`
 	cat >"$FILTERED_MAKE" <<EOF
+SOURCE=$PWD
 BUILD=$PWD/$CROSS_DESTDIR/$ARCH
 DRVS=${ref[@]}
 EOF
 cat >>"$FILTERED_MAKE" <<'EOF'
+VPATH=$(SOURCE)
 MAKEFLAGS += --no-builtin-rules
 CMD=$(foreach drv,$(DRVS),$(BUILD)/$(dir $(drv)).$(notdir $(drv)).cmd)
 
 all: $(DRVS)
 
+%.o: %.c
+	@echo $@
+
 -include $(CMD)
-
-define ONE_DRV
-$(1):
-	@echo $(1)
-endef
-
-$(foreach drv,$(DRVS),$(eval $(call ONE_DRV,$(drv))))
 EOF
 	declare -a FILTERED_MAKE_CMD=(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
 	if [ "$DUMP_MAKE" -eq 1 ]; then
