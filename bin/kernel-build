@@ -5,8 +5,9 @@ declare -a DFF=()
 declare -a MAKE_OPTS=()
 CROSS_DESTDIR="../a/arch"
 DESTDIR="../bu"
+DUMP_MAKE=0
 
-while getopts "a:A:d:cC:" OPT; do
+while getopts "a:A:d:cC:mM" OPT; do
 	case "$OPT" in
 		a) DESTDIR="$OPTARG" ;;
 		A) CROSS_DESTDIR="$OPTARG" ;;
@@ -20,6 +21,7 @@ while getopts "a:A:d:cC:" OPT; do
 			   exit 1
 		   fi
 		   ;;
+		m) DUMP_MAKE=1 ;;
 		*) exit 1 ;;
 	esac
 done
@@ -134,7 +136,15 @@ endef
 
 $(foreach drv,$(DRVS),$(eval $(call ONE_DRV,$(drv))))
 EOF
-	readarray -t FILTERED < <(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
+	declare -a FILTERED_MAKE_CMD=(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
+	if [ "$DUMP_MAKE" -eq 1 ]; then
+		echo "=== Makefile DUMP ==="
+		cat "$FILTERED_MAKE"
+		echo "=== Makefile run ==="
+		"${FILTERED_MAKE_CMD[@]}" -d
+		echo "=== Makefile DUMP END ==="
+	fi
+	readarray -t FILTERED < <("${FILTERED_MAKE_CMD[@]}")
 	rm -f "$FILTERED_MAKE"
 	if [ "${#FILTERED[@]}" -ne 0 ]; then
 		kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${FILTERED[@]}"
