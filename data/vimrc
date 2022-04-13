@@ -28,6 +28,16 @@ if has("cscope") && filereadable("/usr/bin/cscope")
    set csverb
 endif
 
+if filereadable("kernel/pid.c")
+	set makeprg=kernel-build\ -cC\ gcc-12\ -d\ @
+
+	if filereadable("/home/latest/bu/cscope.out")
+		set nocsverb
+		cs add /home/latest/bu/cscope.out
+		set csverb
+	endif
+endif
+
 function InsertInterpreter(pat)
 	if a:pat =~ "sh"
 		call _InsertInterpreter("bash")
