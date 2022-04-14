@@ -29,7 +29,7 @@ if has("cscope") && filereadable("/usr/bin/cscope")
 endif
 
 if filereadable("kernel/pid.c")
-	set makeprg=kernel-build\ -cC\ gcc-12\ -d\ @
+	set makeprg=kernel-build\ -C\ gcc-12\ -d\ @
 
 	if filereadable("/home/latest/bu/cscope.out")
 		set nocsverb
