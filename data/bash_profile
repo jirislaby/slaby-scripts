@@ -10,3 +10,8 @@ if [ -d "/opt/cross/" ]; then
 		PATH=$PATH:$C
 	done
 fi
+
+if [ -d "/dev/shm/jslaby" -a -x /usr/bin/ccache ]; then
+	CCACHE_MAXSIZE=20G
+	CCACHE_DIR=/dev/shm/jslaby/ccache
+fi
