@@ -81,6 +81,12 @@ function cd_existing() {
 	done
 }
 
+function loop_waiting_net() {
+	nc -dkl 0.0.0.0 60000 | while read; do eval "$@"; done
+}
+
+alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
+
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
 alias cds='cd ~/tmp/stable-4.12'
 alias cdsl='cd_existing ~/repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
