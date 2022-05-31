@@ -12,6 +12,6 @@ if [ -d "/opt/cross/" ]; then
 fi
 
 if [ -d "/dev/shm/jslaby" -a -x /usr/bin/ccache ]; then
-	CCACHE_MAXSIZE=20G
-	CCACHE_DIR=/dev/shm/jslaby/ccache
+	export CCACHE_MAXSIZE=20G
+	export CCACHE_DIR=/dev/shm/jslaby/ccache
 fi
