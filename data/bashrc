@@ -82,7 +82,14 @@ function cd_existing() {
 }
 
 function loop_waiting_net() {
-	nc -dkl 0.0.0.0 60000 | while read; do eval "$@"; done
+	PORT=60000
+	echo "waiting for ping on port $PORT"
+	nc -dkl 0.0.0.0 "$PORT" | while read; do
+		set -x
+		eval "$@"
+		set +x
+		echo waiting for another ping
+	done
 }
 
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
