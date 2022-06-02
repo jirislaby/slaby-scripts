@@ -2,6 +2,10 @@
 use strict;
 use File::Temp qw/tempfile/;
 use File::Which qw/which/;
+use Getopt::Long;
+
+my $skip = 0;
+GetOptions('s=i', \$skip);
 
 die 'bad params' if (scalar @ARGV != 1);
 
@@ -27,7 +31,7 @@ while (<P>) {
 	}
 	if (/^Hunk #([0-9]+) (FAILED|succeeded at [0-9]+ with fuzz)/) {
 		$hunk = $1;
-		last;
+		last unless ($skip--)
 	}
 }
 close P;
