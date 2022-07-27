@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Error qw(:try);
+use Getopt::Long;
+use Git;
+
+my $cont = 0;
+GetOptions("continue" => \$cont)
+	or die("Error in command line arguments\n");
+
+my $repo = Git->repository();
+
+my $out = $repo->command('branch', '--show-current');
+chomp $out;
+if (!$cont && $out eq 'work') {
+	$repo->command_noisy('rebase', 'work', 'devel');
+} elsif ($out ne 'devel') {
+	die "not on " . (!$cont ? "work or " : ""). "devel branch: on " .
+		(length $out ? $out : "<nothing>");
+}
+
+my $child;
+
+sub wait_child() {
+	return unless ($child);
+
+	print "Waiting for PID $child to finish\n";
+	waitpid($child, 0) if ($child);
+}
+
+if (!$cont) {
+	$child = fork;
+	unless ($child) {
+		exec('ssh', qw|git@gitolite.kernel.org track fetch
+			pub/scm/linux/kernel/git/jirislaby/linux next_master|);
+		die "exec failed";
+	}
+
+	$out = $repo->command('ls-files', '-md');
+	die "directory not clean:\n$out" if (length $out);
+
+	$repo->command_noisy(qw|remote update next linus|);
+
+	try {
+		$repo->command_noisy(qw|rebase --onto=next/master
+			korg/next_master devel|);
+	} otherwise {
+		wait_child;
+		die "rebase failed";
+	}
+}
+
+my @out = $repo->command('log', '--pretty=format:%h %s', 'next/master..');
+
+my %branches = map { /^([0-9a-f]+) BRANCH_MARKER: (.*)$/ ? ($2 => $1) : () } @out;
+
+foreach my $branch (keys %branches) {
+	print "$branch -> $branches{$branch}\n";
+	$repo->command_noisy('branch', '-f', $branch, $branches{$branch});
+}
+
+wait_child;
+
+$repo->command_noisy(qw|push korg +next/master:next_master linus/master:master  +work:devel|);
+$repo->command_noisy(qw|checkout work|);
+
+1;
