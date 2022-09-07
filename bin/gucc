@@ -23,11 +23,11 @@ if [ -z "$CONFIG_SUSE_VERSION" -o -z "$CONFIG_SUSE_PATCHLEVEL" ]; then
 	exit 1
 fi
 
-GCCVER=11
+GCCVER=12
 case $CONFIG_SUSE_VERSION in
 	15) case $CONFIG_SUSE_PATCHLEVEL in
 		0) GCCVER=4.8 ;;
-		1 | 2 | 3) GCCVER=7 ;;
+		[1-5]) GCCVER=7 ;;
 	esac ;;
 esac
 
