@@ -82,6 +82,9 @@ if [ "$QEMU_MAJOR" -ge 2 ]; then
 fi
 
 declare -a HW=()
+if [ $WINOLD = 0 ]; then
+	HW+=(-machine q35)
+fi
 if ! echo $@ | grep -q -- '-m '; then
 	MEM=`sed -ne 's/^MemTotal: *\([0-9]*\) *kB$/\1/p' /proc/meminfo`
 	MEM=$(($MEM/5/1024))
