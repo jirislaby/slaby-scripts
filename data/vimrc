@@ -62,6 +62,7 @@ augroup filetype
 	au! BufRead,BufNewFile *.ll	set filetype=llvm
 	au! BufRead,BufNewFile *.g	set filetype=antlr3
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
+	au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton.CMakeLists.txt
 	au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
 	au BufNewFile *.cpp		:0r /usr/share/slaby-scripts/skeleton.cpp
 	au BufNewFile *.{pl,py,sh}      call InsertInterpreter(expand("<afile>"))
