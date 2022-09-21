@@ -26,7 +26,7 @@ function tig() {
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
-alias tigs='tig v4.12..'
+alias tigu='tig @{u}..'
 alias ip='ip $IP_COLOR'
 
 alias awrap='echo -ne "\x1b[?7h"'
