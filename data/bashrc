@@ -13,16 +13,10 @@ alias gru='git remote update'
 alias gd='git diff'
 alias gdw='git diff --word-diff'
 alias glm='git log --author=jslaby'
+alias ref='~/kernel-source/scripts/refresh_patch.sh'
 alias qd='quilt diff'
 alias qdig='echo "vim `quilt next`" | xclip; dig_patch `quilt next`'
-alias qpr='quilt push && ~/kernel-source/scripts/refresh_patch.sh'
-alias ref='~/kernel-source/scripts/refresh_patch.sh'
-
-function tig() {
-	local PREFIX
-	test -n "$XTERM_VERSION" && PREFIX='env -u XTERM_VERSION TERM_PROGRAM=gnome-terminal'
-	$PREFIX /usr/bin/tig "$@"
-}
+alias qpr='quilt push && ref'
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
