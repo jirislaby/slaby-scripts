@@ -9,14 +9,19 @@ GetOptions('s=i', \$skip);
 
 die 'bad params' if (scalar @ARGV != 1);
 
-my $stable_path = '/home/latest/repos/stable-queue/queue-4.4/';
+my @patches_paths = qw|./ patches/ /home/latest/repos/stable-queue/queue-4.4/|;
 my $patch = $ARGV[0];
 my $file;
 my $hunk;
 
-if (!-f $patch && -f "$stable_path/$patch") {
-	$patch = "$stable_path/$patch";
+for my $path (@patches_paths) {
+	if (-f "$path/$patch") {
+		$patch = "$path/$patch";
+		last;
+	}
 }
+
+die "cannot find $patch" unless (-f $patch);
 
 open(P, "patch --dry-run -f -p1 -i '$patch' |") or
 	die "patch failed to execute: $!";
