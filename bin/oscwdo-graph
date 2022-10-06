@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+use strict;
+use Graph;
+use Graph::Writer::Dot;
+
+die "bad args" if (scalar @ARGV != 4);
+
+my $prj = $ARGV[0];
+my $pkg = $ARGV[1];
+my $repo = $ARGV[2];
+my $arch = $ARGV[3];
+
+my $g = Graph->new;
+my %visited;
+my %to_visit = ( $pkg => 1 );
+
+while (scalar %to_visit) {
+	my $cur_pkg = (keys %to_visit)[0];
+	delete $to_visit{$cur_pkg};
+	$visited{$cur_pkg} = 1;
+	print "visiting $cur_pkg (remaining ", scalar keys %to_visit, ")\n";
+
+	# use osc api '/build/$prj/$repo/$arch/_builddepinfo?view=revpkgnames&package=pkg1&package=pkg2...
+	# and parse /package/pkgdep in the result
+	open(WDO, "osc whatdependson $prj $cur_pkg $repo $arch|")
+		or die "Can't run osc whatdependson: $!";
+	my $query = <WDO>;
+	die "bad query >$query<" unless $query ne "$cur_pkg :";
+	while (<WDO>) {
+		chomp;
+		s/^\s*//;
+		my $dep = $_;
+		print "\tV: $dep";
+		$g->add_edge($cur_pkg, $dep);
+		if (!$visited{$dep}) {
+			print " +";
+			$to_visit{$dep} = 1;
+		}
+		print "\n";
+	}
+	close(WDO);
+}
+
+my $writer = Graph::Writer::Dot->new();
+$writer->write_graph($g, "dep-$prj-$pkg.dot");
