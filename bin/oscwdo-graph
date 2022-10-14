@@ -2,6 +2,7 @@
 use strict;
 use Graph;
 use Graph::Writer::Dot;
+use XML::XPath;
 
 die "bad args" if (scalar @ARGV != 4);
 
@@ -14,31 +15,49 @@ my $g = Graph->new;
 my %visited;
 my %to_visit = ( $pkg => 1 );
 
-while (scalar %to_visit) {
-	my $cur_pkg = (keys %to_visit)[0];
-	delete $to_visit{$cur_pkg};
-	$visited{$cur_pkg} = 1;
-	print "visiting $cur_pkg (remaining ", scalar keys %to_visit, ")\n";
+sub get_xml_dep($$$@) {
+	my $prj = shift;
+	my $repo = shift;
+	my $arch = shift;
+	my $query = join '\\&', map { "package=$_" } @_;
+	die unless length $query;
 
-	# use osc api '/build/$prj/$repo/$arch/_builddepinfo?view=revpkgnames&package=pkg1&package=pkg2...
-	# and parse /package/pkgdep in the result
-	open(WDO, "osc whatdependson $prj $cur_pkg $repo $arch|")
-		or die "Can't run osc whatdependson: $!";
-	my $query = <WDO>;
-	die "bad query >$query<" unless $query ne "$cur_pkg :";
-	while (<WDO>) {
-		chomp;
-		s/^\s*//;
-		my $dep = $_;
-		print "\tV: $dep";
-		$g->add_edge($cur_pkg, $dep);
-		if (!$visited{$dep}) {
-			print " +";
-			$to_visit{$dep} = 1;
-		}
-		print "\n";
-	}
+	$query = "osc api /build/$prj/$repo/$arch/_builddepinfo?view=revpkgnames\\&$query";
+
+	open(WDO, '-|', $query) or die "Can't run osc whatdependson: $!";
+	local undef $/;
+	my $xml = <WDO>;
 	close(WDO);
+
+	die unless length $xml;
+	return $xml;
+}
+
+while (scalar %to_visit) {
+	my @pkgs = keys %to_visit;
+	print "visited: ", join(', ', keys %visited), "\n";
+	print "visiting: ", join(', ', @pkgs), "\n";
+	@visited{@pkgs} = @to_visit{@pkgs};
+	%to_visit = ();
+
+	my $xml = get_xml_dep($prj, $repo, $arch, @pkgs);
+	my $xp = XML::XPath->new(xml => $xml) || die "can't parse XML";
+
+	foreach my $cur_pkg_xml ($xp->findnodes("/builddepinfo/package")) {
+		my $cur_pkg = $cur_pkg_xml->getAttribute('name');
+		print "\t$cur_pkg:\n";
+
+		foreach my $dep_xml ($xp->findnodes("pkgdep", $cur_pkg_xml)) {
+			my $dep = $dep_xml->string_value();
+			print "\t\tV: $dep";
+			$g->add_edge($cur_pkg, $dep);
+			if (!$visited{$dep}) {
+				print " TO BE VISITED";
+				$to_visit{$dep} = 1;
+			}
+			print "\n";
+		}
+	}
 }
 
 my $writer = Graph::Writer::Dot->new();
