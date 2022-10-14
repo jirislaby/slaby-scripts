@@ -47,7 +47,7 @@ while (scalar %to_visit) {
 		my $cur_pkg = $cur_pkg_xml->getAttribute('name');
 		print "\t$cur_pkg:\n";
 
-		foreach my $dep_xml ($xp->findnodes("pkgdep", $cur_pkg_xml)) {
+		foreach my $dep_xml ($cur_pkg_xml->findnodes("./pkgdep")) {
 			my $dep = $dep_xml->string_value();
 			print "\t\tV: $dep";
 			$g->add_edge($cur_pkg, $dep);
