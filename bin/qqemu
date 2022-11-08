@@ -134,7 +134,7 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null
 	SPICE+=(-chardev spicevmc,name=usbredir,id=usbredirchardev2 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2)
 fi
 
-declare -a NET=(-net nic,model=virtio)
+declare -a NET=(-device virtio-net-pci,netdev=n1)
 declare -a USB=()
 if [ $WINOLD = 1 ]; then
 	USB+=(-device ich9-usb-ehci1,multifunction=on,id=ehci)
@@ -149,7 +149,7 @@ declare -a OTHER=(-device i6300esb)
 TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
-	NET=(-net user,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 "${NET[@]}")
+	NET=(-netdev user,id=n1,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 "${NET[@]}")
 	OTHER+=(-rtc base=localtime -vga qxl -device usb-tablet)
 	if [ $WIN10 = 1 ]; then
 		OTHER+=(--device virtio-balloon)
@@ -168,7 +168,7 @@ else
 	else
 		BOOTFILE=/pxelinux.0
 	fi
-	NET=(-net user,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632,hostfwd=tcp::`find_free_port 5901`-:5901 "${NET[@]}")
+	NET=(-netdev user,id=n1,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632,hostfwd=tcp::`find_free_port 5901`-:5901 "${NET[@]}")
 	OTHER+=(-serial $SERIAL --device virtio-balloon -device virtio-tablet-pci)
 	OTHER+=(-device virtio-vga)
 fi
