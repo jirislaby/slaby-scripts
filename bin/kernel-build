@@ -35,8 +35,10 @@ else
 fi
 
 declare -A DRV_ARCH=(
+	arch/alpha/kernel/setup.o alpha
 	arch/m68k/emu/nfcon.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
+	arch/powerpc/xmon/xmon.o powerpc
 	arch/xtensa/platforms/iss/console.o xtensa
 	drivers/s390/char/con3215.o s390
 	drivers/s390/char/sclp_rw.o s390
