@@ -150,9 +150,11 @@ TELNET_PORT=""
 SERIAL_WAIT_RE=""
 if [ $WINOLD = 1 -o $WIN10 = 1 ]; then
 	NET=(-netdev user,id=n1,smb=/home/smb,hostfwd=tcp::`find_free_port 3389`-:3389 "${NET[@]}")
-	OTHER+=(-rtc base=localtime -vga qxl -device usb-tablet)
+	OTHER+=(-rtc base=localtime -device qxl-vga)
 	if [ $WIN10 = 1 ]; then
-		OTHER+=(-device virtio-balloon)
+		OTHER+=(-device virtio-balloon -device virtio-tablet-pci)
+	else
+		OTHER+=(-device usb-tablet)
 	fi
 else
 	if [ $SCREEN = 1 ]; then
