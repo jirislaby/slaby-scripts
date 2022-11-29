@@ -23,7 +23,7 @@ while getopts "a:A:d:cC:mMwW" OPT; do
 		   ;;
 		m) DUMP_MAKE=1 ;;
 		w) MAKE_OPTS+=("W=1") ;;
-		W) MAKE_OPTS+=("W=2") ;;
+		W) MAKE_OPTS+=("W=12") ;;
 		*) exit 1 ;;
 	esac
 done
