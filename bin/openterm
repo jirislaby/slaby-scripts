@@ -6,22 +6,21 @@ chmod g+w /tmp/.X11-unix/X${X_H##*:}
 DESK=`xdotool get_desktop`
 case $DESK in
 	0)
-	#xdg-su -c "cd; unset XAUTHORITY; xauth add $DISPLAY . $X_KEY;"' xterm -geometry 164x24+0+734 & usleep 100000'
 	xdg-su -c 'cd; konsole -p TerminalColumns=164 -p TerminalRows=24' &
 	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
 	;;
 	1)
-	konsole -geometry 80x42+940+500 &
-	usleep 10000; konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
-	usleep 20000; konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	usleep 30000; konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
-	usleep 40000; konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	usleep 50000; konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	#usleep 60000; xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
+	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
+	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
+	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
+	konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
+	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
+	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
+	#xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
 	;;
 	2)
-	xdg-su -u ku -c "unset XAUTHORITY; xauth add $DISPLAY . $X_KEY;"' xterm -geometry 155x25+0+734 & usleep 10000; xterm -geometry 80x42+940+500 & usleep 30000; xterm -geometry 80x42+1432+500 & usleep 40000; xterm -geometry 150x24+0+0 & usleep 100000'
+	xdg-su -u ku -c 'konsole -p TerminalColumns=155 -p TerminalRows=25 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=150 -p TerminalRows=24' &
 	konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
-	usleep 10000; konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
+	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
 	;;
 esac
