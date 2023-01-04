@@ -19,7 +19,7 @@ case $DESK in
 	#xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
 	;;
 	2)
-	xdg-su -u ku -c 'konsole -p TerminalColumns=155 -p TerminalRows=25 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=150 -p TerminalRows=24' &
+	xdg-su -u ku -c 'konsole -p TerminalColumns=153 -p TerminalRows=25 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=150 -p TerminalRows=24' &
 	konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
 	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
 	;;
