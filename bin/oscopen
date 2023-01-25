@@ -25,8 +25,8 @@ function show_prj {
 }
 
 function show_devel {
-	PRJ="`osc develproject openSUSE:Factory $1`" || exit 1
-	show_pkg "$PRJ" "$1"
+	PKG="`osc develproject openSUSE:Factory $1`" || exit 1
+	show_pkg "${PKG%/*}" "${PKG#*/}"
 }
 
 BS=build.opensuse.org
