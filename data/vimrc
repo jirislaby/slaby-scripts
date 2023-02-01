@@ -28,6 +28,10 @@ if has("cscope") && filereadable("/usr/bin/cscope")
    set csverb
 endif
 
+if filereadable("build.ninja")
+	set makeprg=ninja\ -j4
+endif
+
 if filereadable("kernel/pid.c")
 	set makeprg=kernel-build\ -C\ gcc-12\ -d\ @
 
