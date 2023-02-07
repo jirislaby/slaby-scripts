@@ -1,51 +1,31 @@
 #!/usr/bin/perl -w
 use strict;
+use Config::IniFiles;
 #use Data::Dumper;
 
-my $dir = '/mnt/2G/nvr';
-my @cmdline = qw/-c:v copy/;
-my $fs = '3G';
-my $suffix = 'mkv';
-my $count = 21;
-my $no = $count;
+my $cfg = Config::IniFiles->new(-file => '/etc/nvr.ini');
+
+die 'invalid params' if scalar @ARGV != 1;
+
 my $cam = shift;
-my @source;
-my $check_time = 600;
-my $time_diff = 60;
-my $time_min = 30;
 
-if ($cam eq 'jih') {
-	@source = qw@-rtsp_transport tcp -use_wallclock_as_timestamps 1 -i rtsp://kameraj/stream1@;
-	push @cmdline, '-an';
-} elsif ($cam eq 'chodba') {
-	@source = qw@-rtsp_transport tcp -use_wallclock_as_timestamps 1 -i rtsp://kamerach/stream1@;
-	push @cmdline, '-an';
-	$count = 15;
-} elsif ($cam eq 'garaz') {
-	@source = qw@-rtsp_transport tcp -use_wallclock_as_timestamps 1 -i rtsp://kamerag/stream1@;
-	push @cmdline, '-an';
-	$count = 15;
-} elsif ($cam eq 'out') {
-	@source = qw@-rtsp_transport tcp -use_wallclock_as_timestamps 1 -i rtsp://kamerao/stream1@;
-	push @cmdline, qw/-c:a copy/;
-} elsif ($cam eq 'zapad') {
-	@source = qw@-rtsp_transport tcp -use_wallclock_as_timestamps 1 -i rtsp://kameraz/user=admin&password=&channel=0&stream=0.sdp@;
-	push @cmdline, qw/-c:a copy/;
-	$fs = '1G';
-	$count = 25;
-} elsif ($cam eq 'zvuk') {
-	no warnings 'qw';
-	@source = qw@-f alsa -i hw:0,0@;
-	@cmdline = qw/-c:a mp3 -compression_level 9/;
-	$fs = '1G';
-	$suffix = 'mp3';
-	$count = 8;
-} else {
-	exit 1;
-}
+my $dir = $cfg->val('global', 'dir') or die "no directory";
+my $suffix = $cfg->val('global', 'suffix', 'mkv');
+my $check_time = $cfg->val('global', 'check_time', 600);
+my $time_diff = $cfg->val('global', 'time_diff', 60);
+my $time_min = $cfg->val('global', 'time_min', 30);
 
+my $source = $cfg->val("src-$cam", 'source') or die "no source";
+my $cmdline = $cfg->val("src-$cam", 'cmdline', '');
+my $fs = $cfg->val("src-$cam", 'fs', '3G');
+my $count = $cfg->val("src-$cam", 'count', 21);
+
+my @source = split(/\s+/, $source);
+my @cmdline = qw/-c:v copy/;
+push @cmdline, split(/\s+/, $cmdline);
 push @cmdline, ('-fs', $fs);
 
+my $no = $count;
 my $base = $cam;
 my $stamp = 0;
 my $last;
