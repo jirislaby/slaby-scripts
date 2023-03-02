@@ -8,7 +8,7 @@ my $rev = '@';
 my $from;
 GetOptions("rev=s" => \$rev,
 	"from=s" => \$from) or
-	die("Error in command line arguments\n");
+	die("Error in command line arguments: $0 [--rev=] [--from=]\n");
 
 my @patches;
 
