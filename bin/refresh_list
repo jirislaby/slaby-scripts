@@ -6,9 +6,12 @@ use Git;
 my $repo = Git->repository;
 my $rev = '@';
 my $from;
-GetOptions("rev=s" => \$rev,
-	"from=s" => \$from) or
-	die("Error in command line arguments: $0 [--rev=] [--from=]\n");
+my $single = 0;
+GetOptions(
+	"from=s" => \$from,
+	"rev=s" => \$rev,
+	"single" => \$single,
+) or die("Error in command line arguments: $0 [--rev=] [--from=]\n");
 
 my @patches;
 
@@ -69,6 +72,8 @@ foreach my $file (@patches_sorted) {
 		die "push in $out_dir";
 	system('./patches/scripts/refresh_patch.sh') == 0 or
 		die "refresh in $out_dir";
+
+	exit 0 if ($single);
 }
 
 system('quilt', 'push', '--fuzz=0', '-a') == 0 or die "push -a in $out_dir";
