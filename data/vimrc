@@ -33,7 +33,7 @@ if filereadable("build.ninja")
 endif
 
 if filereadable("kernel/pid.c")
-	set makeprg=kernel-build\ -C\ gcc-12\ -d\ @
+	set makeprg=kernel-build\ -d\ @
 
 	if filereadable("/home/latest/bu/cscope.out")
 		set nocsverb
