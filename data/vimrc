@@ -42,24 +42,17 @@ if filereadable("kernel/pid.c")
 	endif
 endif
 
-function InsertInterpreter(pat)
-	if a:pat =~ "sh"
-		call _InsertInterpreter("bash")
-	elseif a:pat =~ "pl"
-		call _InsertInterpreter("perl")
-	elseif a:pat =~ "py"
-		call _InsertInterpreter("python")
-	endif
+function InsertInterpreter(interp)
+	call append(0, "#!/usr/bin/" . a:interp)
 endfun
 
-function SetExecutableBit()
-	let fname = expand("%:p")
+function SetExecutableBit(file)
 	checktime
-	exec "au FileChangedShell " . fname . " :echo"
+	exec "au FileChangedShell " . a:file . " :echo"
 	setlocal autoread
-	silent !chmod a+x %
+	silent execute "!chmod a+x " . a:file
 	checktime
-	exec "au! FileChangedShell " . fname
+	exec "au! FileChangedShell " . a:file
 endfun
 
 augroup filetype
@@ -69,8 +62,10 @@ augroup filetype
 	au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton.CMakeLists.txt
 	au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
 	au BufNewFile *.cpp		:0r /usr/share/slaby-scripts/skeleton.cpp
-	au BufNewFile *.{pl,py,sh}      call InsertInterpreter(expand("<afile>"))
-	au BufNewFile *.{pl,py,sh}      call SetExecutableBit()
+	au BufNewFile *.pl		:0r /usr/share/slaby-scripts/skeleton.pl
+	au BufNewFile *.py		call InsertInterpreter("python3")
+	au BufNewFile *.sh		call InsertInterpreter("bash")
+	au BufNewFile *.{pl,py,sh}	call SetExecutableBit(expand("<afile>:p"))
 augroup END
 
 "autocmd FileType c set cin
