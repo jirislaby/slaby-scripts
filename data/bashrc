@@ -2,6 +2,7 @@ alias sa='ssh aisa -CX'
 alias sb="ssh bellona -CX"
 alias sd='ssh decibel -CX'
 alias san='ssh anemoi -X'
+alias san2='ssh anemoi2-e -X'
 
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
