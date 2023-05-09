@@ -59,10 +59,12 @@ augroup filetype
 	au! BufRead,BufNewFile *.ll	set filetype=llvm
 	au! BufRead,BufNewFile *.g	set filetype=antlr3
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
-	au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton.CMakeLists.txt
-	au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
-	au BufNewFile *.cpp		:0r /usr/share/slaby-scripts/skeleton.cpp
-	au BufNewFile *.pl		:0r /usr/share/slaby-scripts/skeleton.pl
+	if filereadable("/usr/share/slaby-scripts/skeleton.c")
+		au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton.CMakeLists.txt
+		au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
+		au BufNewFile *.cpp		:0r /usr/share/slaby-scripts/skeleton.cpp
+		au BufNewFile *.pl		:0r /usr/share/slaby-scripts/skeleton.pl
+	endif
 	au BufNewFile *.py		call InsertInterpreter("python3")
 	au BufNewFile *.sh		call InsertInterpreter("bash")
 	au BufNewFile *.{pl,py,sh}	call SetExecutableBit(expand("<afile>:p"))
