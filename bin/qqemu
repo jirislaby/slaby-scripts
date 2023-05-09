@@ -81,7 +81,7 @@ if [ "$QEMU_MAJOR" -ge 2 ]; then
 	fi
 fi
 
-declare -a HW=()
+declare -a HW=(-cpu host)
 if [ $WINOLD = 0 ]; then
 	HW+=(-machine q35)
 fi
