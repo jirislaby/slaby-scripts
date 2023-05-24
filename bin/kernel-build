@@ -86,6 +86,8 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/8250/8250_hp300.o m68k
 	drivers/tty/serial/8250/8250_pxa.o arm_pxa
 	drivers/tty/vcc.o sparc
+	drivers/video/console/newport_con.o mips
+	drivers/video/console/sticon.o parisc
 
 	drivers/tty/mips_ejtag_fdc.o mips_special # MIPS_EJTAG_FDC_TTY -> MIPS_CDMM -> CPU_MIPSR2 || CPU_MIPSR5
 	drivers/tty/serial/8250/8250_ioc3.o mips_special # SGI_MFD_IOC3 -> 64BIT
