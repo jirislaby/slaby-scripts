@@ -1,17 +1,14 @@
 prefix=/usr
 bindir=$(prefix)/bin
-libdir=$(prefix)/lib
 datadir=$(prefix)/share
 perllibdir=$(shell eval `perl -V:installsitelib`; echo $$installsitelib)
-pm_libdir=$(prefix)/lib/pm-utils
 
 INSTALL=install
 INSTALL_DIR=$(INSTALL) -d
 INSTALL_DATA=$(INSTALL) -m 644
 
-BIN_SKIP=01dvb
-BIN_FILES=$(filter-out $(BIN_SKIP),$(patsubst bin/%,%,$(wildcard bin/*)))
-DATA_FILES=$(filter-out $(DATA_SKIP),$(patsubst data/%,%,$(wildcard data/*)))
+BIN_FILES=$(patsubst bin/%,%,$(wildcard bin/*))
+DATA_FILES=$(patsubst data/%,%,$(wildcard data/*))
 PERLLIB_FILES=StableHelper.pm
 
 all:
@@ -23,7 +20,6 @@ install: bin-install data-install perllib-install
 
 bin-install:
 	$(call install,$(INSTALL),bin/,$(BIN_FILES),$(DESTDIR)/$(bindir)/)
-	$(call install,$(INSTALL),bin/,01dvb,$(DESTDIR)/$(pm_libdir)/sleep.d/)
 
 data-install:
 	$(call install,$(INSTALL_DATA),data/,$(DATA_FILES),$(DESTDIR)/$(datadir)/slaby-scripts/)
