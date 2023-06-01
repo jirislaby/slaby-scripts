@@ -2,6 +2,7 @@ set background=dark
 set hlsearch
 set aw
 set t_BE=
+set cinoptions=:0,(0
 filetype plugin indent on
 
 " highlight trailing whitespace
