@@ -1,7 +1,7 @@
 set background=dark
 set hlsearch
 set autowrite
-set t_BE=
+"set t_BE=
 set cinoptions=:0,(0
 filetype plugin indent on
 
