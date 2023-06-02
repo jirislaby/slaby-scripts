@@ -1,6 +1,6 @@
 set background=dark
 set hlsearch
-set aw
+set autowrite
 set t_BE=
 set cinoptions=:0,(0
 filetype plugin indent on
@@ -62,6 +62,8 @@ augroup filetype
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
 	if filereadable("/usr/share/slaby-scripts/skeleton.c")
 		au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton.CMakeLists.txt
+		au BufNewFile meson.build	:0r /usr/share/slaby-scripts/skeleton.meson.build
+		au BufNewFile meson.options	:0r /usr/share/slaby-scripts/skeleton.meson.options
 		au BufNewFile *.c		:0r /usr/share/slaby-scripts/skeleton.c
 		au BufNewFile *.cpp		:0r /usr/share/slaby-scripts/skeleton.cpp
 		au BufNewFile *.pl		:0r /usr/share/slaby-scripts/skeleton.pl
