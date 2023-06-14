@@ -43,6 +43,7 @@ declare -A DEFCONFIGS=(
 	[mips_rbtx49xx]='rbtx49xx_defconfig'
 	[mips_sb1250]='sb1250_swarm_defconfig'
 	[powerpc_mpc5200]='mpc5200_defconfig'
+	[powerpc_tqm8560]='85xx/tqm8560_defconfig'
 )
 
 declare -A CROSS_COMPILE=(

@@ -57,7 +57,7 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/amba-pl011.o arm64
 	drivers/tty/serial/apbuart.o sparc
 	drivers/tty/serial/ar933x_uart.o mips
-	drivers/tty/serial/cpm_uart/cpm_uart_core.o powerpc_mpc5200
+	drivers/tty/serial/cpm_uart/cpm_uart_core.o powerpc_tqm8560
 	drivers/tty/serial/dz.o mips_decstation
 	drivers/tty/serial/earlycon-arm-semihost.o arm64
 	drivers/tty/serial/earlycon-riscv-sbi.o riscv
