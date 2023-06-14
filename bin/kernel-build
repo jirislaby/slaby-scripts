@@ -126,8 +126,9 @@ for ARCH in "${!ARCHS[@]}"; do
 	echo
 	echo_red "=== BUILDING for $ARCH ==="
 	echo Files: "${ref[@]}"
-	FILTERED_MAKE=`mktemp --tmpdir Makefile.XXXXXXXXXX`
-	cat >"$FILTERED_MAKE" <<EOF
+	if [ -d "$CROSS_DESTDIR/$ARCH" ]; then
+		FILTERED_MAKE=`mktemp --tmpdir Makefile.XXXXXXXXXX`
+		cat >"$FILTERED_MAKE" <<EOF
 SOURCE=$PWD
 BUILD=$PWD/$CROSS_DESTDIR/$ARCH
 DRVS=${ref[@]}
@@ -144,16 +145,19 @@ all: $(DRVS)
 
 -include $(CMD)
 EOF
-	declare -a FILTERED_MAKE_CMD=(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
-	if [ "$DUMP_MAKE" -eq 1 ]; then
-		echo "=== Makefile DUMP ==="
-		cat "$FILTERED_MAKE"
-		echo "=== Makefile run ==="
-		"${FILTERED_MAKE_CMD[@]}" -d
-		echo "=== Makefile DUMP END ==="
+		declare -a FILTERED_MAKE_CMD=(make -s -C "$CROSS_DESTDIR/$ARCH" -f "$FILTERED_MAKE")
+		if [ "$DUMP_MAKE" -eq 1 ]; then
+			echo "=== Makefile DUMP ==="
+			cat "$FILTERED_MAKE"
+			echo "=== Makefile run ==="
+			"${FILTERED_MAKE_CMD[@]}" -d
+			echo "=== Makefile DUMP END ==="
+		fi
+		readarray -t FILTERED < <("${FILTERED_MAKE_CMD[@]}")
+		rm -f "$FILTERED_MAKE"
+	else
+		declare -a FILTERED=("${ref[@]}")
 	fi
-	readarray -t FILTERED < <("${FILTERED_MAKE_CMD[@]}")
-	rm -f "$FILTERED_MAKE"
 	if [ "${#FILTERED[@]}" -ne 0 ]; then
 		kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${FILTERED[@]}"
 		RETVAL=$?
