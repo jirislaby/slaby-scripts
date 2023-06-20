@@ -100,3 +100,7 @@ alias shm='cd_existing /dev/shm/jslaby/ /dev/shm/'
 function stable_dry() {
 	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
 }
+
+function fastbuildconfig() {
+	sed -E -i 's/(CONFIG_(LIVEPATCH_IPA_CLONES|DEBUG_INFO))=y/# \1 is not set/' "$@"
+}
