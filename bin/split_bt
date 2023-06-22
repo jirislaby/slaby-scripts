@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $index = 0;
+my @ct;
+
+sub dump_ct() {
+	return unless (scalar @ct);
+
+	my $name = sprintf("split%.4u.txt", $index++);
+	my $OUT;
+	open($OUT, '>', $name) or die "open";
+	print $OUT join("\n", @ct);
+	close $OUT;
+	@ct = ();
+}
+
+my $ct = 0;
+
+while (<>) {
+	chomp;
+	next unless (s/.*kernel: \[[0-9.]+\] //);
+	if (/^Call Trace/) {
+		$ct = 1;
+		next;
+	}
+	next unless ($ct);
+
+	next if (/^ entry_SYSCALL_64_after_hwframe/);
+	next if (/^ do_syscall_64/);
+	next if (/ENTRY_TRAMPOLINE/);
+	next if (/^ \? /);
+	if (/^[^ ]/) {
+		$ct = 0;
+		dump_ct();
+		next;
+	}
+	push @ct, $_;
+}
