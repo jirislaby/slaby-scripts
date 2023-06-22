@@ -67,6 +67,10 @@ function vimp() {
 	${EDITOR:-vim} "${PATCHES[@]}"
 }
 
+function vimconfl() {
+	vim `git diff --name-only|sort -u` '+/<<<<<<<'
+}
+
 function cd_existing() {
 	for DIR; do
 		if [ -d "$DIR" ]; then
