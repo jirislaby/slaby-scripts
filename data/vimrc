@@ -30,7 +30,11 @@ if has("cscope") && filereadable("/usr/bin/cscope")
 endif
 
 if filereadable("build.ninja")
-	set makeprg=ninja\ -j4
+	set makeprg=ninja\ -j16
+endif
+
+if filereadable("build/build.ninja")
+	set makeprg=ninja\ -j16\ -C\ build
 endif
 
 if filereadable("kernel/pid.c")
