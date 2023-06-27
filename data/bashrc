@@ -92,7 +92,9 @@ function loop_waiting_net() {
 }
 
 function fastbuildconfig() {
-	sed -E -i 's/(CONFIG_(LIVEPATCH_IPA_CLONES|DEBUG_INFO))=y/# \1 is not set/' "$@"
+	sed -E -i -e 's/(CONFIG_(LIVEPATCH_IPA_CLONES|DEBUG_INFO(_DWARF[0-9])?))=y/# \1 is not set/' \
+		-e 's/# (CONFIG_DEBUG_INFO_NONE) is not set/\1=y/' \
+		"$@"
 }
 
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
