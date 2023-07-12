@@ -3,7 +3,7 @@
 ARCH=""
 DIR=""
 HELP=0
-declare -a MAKE_OPTS=()
+declare -a make=(make)
 
 while getopts "a:cD:h" OPT; do
 	case "$OPT" in
@@ -12,7 +12,7 @@ while getopts "a:cD:h" OPT; do
 			DIR="$OPTARG"
 			;;
 		c)
-			MAKE_OPTS+=('C=1')
+			make+=('C=1')
 			;;
 		D)
 			DESTDIR="$OPTARG"
@@ -61,6 +61,10 @@ declare -A CROSS_COMPILE=(
 	[xtensa]="/opt/cross/gcc-13.1.0-nolibc/xtensa-linux/bin/xtensa-linux-"
 )
 
+JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
+test "$HELP" -eq 0 && make+=(O="$DESTDIR/$DIR/")
+make+=("-j$JOBS" ARCH="$ARCH")
+
 if [ "$ARCH" != "um" ]; then
 	if [ -z "${CROSS_COMPILE[$ARCH]}" ]; then
 		exit 1
@@ -69,13 +73,8 @@ if [ "$ARCH" != "um" ]; then
 	if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARCH]}gcc" ]; then
 		exit 1
 	fi
-	MAKE_OPTS+=("CROSS_COMPILE=${CROSS_COMPILE[$ARCH]}")
+	make+=("CROSS_COMPILE=${CROSS_COMPILE[$ARCH]}")
 fi
-
-JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
-declare -a make=(make)
-test "$HELP" -eq 0 && make+=(O="$DESTDIR/$DIR/")
-make+=("-j$JOBS" "${MAKE_OPTS[@]}" ARCH="$ARCH")
 
 if [ "$HELP" -eq 1 ]; then
 	set -xx
