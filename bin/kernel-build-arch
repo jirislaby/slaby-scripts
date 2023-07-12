@@ -61,18 +61,21 @@ declare -A CROSS_COMPILE=(
 	[xtensa]="/opt/cross/gcc-13.1.0-nolibc/xtensa-linux/bin/xtensa-linux-"
 )
 
-if [ -z "${CROSS_COMPILE[$ARCH]}" ]; then
-	exit 1
-fi
+if [ "$ARCH" != "um" ]; then
+	if [ -z "${CROSS_COMPILE[$ARCH]}" ]; then
+		exit 1
+	fi
 
-if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARCH]}gcc" ]; then
-	exit 1
+	if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARCH]}gcc" ]; then
+		exit 1
+	fi
+	MAKE_OPTS+=("CROSS_COMPILE=${CROSS_COMPILE[$ARCH]}")
 fi
 
 JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
 declare -a make=(make)
 test "$HELP" -eq 0 && make+=(O="$DESTDIR/$DIR/")
-make+=("-j$JOBS" "${MAKE_OPTS[@]}" CROSS_COMPILE="${CROSS_COMPILE[$ARCH]}" ARCH="$ARCH")
+make+=("-j$JOBS" "${MAKE_OPTS[@]}" ARCH="$ARCH")
 
 if [ "$HELP" -eq 1 ]; then
 	set -xx
