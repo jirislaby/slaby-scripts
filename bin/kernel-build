@@ -36,14 +36,18 @@ fi
 
 declare -A DRV_ARCH=(
 	arch/alpha/kernel/setup.o alpha
+	arch/alpha/kernel/srmcons.o alpha
 	arch/loongarch/kernel/sysrq.o loongarch
 	arch/m68k/emu/nfcon.o m68k
 	arch/mips/kernel/sysrq.o mips
 	arch/parisc/kernel/pdc_cons.o parisc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
+	arch/um/drivers/ssl.o um
+	arch/um/drivers/stdio_console.o um
 	arch/xtensa/platforms/iss/console.o xtensa
 	drivers/s390/char/con3215.o s390
+	drivers/s390/char/con3270.o s390
 	drivers/s390/char/sclp_rw.o s390
 	drivers/s390/char/sclp_tty.o s390
 	drivers/s390/char/sclp_vt220.o s390
