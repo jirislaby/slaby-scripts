@@ -31,6 +31,17 @@ if [ $? != 0 ]; then
 	IP_COLOR='--color'
 fi
 
+function get_maintainer() {
+	WHAT="$1"
+	test -z "$WHAT" && WHAT="@^"
+	tmpfile=$(mktemp /tmp/maintainers.XXXXXX)
+	git diff "$WHAT" | ./scripts/get_maintainer.pl --git-min-signatures 1000 | tee "$tmpfile"
+	echo
+	echo
+	sed 's@ (.*@@; s#^#Cc: #' "$tmpfile"
+	rm -f "$tmpfile"
+}
+
 function join_by() {
 	local IFS="$1"
 	shift
