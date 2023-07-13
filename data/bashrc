@@ -31,6 +31,21 @@ if [ $? != 0 ]; then
 	IP_COLOR='--color'
 fi
 
+function cd_existing() {
+	for DIR; do
+		if [ -d "$DIR" ]; then
+			cd "$DIR"
+			break
+		fi
+	done
+}
+
+function fastbuildconfig() {
+	sed -E -i -e 's/(CONFIG_(LIVEPATCH_IPA_CLONES|DEBUG_INFO(_DWARF[0-9])?))=y/# \1 is not set/' \
+		-e 's/# (CONFIG_DEBUG_INFO_NONE) is not set/\1=y/' \
+		"$@"
+}
+
 function get_maintainer() {
 	WHAT="$1"
 	test -z "$WHAT" && WHAT="@^"
@@ -46,6 +61,17 @@ function join_by() {
 	local IFS="$1"
 	shift
 	echo "$*"
+}
+
+function loop_waiting_net() {
+	PORT=60000
+	echo "waiting for ping on port $PORT"
+	nc -dkl 0.0.0.0 "$PORT" | while read; do
+		set -x
+		eval "$@"
+		set +x
+		echo waiting for another ping
+	done
 }
 
 function show_patch {
@@ -65,6 +91,14 @@ function show_patch {
 	fi
 }
 
+function stable_dry() {
+	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
+}
+
+function vimconfl() {
+	vim `git diff --name-only|sort -u` '+/<<<<<<<'
+}
+
 function vimp() {
 	REV="$1"
 	if [ -z "$REV" ]; then
@@ -77,36 +111,6 @@ function vimp() {
 	${EDITOR:-vim} "${PATCHES[@]}"
 }
 
-function vimconfl() {
-	vim `git diff --name-only|sort -u` '+/<<<<<<<'
-}
-
-function cd_existing() {
-	for DIR; do
-		if [ -d "$DIR" ]; then
-			cd "$DIR"
-			break
-		fi
-	done
-}
-
-function loop_waiting_net() {
-	PORT=60000
-	echo "waiting for ping on port $PORT"
-	nc -dkl 0.0.0.0 "$PORT" | while read; do
-		set -x
-		eval "$@"
-		set +x
-		echo waiting for another ping
-	done
-}
-
-function fastbuildconfig() {
-	sed -E -i -e 's/(CONFIG_(LIVEPATCH_IPA_CLONES|DEBUG_INFO(_DWARF[0-9])?))=y/# \1 is not set/' \
-		-e 's/# (CONFIG_DEBUG_INFO_NONE) is not set/\1=y/' \
-		"$@"
-}
-
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
 
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
@@ -116,7 +120,3 @@ alias cdq='cd ~/repos/stable-queue/'
 alias cdx='cd ~/repos/xf86-video-intel/'
 alias cdk='cd_existing ~/kernel-source ~/repos/suse/kernel-source/'
 alias shm='cd_existing /dev/shm/jslaby/ /dev/shm/'
-
-function stable_dry() {
-	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
-}
