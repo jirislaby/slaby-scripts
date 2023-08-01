@@ -43,6 +43,7 @@ declare -A DRV_ARCH=(
 	arch/parisc/kernel/pdc_cons.o parisc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
+	arch/um/drivers/line.o um
 	arch/um/drivers/ssl.o um
 	arch/um/drivers/stdio_console.o um
 	arch/xtensa/platforms/iss/console.o xtensa
