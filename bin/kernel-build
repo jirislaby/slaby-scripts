@@ -41,6 +41,8 @@ declare -A DRV_ARCH=(
 	arch/m68k/emu/nfcon.o m68k
 	arch/mips/kernel/sysrq.o mips
 	arch/parisc/kernel/pdc_cons.o parisc
+	arch/powerpc/platforms/powernv/opal.o powerpc
+	arch/powerpc/platforms/pseries/hvconsole.o powerpc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
 	arch/um/drivers/line.o um
@@ -56,8 +58,14 @@ declare -A DRV_ARCH=(
 	drivers/tty/amiserial.o m68k
 	drivers/tty/ehv_bytechan.o powerpc
 	drivers/tty/hvc/hvc_dcc.o arm64
+	drivers/tty/hvc/hvc_iucv.o s390
+	drivers/tty/hvc/hvc_riscv_sbi.o riscv
+	drivers/tty/hvc/hvc_rtas.o powerpc
+	drivers/tty/hvc/hvc_udbg.o powerpc
+	drivers/tty/hvc/hvc_vio.o powerpc
 	drivers/tty/hvc/hvcs.o powerpc
 	drivers/tty/hvc/hvsi.o powerpc
+	drivers/tty/hvc/hvsi_lib.o powerpc
 	drivers/tty/serial/amba-pl010.o arm64
 	drivers/tty/serial/amba-pl011.o arm64
 	drivers/tty/serial/apbuart.o sparc
