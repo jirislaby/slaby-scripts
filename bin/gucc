@@ -29,6 +29,9 @@ case $CONFIG_SUSE_VERSION in
 		0) GCCVER=4.8 ;;
 		[1-5]) GCCVER=7 ;;
 	esac ;;
+	12) case $CONFIG_SUSE_PATCHLEVEL in
+		[4-5]) GCCVER=4.8 ;;
+	esac ;;
 esac
 
 exec gcc-$GCCVER "$@"
