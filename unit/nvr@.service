@@ -1,6 +1,6 @@
 [Unit]
 Description=NVR %I
-Requires=var-run.mount
+Requires=network.target
 After=network.target
 
 [Service]
