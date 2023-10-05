@@ -5,7 +5,7 @@ if [ $# -lt 1 ]; then
 	exit 1
 fi
 
-if ! which qemu-kvm >/dev/null 2>&1; then
+if ! which qemu-kvm &>/dev/null; then
 	echo qemu is not installed
 	exit 1
 fi
@@ -102,7 +102,7 @@ if ! echo $@ | grep -q -- '-smp '; then
 fi
 
 declare -a SOUND=()
-if ( which pulseaudio &>/dev/null && pulseaudio --check) || which pipewire &>/dev/null; then
+if [ $SPICE_REMOTE = 1 ] || (which pulseaudio &>/dev/null && pulseaudio --check) || (which pipewire &>/dev/null && pw-cli i all &>/dev/null); then
 	if [ $WINOLD = 1 ]; then
 		SOUND=(-device AC97)
 	else
@@ -120,13 +120,14 @@ function find_free_port() {
 }
 
 declare -a SPICE=()
-if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which spicy >/dev/null 2>&1) ; then
-	SPICE_PORT="/tmp/qemu-spice.$$.sock"
-	# gl=on,
-	SPICE_CONF="unix=on,addr=$SPICE_PORT"
+if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which remote-viewer &>/dev/null) ; then
 	if [ "$SPICE_REMOTE" = 1 ]; then
 		SPICE_PORT=`find_free_port 3333`
 		SPICE_CONF="port=$SPICE_PORT"
+	else
+		SPICE_PORT="/tmp/qemu-spice.$$.sock"
+		# gl=on,
+		SPICE_CONF="unix=on,addr=$SPICE_PORT"
 	fi
 	SPICE=(-spice disable-ticketing=on,$SPICE_CONF -device virtio-serial -monitor pty)
 	SPICE+=(-chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0)
@@ -223,7 +224,7 @@ rm -f $PID_FILE
 
 if [ -n "$SPICE_PORT" -a "$SPICE_REMOTE" != 1 ]; then
 	(while :; do
-		spicy --uri="spice+unix://$SPICE_PORT" 2>/dev/null;
+		remote-viewer "spice+unix://$SPICE_PORT" 2>/dev/null;
 		if [ $? -lt 128 ]; then
 			break;
 		fi;
