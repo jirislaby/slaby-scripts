@@ -18,11 +18,11 @@ shift $(($OPTIND-1))
 HOST=$1
 shift
 
-for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de; do
+for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de arch.nue2.suse.org; do
 	FQDN=$HOST.$SUFFIX
 	IP=`host -t A $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
 	if [ -n "$IP" ]; then
-		if [[ "$SUFFIX" == *.de ]]; then
+		if [[ "$SUFFIX" == *.de || "$SUFFIX" == *nue* ]]; then
 			SSH_PARAMS+=(-o ServerAliveInterval=60)
 		fi
 		break
