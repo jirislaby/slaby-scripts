@@ -45,7 +45,10 @@ declare -A DRV_ARCH=(
 	arch/powerpc/platforms/pseries/hvconsole.o powerpc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
+	arch/um/drivers/chan_kern.o um
+	arch/um/drivers/chan_user.o um
 	arch/um/drivers/line.o um
+	arch/um/drivers/null.o um
 	arch/um/drivers/ssl.o um
 	arch/um/drivers/stdio_console.o um
 	arch/xtensa/platforms/iss/console.o xtensa
