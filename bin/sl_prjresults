@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use XML::LibXML;
+
+my $in;
+{
+	undef $/;
+	$in = <>;
+}
+
+my $dom = XML::LibXML->load_xml(string => \$in);
+
+my %ignore = (
+	'disabled' => 1,
+	'excluded' => 1,
+	'succeeded' => 1,
+);
+
+foreach my $res ($dom->findnodes('/resultlist/result')) {
+	my @out;
+	foreach my $stat ($res->findnodes('./status')) {
+		my $code = $stat->getAttribute('code');
+		next if ($ignore{$code});
+
+		my $pkg = $stat->getAttribute('package');
+		push @out, "$pkg $code";
+	}
+
+	next unless (scalar @out);
+
+	my $repo = $res->getAttribute('repository');
+	my $arch = $res->getAttribute('arch');
+
+	print "$repo $arch\n";
+	foreach my $o (@out) {
+		print "\t$o\n";
+	}
+}
+
+1;
