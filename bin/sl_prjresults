@@ -1,7 +1,13 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Getopt::Long;
+use Term::ANSIColor qw(colored);
 use XML::LibXML;
+
+my $skip = 1;
+GetOptions("skip+"  => \$skip)
+	or die("Error in command line arguments\n");
 
 my $in;
 {
@@ -14,17 +20,26 @@ my $dom = XML::LibXML->load_xml(string => \$in);
 my %ignore = (
 	'disabled' => 1,
 	'excluded' => 1,
-	'succeeded' => 1,
+	'succeeded' => 2,
+	'blocked' => 3,
+);
+
+my %colors = (
+	'succeeded' => 'green',
+	'unresolvable' => 'red',
+	'failed' => 'red',
 );
 
 foreach my $res ($dom->findnodes('/resultlist/result')) {
 	my @out;
 	foreach my $stat ($res->findnodes('./status')) {
 		my $code = $stat->getAttribute('code');
-		next if ($ignore{$code});
+		next if (defined $ignore{$code} && $ignore{$code} <= $skip);
 
 		my $pkg = $stat->getAttribute('package');
-		push @out, "$pkg $code";
+		my $entry = "$pkg $code";
+		$entry = colored($entry, $colors{$code}) if ($colors{$code});
+		push @out, $entry;
 	}
 
 	next unless (scalar @out);
