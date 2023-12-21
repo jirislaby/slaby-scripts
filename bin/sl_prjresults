@@ -26,8 +26,9 @@ my %ignore = (
 
 my %colors = (
 	'succeeded' => 'green',
-	'unresolvable' => 'red',
+	'broken' => 'red',
 	'failed' => 'red',
+	'unresolvable' => 'red',
 );
 
 foreach my $res ($dom->findnodes('/resultlist/result')) {
