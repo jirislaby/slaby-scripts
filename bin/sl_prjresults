@@ -26,8 +26,11 @@ my %ignore = (
 
 my %colors = (
 	'succeeded' => 'green',
+	'blocked' => 'grey10',
 	'broken' => 'red',
+	'building' => 'grey15',
 	'failed' => 'red',
+	'scheduled' => 'grey10',
 	'unresolvable' => 'red',
 );
 
