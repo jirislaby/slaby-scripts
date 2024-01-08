@@ -35,6 +35,10 @@ my %colors = (
 );
 
 foreach my $res ($dom->findnodes('/resultlist/result')) {
+	my $arch = $res->getAttribute('arch');
+	my $project = $res->getAttribute('project');
+	my $repo = $res->getAttribute('repository');
+
 	my @out;
 	foreach my $stat ($res->findnodes('./status')) {
 		my $code = $stat->getAttribute('code');
@@ -42,14 +46,13 @@ foreach my $res ($dom->findnodes('/resultlist/result')) {
 
 		my $pkg = $stat->getAttribute('package');
 		my $entry = "$pkg $code";
+		my $spaces = 35 - length $entry;
 		$entry = colored($entry, $colors{$code}) if ($colors{$code});
-		push @out, $entry;
+		push @out, sprintf("%s%s (rbl %s %s %s %s)", $entry,
+				' ' x $spaces, $project, $pkg, $repo, $arch);
 	}
 
 	next unless (scalar @out);
-
-	my $repo = $res->getAttribute('repository');
-	my $arch = $res->getAttribute('arch');
 
 	print "$repo $arch\n";
 	foreach my $o (@out) {
