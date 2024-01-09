@@ -48,8 +48,9 @@ foreach my $res ($dom->findnodes('/resultlist/result')) {
 		my $entry = "$pkg $code";
 		my $spaces = 35 - length $entry;
 		$entry = colored($entry, $colors{$code}) if ($colors{$code});
-		push @out, sprintf("%s%s (rbl %s %s %s %s)", $entry,
-				' ' x $spaces, $project, $pkg, $repo, $arch);
+		my $rhs = $stat->findvalue('./details') ||
+			"(rbl $project $pkg $repo $arch)";
+		push @out, $entry . ' ' x $spaces . $rhs;
 	}
 
 	next unless (scalar @out);
