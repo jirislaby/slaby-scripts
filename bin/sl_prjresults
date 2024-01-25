@@ -24,6 +24,10 @@ my %ignore = (
 	'blocked' => 3,
 );
 
+my %norbl = (
+	'unresolvable' => 1,
+);
+
 my %colors = (
 	'succeeded' => 'green',
 	'blocked' => 'grey10',
@@ -34,30 +38,38 @@ my %colors = (
 	'unresolvable' => 'red',
 );
 
+my $max_len = 0;
+my %out;
 foreach my $res ($dom->findnodes('/resultlist/result')) {
 	my $arch = $res->getAttribute('arch');
 	my $project = $res->getAttribute('project');
 	my $repo = $res->getAttribute('repository');
 
-	my @out;
 	foreach my $stat ($res->findnodes('./status')) {
 		my $code = $stat->getAttribute('code');
 		next if (defined $ignore{$code} && $ignore{$code} <= $skip);
 
 		my $pkg = $stat->getAttribute('package');
 		my $entry = "$pkg $code";
-		my $spaces = 35 - length $entry;
+		my $entry_len = length $entry;
+		$max_len = $entry_len if ($entry_len > $max_len);
 		$entry = colored($entry, $colors{$code}) if ($colors{$code});
-		my $rhs = $stat->findvalue('./details') ||
-			"(rbl $project $pkg $repo $arch)";
-		push @out, $entry . ' ' x $spaces . $rhs;
+		my $rhs = $stat->findvalue('./details');
+		$rhs .= " (rbl $project $pkg $repo $arch)" unless ($norbl{$code});
+		push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
 	}
+}
 
-	next unless (scalar @out);
-
-	print "$repo $arch\n";
-	foreach my $o (@out) {
-		print "\t$o\n";
+foreach my $k (sort {
+		my @a = split(/ /, $a);
+		my @b = split(/ /, $b);
+		$a[1] cmp $b[1] || $a[0] cmp $b[0];
+	} keys %out) {
+	print "$k\n";
+	foreach my $o (@{$out{$k}}) {
+		my ($entry, $entry_len, $rhs) = @{$o};
+		my $spaces = $max_len - $entry_len + 3;
+		print "   $entry", ' ' x $spaces, "$rhs\n";
 	}
 }
 
