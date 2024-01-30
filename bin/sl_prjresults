@@ -18,13 +18,15 @@ my $in;
 my $dom = XML::LibXML->load_xml(string => \$in);
 
 my %ignore = (
+	'blocked' => 3,
 	'disabled' => 1,
 	'excluded' => 1,
 	'succeeded' => 2,
-	'blocked' => 3,
 );
 
 my %norbl = (
+	'blocked' => 1,
+	'scheduled' => 1,
 	'unresolvable' => 1,
 );
 
@@ -55,7 +57,13 @@ foreach my $res ($dom->findnodes('/resultlist/result')) {
 		$max_len = $entry_len if ($entry_len > $max_len);
 		$entry = colored($entry, $colors{$code}) if ($colors{$code});
 		my $rhs = $stat->findvalue('./details');
-		$rhs .= " (rbl $project $pkg $repo $arch)" unless ($norbl{$code});
+		my $rhs_empty = $rhs eq '';
+		$rhs = colored($rhs, 'bright_yellow') unless $rhs_empty;
+		if (!$norbl{$code}) {
+			$rhs .= " (" unless $rhs_empty;
+			$rhs .= "rbl $project $pkg $repo $arch";
+			$rhs .= ")" unless $rhs_empty;
+		}
 		push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
 	}
 }
