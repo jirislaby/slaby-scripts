@@ -17,6 +17,7 @@ alias ref='~/kernel-source/scripts/refresh_patch.sh'
 alias qd='quilt diff'
 alias qdig='echo "vim `quilt next`" | xclip; dig_patch `quilt next`'
 alias qpr='quilt push && ref'
+alias rapid='./scripts/sequence-patch.sh --quilt --dir=/dev/shm/jslaby/ --rapid'
 
 alias tigl='tig -1000'
 alias tign='tig korg/next_master..'
