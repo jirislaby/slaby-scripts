@@ -52,6 +52,10 @@ declare -A DRV_ARCH=(
 	arch/um/drivers/ssl.o um
 	arch/um/drivers/stdio_console.o um
 	arch/xtensa/platforms/iss/console.o xtensa
+	drivers/edac/amd8111_edac.o powerpc
+	drivers/edac/armada_xp_edac.o arm
+	drivers/edac/mpc85xx_edac.o powerpc
+	drivers/edac/thunderx_edac.o arm64
 	drivers/s390/char/con3215.o s390
 	drivers/s390/char/con3270.o s390
 	drivers/s390/char/sclp_rw.o s390
@@ -105,6 +109,8 @@ declare -A DRV_ARCH=(
 	drivers/video/console/newport_con.o mips
 	drivers/video/console/sticon.o parisc
 
+	drivers/edac/octeon_edac-l2c.o mips_special # OCTEON
+	drivers/edac/octeon_edac-pc.o mips_special # OCTEON
 	drivers/tty/mips_ejtag_fdc.o mips_special # MIPS_EJTAG_FDC_TTY -> MIPS_CDMM -> CPU_MIPSR2 || CPU_MIPSR5
 	drivers/tty/serial/8250/8250_ioc3.o mips_special # SGI_MFD_IOC3 -> 64BIT
 	drivers/usb/misc/sisusbvga/sisusb_con.o broken # BROKEN
