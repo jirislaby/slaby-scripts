@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+my $file = shift;
+my $msg;
+
+{
+	local $/;
+	open(my $fh, "<$file") or die "cannot open $file for r";
+	$msg = <$fh>;
+	close $fh;
+}
+
+$msg =~ s/^#[^\n]*\n//mg;
+die 'not found' unless ($msg =~ s/(.*)^(- Linux [0-9]\.[^\n]+(?:$)\n)(.*)/$2\n$1$3/ms);
+
+open(my $fh, ">$file") or die "cannot open $file for w";
+print $fh $msg;
+close $fh;
+
+exec("vim", $file);
