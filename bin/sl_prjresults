@@ -88,6 +88,7 @@ do {
 			print "   $entry", ' ' x $spaces, "$rhs\n";
 		}
 	}
+	last unless (scalar keys %out);
 	sleep($watch);
 } while ($watch);
 
