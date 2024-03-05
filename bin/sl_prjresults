@@ -5,18 +5,6 @@ use Getopt::Long;
 use Term::ANSIColor qw(colored);
 use XML::LibXML;
 
-my $skip = 1;
-GetOptions("skip+"  => \$skip)
-	or die("Error in command line arguments\n");
-
-my $in;
-{
-	undef $/;
-	$in = <>;
-}
-
-my $dom = XML::LibXML->load_xml(string => \$in);
-
 my %ignore = (
 	'blocked' => 3,
 	'disabled' => 1,
@@ -40,45 +28,67 @@ my %colors = (
 	'unresolvable' => 'red',
 );
 
-my $max_len = 0;
-my %out;
-foreach my $res ($dom->findnodes('/resultlist/result')) {
-	my $arch = $res->getAttribute('arch');
-	my $project = $res->getAttribute('project');
-	my $repo = $res->getAttribute('repository');
+my $skip = 1;
+my $cmd;
+my $watch = 0;
+GetOptions(
+	"command=s" => \$cmd,
+	"skip+" => \$skip,
+	"watch:1" => \$watch,
+) or die("Error in command line arguments\n");
 
-	foreach my $stat ($res->findnodes('./status')) {
-		my $code = $stat->getAttribute('code');
-		next if (defined $ignore{$code} && $ignore{$code} <= $skip);
+my $in = *STDIN;
 
-		my $pkg = $stat->getAttribute('package');
-		my $entry = "$pkg $code";
-		my $entry_len = length $entry;
-		$max_len = $entry_len if ($entry_len > $max_len);
-		$entry = colored($entry, $colors{$code}) if ($colors{$code});
-		my $rhs = $stat->findvalue('./details');
-		my $rhs_empty = $rhs eq '';
-		$rhs = colored($rhs, 'bright_yellow') unless $rhs_empty;
-		if (!$norbl{$code}) {
-			$rhs .= " (" unless $rhs_empty;
-			$rhs .= "rbl $project $pkg $repo $arch";
-			$rhs .= ")" unless $rhs_empty;
+do {
+	if ($cmd) {
+		open($in, "$cmd|") or die "cannot run '$cmd'";
+	}
+
+	my $dom = XML::LibXML->load_xml(IO => $in);
+
+	system('clear') if ($watch);
+
+	my $max_len = 0;
+	my %out;
+	foreach my $res ($dom->findnodes('/resultlist/result')) {
+		my $arch = $res->getAttribute('arch');
+		my $project = $res->getAttribute('project');
+		my $repo = $res->getAttribute('repository');
+
+		foreach my $stat ($res->findnodes('./status')) {
+			my $code = $stat->getAttribute('code');
+			next if (defined $ignore{$code} && $ignore{$code} <= $skip);
+
+			my $pkg = $stat->getAttribute('package');
+			my $entry = "$pkg $code";
+			my $entry_len = length $entry;
+			$max_len = $entry_len if ($entry_len > $max_len);
+			$entry = colored($entry, $colors{$code}) if ($colors{$code});
+			my $rhs = $stat->findvalue('./details');
+			my $rhs_empty = $rhs eq '';
+			$rhs = colored($rhs, 'bright_yellow') unless $rhs_empty;
+			if (!$norbl{$code}) {
+				$rhs .= " (" unless $rhs_empty;
+				$rhs .= "rbl $project $pkg $repo $arch";
+				$rhs .= ")" unless $rhs_empty;
+			}
+			push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
 		}
-		push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
 	}
-}
 
-foreach my $k (sort {
-		my @a = split(/ /, $a);
-		my @b = split(/ /, $b);
-		$a[1] cmp $b[1] || $a[0] cmp $b[0];
-	} keys %out) {
-	print "$k\n";
-	foreach my $o (@{$out{$k}}) {
-		my ($entry, $entry_len, $rhs) = @{$o};
-		my $spaces = $max_len - $entry_len + 3;
-		print "   $entry", ' ' x $spaces, "$rhs\n";
+	foreach my $k (sort {
+			my @a = split(/ /, $a);
+			my @b = split(/ /, $b);
+			$a[1] cmp $b[1] || $a[0] cmp $b[0];
+		} keys %out) {
+		print "$k\n";
+		foreach my $o (@{$out{$k}}) {
+			my ($entry, $entry_len, $rhs) = @{$o};
+			my $spaces = $max_len - $entry_len + 3;
+			print "   $entry", ' ' x $spaces, "$rhs\n";
+		}
 	}
-}
+	sleep($watch);
+} while ($watch);
 
 1;
