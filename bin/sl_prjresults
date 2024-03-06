@@ -46,8 +46,6 @@ my $in = *STDIN;
 
 	my $dom = XML::LibXML->load_xml(IO => $in);
 
-	system('clear') if ($watch);
-
 	my $max_len = 0;
 	my %out;
 	foreach my $res ($dom->findnodes('/resultlist/result')) {
@@ -75,6 +73,10 @@ my $in = *STDIN;
 			push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
 		}
 	}
+
+	close($in) if ($cmd);
+
+	system('clear') if ($watch && scalar keys %out);
 
 	foreach my $k (sort {
 			my @a = split(/ /, $a);
