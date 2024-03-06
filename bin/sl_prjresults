@@ -39,7 +39,7 @@ GetOptions(
 
 my $in = *STDIN;
 
-do {
+{ do {
 	if ($cmd) {
 		open($in, "$cmd|") or die "cannot run '$cmd'";
 	}
@@ -90,6 +90,6 @@ do {
 	}
 	last unless (scalar keys %out);
 	sleep($watch);
-} while ($watch);
+} while ($watch); }
 
 1;
