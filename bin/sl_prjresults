@@ -91,7 +91,11 @@ my $in = *STDIN;
 		}
 	}
 	last unless (scalar keys %out);
-	sleep($watch);
+	for (my $s = $watch; $s > 0; $s--) {
+		printf "%s%3s", "\b" x 3, $s;
+		select()->flush();
+		sleep(1);
+	}
 } while ($watch); }
 
 1;
