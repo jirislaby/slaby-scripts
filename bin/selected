@@ -11,6 +11,7 @@ zypper --no-refresh -v dup --no-recommends --from repo-update
 
 declare -a SEL=(
 avidemux*
+ccache
 cscope
 cross-*
 cups*
