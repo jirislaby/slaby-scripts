@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Data::Dumper;
+
+my $from = 'Kernel:stable';
+my $to = 'openSUSE:Factory';
+
+#open(my $DIFF, "osc rdiff $to kernel-source $from |") or die "cannot rdiff";
+open(my $DIFF, "</tmp/rdiff") or die "cannot rdiff";
+my %bsc;
+my $start = 1;
+my $emit = 0;
+while (<$DIFF>) {
+	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g;
+	$emit = -1 if $emit == 1 && /^\+\+\+/;
+	if ($emit == 1) {
+		if (/-{10,}/) {
+			$start = 1;
+			print "\n";
+			next;
+		}
+		if (/^\+/) {
+			print $_ if ($start > 2 && $start < 5);
+			$start++;
+		}
+	}
+	$emit = 1 if $emit == 0 && /^\+\+\+.*\.changes/;
+}
+close $DIFF;
+
+print "\nWrite summary: ";
+my $msg = <STDIN>;
+chomp $msg;
+$msg .= "; bugs: " . join(" ", sort keys %bsc) if (scalar %bsc);
+print "\n$msg\nOK? ";
+
+<STDIN>;
+
+my @cmd = ('osc', 'sr', '-m', $msg, $from, 'kernel-source', $to);
+
+open(my $sr, '-|', @cmd) or die "cannot run ", join(" ", @cmd);
+while (<$sr>) {
+	print;
+	system('oscopen', $1) if /.* id ([0-9]+)/;
+}
+close $sr;
+
+1;
