@@ -1,0 +1,66 @@
+#!/usr/bin/bash
+
+set -xe
+
+mkdir -p /dev/shm/jslaby/tmp
+cd /dev/shm/jslaby
+
+# kernel-source
+
+if [ ! -d kernel-source ]; then
+	git clone --dissociate --reference ~/kernel-source/ kerncvs.suse.de:/srv/git/kernel-source.git
+
+	pushd kernel-source
+	./scripts/install-git-hooks
+
+	git config merge.tool git-sort
+	git config mergetool.keepBackup false
+
+	git config merge.git-sort.cmd 'scripts/git_sort/merge_tool.py $LOCAL $BASE $REMOTE $MERGED'
+	git config merge.git-sort.trustExitCode true
+
+	cat >>.git/info/exclude <<EOF
+/patches
+linux-*.tar.xz
+linux-*.tar.sign
+EOF
+	ln -s . patches
+	popd
+fi
+
+# linux
+
+if [ ! -d linux ]; then
+	git clone --reference ~/linux.git/ -o linus https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+	pushd linux
+	declare -A remotes=(
+		["next"]="https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git"
+		["stable"]="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+		["stable-rc"]="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git"
+		["tty"]="https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git"
+		["tip"]="https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git"
+	)
+
+	declare -A opts=(
+		["next"]='--no-tags -t master'
+		["tip"]='--no-tags'
+	)
+
+	function get_latest_head()
+	{
+		git ls-remote -h "$1" 'refs/heads/linux-[0-9]*.y' | sed -n '$s@.*refs/heads/@@ p'
+	}
+
+	for r in stable stable-rc; do
+		opts[$r]="${opts[$r]} -t `get_latest_head \"${remotes['stable']}\"`"
+	done
+
+	declare -p opts
+
+	for tree in "${!remotes[@]}"; do
+		git remote add -f ${opts[$tree]} "$tree" "${remotes[$tree]}"
+	done
+	git repack -a -d
+	popd
+fi
