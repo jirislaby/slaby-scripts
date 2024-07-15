@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Error qw(:try);
+use Git;
+use Term::ANSIColor qw(colored);
+
+my $branch = $1 // 'origin/master';
+my $repo = Git->repository();
+my @to_checkoout = qw/config blacklist.conf/;
+my %to_rm;
+
+print colored("Merging\n", 'green');
+try {
+	my $fh = $repo->command_output_pipe('merge', $branch);
+	while (<$fh>) {
+		next if (/^CONFLICT.*patches\.kernel\.org\//);
+		next if (/^Auto-merging /);
+		if (/^CONFLICT \(content\):.*(patches\..*)/) {
+			push @to_checkoout, $1;
+			next;
+		}
+		if (/^CONFLICT \(modify\/delete\): (patches\..*) deleted in $branch and modified in HEAD./) {
+			$to_rm{$1} = 1;
+			next;
+		}
+
+		print;
+	}
+	$repo->command_close_pipe($fh);
+} catch Git::Error::Command with {
+};
+
+$repo->command_noisy('checkout', $branch, '--', @to_checkoout);
+
+my @deleted = $repo->command('rm', 'patches.kernel.org/[0-9]*.patch');
+print colored("\nDeleted " .  scalar @deleted . " patches.kernel.org/\n", 'green');
+
+my $SRCVERSION;
+open(my $conf, '<rpm/config.sh') or die 'cannot read rpm/config.sh';
+while (<$conf>) {
+	if (/^SRCVERSION=([0-9.]+)/) {
+		$SRCVERSION = $1;
+		last;
+	}
+}
+close $conf;
+
+try {
+	$to_rm{$_} = 1 foreach ($repo->command('grep', '-l', "Patch-mainline: v*$SRCVERSION", '--', 'patches.*'));
+} catch Git::Error::Command with {
+	print "nothing from mainline to delete...\n";
+};
+
+my $to_rm;
+if (scalar %to_rm) {
+	print colored("\nDeleting other:\n", 'green');
+	$repo->command_noisy('rm', keys %to_rm);
+	$to_rm = join('|', map { qr/\t\Q$_\E\n/ } keys %to_rm);
+}
+
+print colored("\nUpdating series.conf\n", 'green');
+
+{
+our @ARGV = qw/series.conf/;
+our $^I = '';
+local $/ = undef;
+while (<>) {
+	s|(latest standard kernel patches.*#####\n).*(\n\t#####+\n\t# Build)|$1$2|ms;
+	s|(sorted patches.*#####\n).*(\n\t#####+\n\t# end of sorted)|$1$2|ms;
+	s|$to_rm||g if (defined $to_rm);
+	print;
+}
+}
+
+print colored("\nDone, git diff:\n", 'green');
+$repo->command_noisy('diff');
+
+1;
