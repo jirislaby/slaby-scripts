@@ -6,13 +6,12 @@ use Data::Dumper;
 my $from = 'Kernel:stable';
 my $to = 'openSUSE:Factory';
 
-#open(my $DIFF, "osc rdiff $to kernel-source $from |") or die "cannot rdiff";
-open(my $DIFF, "</tmp/rdiff") or die "cannot rdiff";
+open(my $DIFF, "osc rdiff $to kernel-source $from |") or die "cannot rdiff";
 my %bsc;
 my $start = 1;
 my $emit = 0;
 while (<$DIFF>) {
-	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g;
+	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g if /^\+/;
 	$emit = -1 if $emit == 1 && /^\+\+\+/;
 	if ($emit == 1) {
 		if (/-{10,}/) {
