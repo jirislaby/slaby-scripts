@@ -75,6 +75,20 @@ function loop_waiting_net() {
 	done
 }
 
+function sl_push() {
+	FORCE=
+	if [ "$1" = -f ]; then
+		FORCE=+
+		shift
+	fi
+	test $# -eq 0 && return 1
+	declare -a ARGS
+	for BRANCH; do
+		ARGS+=( ${FORCE}${BRANCH}:users/jslaby/$BRANCH/for-next )
+	done
+	git push "${ARGS[@]}"
+}
+
 function show_patch {
 	SHA="$1"
 	HEAD="$2"
