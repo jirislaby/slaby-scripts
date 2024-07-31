@@ -86,7 +86,7 @@ function sl_push() {
 	for BRANCH; do
 		ARGS+=( ${FORCE}${BRANCH}:users/jslaby/$BRANCH/for-next )
 	done
-	git push "${ARGS[@]}"
+	git push origin "${ARGS[@]}"
 }
 
 function show_patch {
