@@ -1,36 +1,36 @@
-#!/usr/bin/bash
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Git;
 
-for S in series series.conf; do
-	if [ -f "$S" ]; then
-		SERIES="$S"
-		break
-	fi
-done
+my $series_f;
+for ('series', 'series.conf') {
+	if (-f $_) {
+		$series_f = $_;
+		last
+	}
+}
 
-if [ -z "$SERIES" ]; then
-	echo no series file
-	exit 1
-fi
+die 'no series file' unless defined $series_f;
 
-FORCE=
-if [ "$1" = "-f" ]; then
-	shift
-	FORCE=-f
-fi
+my $repo = Git->repository();
+$repo->command_noisy('rm', @ARGV);
 
-git rm $FORCE "$@"
+shift @ARGV if ($ARGV[0] eq '-f');
 
-declare -A FILES_HASH=()
-for file; do
-	FILES_HASH["$file"]=1
-done
+my $series;
+open(my $series_h, "<$series_f") or die "cannot open $series_f for r";
+{
+	local $/;
+	$series = <$series_h>;
+}
+close($series_h);
 
-declare -a OUTPUT=()
-while IFS= read -r LINE; do
-	P=${LINE##*[ $'\t']}
-	if [ ! -v FILES_HASH["$P"] ]; then
-		OUTPUT+=( "$LINE" )
-	fi
-done < "$SERIES"
+my $re = join '|', map { qr/^\s*\Q$_\E\n/m } @ARGV;
+$series =~ s/$re//g;
 
-printf "%s\n" "${OUTPUT[@]}" > "$SERIES"
+open($series_h, ">$series_f") or die "cannot open $series_f for w";
+print $series_h $series;
+close($series_h);
+
+1;
