@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Error qw(:try);
+use Git;
+use Term::ANSIColor qw(colored);
+
+my $git = Git->repository();
+
+my $status = $git->command('status', '--porcelain', '--untracked-files=no');
+die "git dir not clean:\n$status" if $status;
+
+$ENV{'EDITOR'} = '/usr/bin/true';
+
+my @modified_branches;
+
+while (<>) {
+	my ($branch, $file) = /(.*) - action file (.*)/;
+	next unless defined $branch;
+
+	print colored("$branch -> $file\n", 'green');
+	next if -z $file;
+	push @modified_branches, $branch;
+
+	my $new = 0;
+	try {
+		$git->command('show-ref', '--quiet', "refs/heads/$branch");
+	} catch Git::Error::Command with {
+		$new = 1;
+	};
+
+	if ($new) {
+		$git->command_noisy('checkout', $branch);
+	} else {
+		$git->command_noisy('rebase', "origin/$branch", $branch);
+	}
+
+	print colored("Running $file\n", 'green');
+	system('/usr/bin/sh', $file) == 0 or die "cannot exec $file";
+
+	if ($git->command('status', '--porcelain', '--untracked-files=no')) {
+		print colored("Running ./scripts/log\n", 'green');
+		system('./scripts/log') == 0 or die "log failed";
+	}
+}
+
+print "git push origin ",
+	(join ' ', map { "+$_:users/jslaby/$_/for-next" } @modified_branches),
+	"\n";
+
+1;
