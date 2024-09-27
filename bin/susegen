@@ -1,8 +1,6 @@
 #!/usr/bin/bash
 
-if [ -z "$TMPDIR" ]; then
-	TMPDIR=/tmp
-fi
+TMPDIR=${TMPDIR:-/tmp}
 
 function usage() {
 	echo $0 '[-r <references>] <destination> [git arguments]'
@@ -21,21 +19,24 @@ if [ $# -lt 1 ]; then
 fi
 
 AUTO_MAINLINE=
-MAINLINE="--add-header 'Patch-mainline: no'"
 MAINLINE_FORCE=
-GITREPO=
-REF=
-STARTNR=
+GITREPO=0
+PATCHES="$TMPDIR/patches"
+
+declare -a GITARGS=( '-o' "$PATCHES" '-s' '-k' '--no-renames' )
+
+rm -rf "$PATCHES"
+
 while getopts "g:m:r:s:" OPT; do
 	case "$OPT" in
-		g) GITREPO="--add-header 'Git-repo: $OPTARG'"
+		g) GITREPO=1
+		   GITARGS+=( '--add-header' "Git-repo: $OPTARG" )
 		;;
-		m) MAINLINE="--add-header 'Patch-mainline: $OPTARG'"
-		   MAINLINE_FORCE="$OPTARG"
+		m) MAINLINE_FORCE="$OPTARG"
 		;;
-		r) REF="--add-header 'References: $OPTARG'"
+		r) GITARGS+=( '--add-header' "References: $OPTARG" )
 		;;
-		s) STARTNR="--start-number $OPTARG"
+		s) GITARGS+=( '--start-number' "$OPTARG" )
 		;;
 		*) usage
 		;;
@@ -46,22 +47,29 @@ shift $(($OPTIND-1))
 MACHINE="$1"
 shift
 
-PATCHES=$TMPDIR/patches
-GITARGS="-o $PATCHES -s -k --no-renames $GITREPO $MAINLINE $REF $STARTNR"
+GITARGS+=( '--add-header' "Patch-mainline: ${MAINLINE_FORCE:-no}" )
 
-rm -rf $PATCHES
+git format-patch "${GITARGS[@]}" "$@" || exit 1
 
-eval git format-patch $GITARGS $@ || exit 1
+function get_next_tag() {
+	local LATEST="`git describe --tags --abbrev=0 linus/master`"
+	if [[ "$LATEST" =~ -rc ]]; then
+		echo "${LATEST%-rc*}"
+	else
+		let NEXT_MINOR="${LATEST#*.}"+1
+		echo "${LATEST%%.*}.${NEXT_MINOR}-rc1"
+	fi
+}
 
-for patch in $PATCHES/*; do
-	SHA=`head -1 $patch|sed 's/^From \([0-9a-fA-F]*\) .*$/\1/'`
-	sed -ni "2,$ p" $patch
+for patch in "$PATCHES"/*; do
+	SHA=`sed -n '1 s/^From \([0-9a-fA-F]*\) .*$/\1/ p' "$patch"`
+	sed -i "1 d" "$patch"
 	if [ -z "$MAINLINE_FORCE" ]; then
-		AUTO_MAINLINE=`git name-rev --refs=refs/tags/v[2-9].* $SHA|sed 's@^.*tags/v*\([a-zA-Z0-9\.-]*\).*$@\1@'`
+		AUTO_MAINLINE="`git name-rev --refs=refs/tags/v[2-9].* "$SHA"|sed 's@^.*tags/v*\([a-zA-Z0-9\.-]*\).*$@\1@'`"
 		if echo "$AUTO_MAINLINE" | grep -q undefined; then
-			CONTAINED_IN="`git branch -r --contains $SHA linus/master next/master|head -1`"
+			CONTAINED_IN="`git branch -r --contains "$SHA" linus/master next/master|head -1`"
 			if [ "$CONTAINED_IN" = "  linus/master" ]; then
-				AUTO_MAINLINE="no tag yet"
+				AUTO_MAINLINE="`get_next_tag`"
 			elif [ "$CONTAINED_IN" = "  next/master" ]; then
 				AUTO_MAINLINE="Queued in subsystem maintainer repository"
 			else
@@ -70,15 +78,15 @@ for patch in $PATCHES/*; do
 		fi
 	fi
 	if [ -n "$AUTO_MAINLINE" ]; then
-		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $AUTO_MAINLINE/" $patch
-	elif [[ -n "$GITREPO" || "$MAINLINE_FORCE" =~ ^v[0-9] ]]; then
-		sed -i "s/^Patch-mainline: .*$/Git-commit: $SHA\n&/" $patch
+		sed -i "s/^Patch-mainline: no$/Git-commit: $SHA\nPatch-mainline: $AUTO_MAINLINE/" "$patch"
+	elif [[ $GITREPO -eq 1 || "$MAINLINE_FORCE" =~ ^v[0-9] ]]; then
+		sed -i "s/^Patch-mainline: .*$/Git-commit: $SHA\n&/" "$patch"
 	fi
 done
 
 if [ "$MACHINE" != "nop" ]; then
-	scp -o StrictHostKeyChecking=no -C $PATCHES/* $MACHINE || exit 1
+	scp -o StrictHostKeyChecking=no -C "$PATCHES"/* "$MACHINE" || exit 1
 	echo Copied to $MACHINE
 
-	rm -rf $PATCHES
+	rm -rf "$PATCHES"
 fi
