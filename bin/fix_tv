@@ -1,3 +1,0 @@
-#!/usr/bin/bash
-
-xrandr --output HDMI-1 --transform 1.04,0,-40,0,1.045,-25,0,0,1
