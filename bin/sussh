@@ -1,13 +1,12 @@
 #!/usr/bin/sh
 
+MOSH=0
 USER=jslaby
-SSH='ssh -CX'
-declare -a SSH_PARAMS=(-o StrictHostKeyChecking=no)
+declare -a SSH=('ssh' '-CX' '-o' 'StrictHostKeyChecking=no')
 
 while getopts "mr" OPT; do
 	case "$OPT" in
-		m) SSH=mosh
-		   SSH_PARAMS+=(--ssh=ssh)
+		m) MOSH=1
 		;;
 		r) USER=root
 		;;
@@ -15,15 +14,15 @@ while getopts "mr" OPT; do
 done
 
 shift $(($OPTIND-1))
-HOST=$1
+HOST="$1"
 shift
 
 for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de arch.nue2.suse.org; do
-	FQDN=$HOST.$SUFFIX
-	IP=`host -t A $FQDN $SU_NAMESERVER | sed -ne 's/.* has address // p'`
+	FQDN="$HOST.$SUFFIX"
+	IP="$(host -t A "$FQDN" ${SU_NAMESERVER:+"$SU_NAMESERVER"} | sed -ne 's/.* has address // p')"
 	if [ -n "$IP" ]; then
 		if [[ "$SUFFIX" == *.de || "$SUFFIX" == *nue* ]]; then
-			SSH_PARAMS+=(-o ServerAliveInterval=60)
+			SSH+=('-o' 'ServerAliveInterval=60')
 		fi
 		break
 	fi
@@ -38,4 +37,9 @@ ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
-exec $SSH "${SSH_PARAMS[@]}" "$USER@$IP" $@
+if [ $MOSH -eq 1 ]; then
+	SSH_ARG="$(printf "%q " "${SSH[@]}")"
+	exec mosh --ssh="${SSH_ARG}" "$USER@$IP" "$@"
+else
+	exec "${SSH[@]}" "$USER@$IP" "$@"
+fi
