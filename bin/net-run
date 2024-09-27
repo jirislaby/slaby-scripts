@@ -10,7 +10,7 @@ PATCH="$1"
 shift
 
 SHA=`sed -ne '/^Git-commit/ { s@^Git-commit: \([a-f0-9]*\)@\1@p ; q }' "$PATCH"`
-OPATCH=`grep -rl "$SHA" $@`
+OPATCH=`grep -rl "$SHA" "$@"`
 
 case "$RUN" in
 	vim)

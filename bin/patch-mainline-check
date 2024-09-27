@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-git grep -i -L -E '^patch-mainline:\s*(yes|never.*|v?[-0-9.rc~^]*|[0-9a-f]{40})\s*$' patches.*/* | grep -v '^patches\.xen\/' >/tmp/no_main.$$
+git grep -i -L -E '^patch-mainline:\s*(yes|never.*|v?[-0-9.rc~^]*|[0-9a-f]{40})\s*$' 'patches.*/*' | grep -v '^patches\.xen\/' >/tmp/no_main.$$
 
 git grep -E -i '(from|acked-by|signed-off-by):.*@(suse|novell)\.' `cat /tmp/no_main.$$`|sed 's@^\([^:]*\):.*:\s*\(.*\)@\2 ::: \1@'|sort -u
 
