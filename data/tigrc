@@ -1,3 +1,4 @@
 bind generic S !@git format-patch -1 -N %(commit)
 set show-untracked = no
 set mouse = yes
+set line-graphics = utf-8
