@@ -8,7 +8,11 @@ cd /dev/shm/jslaby
 # kernel-source
 
 if [ ! -d kernel-source ]; then
-	git clone --dissociate --reference ~/kernel-source/ kerncvs.suse.de:/srv/git/kernel-source.git
+	declare -a REF=()
+	if [ -d ~/kernel-source/ ]; then
+		REF=( --dissociate --reference ~/kernel-source/ )
+	fi
+	git clone "${REF[@]}" kerncvs.suse.de:/srv/git/kernel-source.git
 
 	pushd kernel-source
 	./scripts/install-git-hooks
@@ -31,7 +35,11 @@ fi
 # linux
 
 if [ ! -d linux ]; then
-	git clone --reference ~/linux.git/ -o linus https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+	declare -a REF=()
+	if [ -d ~/linux.git/ ]; then
+		REF=( --reference ~/linux.git/ )
+	fi
+	git clone "${REF[@]}" -o linus https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 
 	pushd linux
 	declare -A remotes=(
