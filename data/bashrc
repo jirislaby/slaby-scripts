@@ -47,9 +47,14 @@ function fastbuildconfig() {
 		"$@"
 }
 
-function gfr() {
+function gf() {
 	local BRANCH="$1"
 	git fetch -q origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
+}
+
+function gfr() {
+	local BRANCH="$1"
+	gf "$BRANCH"
 	git rebase "origin/$BRANCH" "$BRANCH"
 }
 
