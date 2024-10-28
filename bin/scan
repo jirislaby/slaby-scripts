@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
-PNM=`mktemp --suffix .pnm`
-PNG=`mktemp --suffix .png`
-scanimage --format=pnm $@ > "$PNM"
-convert "$PNM" -level 6%,90% "$PNG"
+PNM="`mktemp --suffix .pnm`"
+PNG="`mktemp --suffix .png`"
+scanimage --format=pnm "$@" > "$PNM"
+magick convert "$PNM" -level 6%,90% "$PNG"
 cat "$PNG"
 rm -f "$PNM" "$PNG"
