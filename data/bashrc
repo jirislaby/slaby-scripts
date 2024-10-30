@@ -48,12 +48,12 @@ function fastbuildconfig() {
 }
 
 function gf() {
-	local BRANCH="$1"
+	local BRANCH="${1:-`git rev-parse --abbrev-ref HEAD`}"
 	git fetch -q origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 }
 
 function gfr() {
-	local BRANCH="$1"
+	local BRANCH="${1:-`git rev-parse --abbrev-ref HEAD`}"
 	gf "$BRANCH"
 	git rebase "origin/$BRANCH" "$BRANCH"
 }
