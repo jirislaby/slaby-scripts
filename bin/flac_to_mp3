@@ -37,7 +37,7 @@ for FLAC; do
 	done
 
 	flac -d -F -s -c "$FLAC" | \
-		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" && test "$DELETE_OK" -eq 1 && rm "${FLAC%.flac}.flac" &
+		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" && test "$DELETE_OK" -eq 1 && rm "$FLAC" &
 done
 
 wait
