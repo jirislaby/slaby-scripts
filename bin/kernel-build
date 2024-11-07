@@ -38,11 +38,13 @@ declare -A DRV_ARCH=(
 	arch/alpha/kernel/setup.o alpha
 	arch/alpha/kernel/srmcons.o alpha
 	arch/loongarch/kernel/sysrq.o loongarch
-	arch/m68k/emu/nfcon.o m68k
 	arch/mips/kernel/sysrq.o mips
+	arch/m68k/emu/nfcon.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
 	arch/powerpc/platforms/powernv/opal.o powerpc
+	arch/powerpc/platforms/powernv/pci-ioda.o powerpc
 	arch/powerpc/platforms/pseries/hvconsole.o powerpc
+	arch/powerpc/platforms/pseries/msi.o powerpc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
 	arch/um/drivers/chan_kern.o um
@@ -56,6 +58,21 @@ declare -A DRV_ARCH=(
 	drivers/edac/armada_xp_edac.o arm
 	drivers/edac/mpc85xx_edac.o powerpc
 	drivers/edac/thunderx_edac.o arm64
+	drivers/irqchip/irq-apple-aic.o arm64
+	drivers/irqchip/irq-armada-370-xp.o arm
+	drivers/irqchip/irq-gic-v3-its-fsl-mc-msi.o arm64
+	drivers/irqchip/irq-gic-v3.o arm64
+	drivers/irqchip/irq-ixp4xx.o arm
+	drivers/irqchip/irq-loongarch-cpu.o loongarch
+	drivers/irqchip/irq-loongson-eiointc.o loongarch
+	drivers/irqchip/irq-loongson-htvec.o loongarch
+	drivers/irqchip/irq-loongson-liointc.o loongarch
+	drivers/irqchip/irq-loongson-pch-msi.o loongarch
+	drivers/irqchip/irq-loongson-pch-pic.o loongarch
+	drivers/irqchip/irq-riscv-intc.o riscv
+	drivers/irqchip/irq-ti-sci-inta.o arm64
+	drivers/pci/controller/pcie-iproc-msi.o arm
+	drivers/remoteproc/pru_rproc.o arm64
 	drivers/s390/char/con3215.o s390
 	drivers/s390/char/con3270.o s390
 	drivers/s390/char/sclp_rw.o s390
@@ -68,11 +85,11 @@ declare -A DRV_ARCH=(
 	drivers/tty/hvc/hvc_iucv.o s390
 	drivers/tty/hvc/hvc_riscv_sbi.o riscv
 	drivers/tty/hvc/hvc_rtas.o powerpc
+	drivers/tty/hvc/hvcs.o powerpc
 	drivers/tty/hvc/hvc_udbg.o powerpc
 	drivers/tty/hvc/hvc_vio.o powerpc
-	drivers/tty/hvc/hvcs.o powerpc
-	drivers/tty/hvc/hvsi.o powerpc
 	drivers/tty/hvc/hvsi_lib.o powerpc
+	drivers/tty/hvc/hvsi.o powerpc
 	drivers/tty/serial/amba-pl010.o arm64
 	drivers/tty/serial/amba-pl011.o arm64
 	drivers/tty/serial/apbuart.o sparc
@@ -88,9 +105,9 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/pic32_uart.o mips
 	drivers/tty/serial/pmac_zilog.o powerpc
 	drivers/tty/serial/pxa.o arm_pxa
+	drivers/tty/serial/sa1100.o arm_sa1100
 	drivers/tty/serial/sb1250-duart.o mips_sb1250
 	drivers/tty/serial/serial_txx9.o mips_rbtx49xx
-	drivers/tty/serial/sa1100.o arm_sa1100
 	drivers/tty/serial/sunhv.o sparc
 	drivers/tty/serial/sunsab.o sparc
 	drivers/tty/serial/sunsu.o sparc
@@ -98,11 +115,11 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/vr41xx_siu.o mips_e55
 	drivers/tty/serial/zs.o mips_decstation
 	drivers/tty/serial/21285.o arm_footbridge
+	drivers/tty/serial/8250/8250_acorn.o arm_rpc
 	drivers/tty/serial/8250/8250_aspeed_vuart.o arm64
 	drivers/tty/serial/8250/8250_em.o arm
 	drivers/tty/serial/8250/8250_fsl.o arm64
 	drivers/tty/serial/8250/8250_gsc.o parisc
-	drivers/tty/serial/8250/8250_acorn.o arm_rpc
 	drivers/tty/serial/8250/8250_hp300.o m68k
 	drivers/tty/serial/8250/8250_pxa.o arm_pxa
 	drivers/tty/vcc.o sparc

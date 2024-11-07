@@ -47,9 +47,10 @@ declare -A DEFCONFIGS=(
 )
 
 declare -A CROSS_COMPILE=(
-	[alpha]="/opt/cross/gcc-13.1.0-nolibc/alpha-linux/bin/alpha-linux-"
+	[alpha]="alpha-linux-"
 	[arm]="arm-suse-linux-gnueabi-"
 	[arm64]="aarch64-suse-linux-"
+	[loongarch]="loongarch64-linux-"
 	[m68k]="m68k-suse-linux-"
 	[mips]="mips-suse-linux-"
 	[parisc]="hppa-suse-linux-"
@@ -58,7 +59,7 @@ declare -A CROSS_COMPILE=(
 	[sh]="/opt/cross/gcc-13.1.0-nolibc/sh4-linux/bin/sh4-linux-"
 	[sparc]="sparc64-suse-linux-"
 	[s390]="s390x-suse-linux-"
-	[xtensa]="/opt/cross/gcc-13.1.0-nolibc/xtensa-linux/bin/xtensa-linux-"
+	[xtensa]="xtensa-linux-"
 )
 
 JOBS=$(($(grep -c ^processor /proc/cpuinfo)+1))
