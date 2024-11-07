@@ -6,8 +6,8 @@ if less --help|grep -q -- --mouse; then
 fi
 
 if [ -d "/opt/cross/" ]; then
-	for C in /opt/cross/*/bin/; do
-		PATH=$PATH:$C
+	for C in /opt/cross/gcc*/*/bin/; do
+		PATH="$PATH:$C"
 	done
 fi
 
