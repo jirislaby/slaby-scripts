@@ -5,7 +5,7 @@ use Error qw(:try);
 use Git;
 use Term::ANSIColor qw(colored);
 
-my $branch = $1 // 'origin/master';
+my $branch = $ARGV[0] // 'origin/master';
 my $repo = Git->repository();
 my @to_checkoout = qw/config blacklist.conf/;
 my %to_rm;
@@ -16,11 +16,12 @@ try {
 	while (<$fh>) {
 		next if (/^CONFLICT.*patches\.kernel\.org\//);
 		next if (/^Auto-merging /);
-		if (/^CONFLICT \(content\):.*(patches\..*)/) {
+		next if (/^\QCONFLICT (content): Merge conflict in config\/\E/);
+		if (/^\QCONFLICT (content):\E.*(patches\..*)/) {
 			push @to_checkoout, $1;
 			next;
 		}
-		if (/^CONFLICT \(modify\/delete\): (patches\..*) deleted in $branch and modified in HEAD./) {
+		if (/^\QCONFLICT (modify\/delete): \Q(patches\..*) deleted in $branch and modified in HEAD./) {
 			$to_rm{$1} = 1;
 			next;
 		}
@@ -37,7 +38,7 @@ my @deleted = $repo->command('rm', 'patches.kernel.org/[0-9]*.patch');
 print colored("\nDeleted " .  scalar @deleted . " patches.kernel.org/\n", 'green');
 
 my $SRCVERSION;
-open(my $conf, '<rpm/config.sh') or die 'cannot read rpm/config.sh';
+open(my $conf, '<', 'rpm/config.sh') or die 'cannot read rpm/config.sh';
 while (<$conf>) {
 	if (/^SRCVERSION=([0-9.]+)/) {
 		$SRCVERSION = $1;
