@@ -5,6 +5,7 @@ project('XXX', 'c',
     'warning_level=2',
     'b_lto=true',
     'b_pie=true',
+    'c_std=gnu17',
     'cpp_std=c++17',
   ])
 
