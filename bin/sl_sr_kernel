@@ -1,12 +1,18 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Data::Dumper;
+use Getopt::Long;
 
 my $from = 'Kernel:stable';
 my $to = 'openSUSE:Factory';
 
-open(my $DIFF, "osc rdiff $to kernel-source $from |") or die "cannot rdiff";
+GetOptions("from=s" => \$from,
+	"to=s"   => \$to) or
+	die("Error in command line arguments\n");
+
+
+my @cmd = ('osc', 'rdiff', $to, 'kernel-source', $from);
+open(my $DIFF, '-|', @cmd) or die "cannot rdiff";
 my %bsc;
 my $start = 1;
 my $emit = 0;
@@ -36,7 +42,7 @@ print "\n$msg\nOK? ";
 
 <STDIN>;
 
-my @cmd = ('osc', 'sr', '-m', $msg, $from, 'kernel-source', $to);
+@cmd = ('osc', 'sr', '-m', $msg, $from, 'kernel-source', $to);
 
 open(my $sr, '-|', @cmd) or die "cannot run ", join(" ", @cmd);
 while (<$sr>) {
