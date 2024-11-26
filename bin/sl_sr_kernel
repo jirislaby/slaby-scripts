@@ -11,26 +11,32 @@ GetOptions("from=s" => \$from,
 	die("Error in command line arguments\n");
 
 
-my @cmd = ('osc', 'rdiff', $to, 'kernel-source', $from);
+my @opts = qw/cmd=diff unified=1 expand=0 filelimit=0 file[]=kernel-source.changes/;
+push @opts, "oproject=$to";
+
+my @cmd = qw/osc api -X POST/;
+push @cmd, "/source/$from/kernel-source?" . join "&", @opts;
+
+print join " ", @cmd, "\n";
+
 open(my $DIFF, '-|', @cmd) or die "cannot rdiff";
+# skip header
+for (my $i = 0; $i < 4; $i++) {
+	<$DIFF>;
+}
 my %bsc;
 my $start = 1;
-my $emit = 0;
 while (<$DIFF>) {
 	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g if /^\+/;
-	$emit = -1 if $emit == 1 && /^\+\+\+/;
-	if ($emit == 1) {
-		if (/-{10,}/) {
-			$start = 1;
-			print "\n";
-			next;
-		}
-		if (/^\+/) {
-			print $_ if ($start > 2 && $start < 5);
-			$start++;
-		}
+	if (/-{10,}/) {
+		$start = 1;
+		print "\n";
+		next;
 	}
-	$emit = 1 if $emit == 0 && /^\+\+\+.*\.changes/;
+	if (/^\+/) {
+		print $_ if ($start > 2 && $start < 5);
+		$start++;
+	}
 }
 close $DIFF;
 
