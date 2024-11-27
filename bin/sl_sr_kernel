@@ -2,14 +2,16 @@
 use strict;
 use warnings;
 use Getopt::Long;
+use Term::ANSIColor qw(colored);
 
 my $from = 'Kernel:stable';
 my $to = 'openSUSE:Factory';
+my $review;
 
 GetOptions("from=s" => \$from,
-	"to=s"   => \$to) or
-	die("Error in command line arguments\n");
-
+	"to=s"   => \$to,
+	"review" => \$review,
+) or die("Error in command line arguments\n");
 
 my @opts = qw/cmd=diff unified=1 expand=0 filelimit=0 file[]=kernel-source.changes/;
 push @opts, "oproject=$to";
@@ -17,9 +19,7 @@ push @opts, "oproject=$to";
 my @cmd = qw/osc api -X POST/;
 push @cmd, "/source/$from/kernel-source?" . join "&", @opts;
 
-print join " ", @cmd, "\n";
-
-open(my $DIFF, '-|', @cmd) or die "cannot rdiff";
+open(my $DIFF, '-|', @cmd) or die "cannot rdiff: ", join(" ", @cmd);
 # skip header
 for (my $i = 0; $i < 4; $i++) {
 	<$DIFF>;
@@ -28,23 +28,24 @@ my %bsc;
 my $start = 1;
 while (<$DIFF>) {
 	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g if /^\+/;
-	if (/-{10,}/) {
+	if (/\+-{10,}/) {
 		$start = 1;
 		print "\n";
 		next;
 	}
 	if (/^\+/) {
-		print $_ if ($start > 2 && $start < 5);
+		print colored($_, 'red') if ($start == 3);
+		print $_ if ($start > 3 && $start < 5);
 		$start++;
 	}
 }
 close $DIFF;
 
-print "\nWrite summary: ";
+print colored("\nWrite summary: ", 'yellow');
 my $msg = <STDIN>;
 chomp $msg;
 $msg .= "; bugs: " . join(" ", sort keys %bsc) if (scalar %bsc);
-print "\n$msg\nOK? ";
+print "\n$msg\n", colored('OK? ', 'yellow');
 
 <STDIN>;
 
@@ -53,7 +54,10 @@ print "\n$msg\nOK? ";
 open(my $sr, '-|', @cmd) or die "cannot run ", join(" ", @cmd);
 while (<$sr>) {
 	print;
-	system('oscopen', $1) if /.* id ([0-9]+)/;
+	if (my ($id) = /.* id ([0-9]+)/) {
+		system('oscopen', $id);
+		system(qw/osc review add -m/, qq|do not check in, let's see how this goes|, '-U', 'jirislaby', $id) if ($review);
+	}
 }
 close $sr;
 
