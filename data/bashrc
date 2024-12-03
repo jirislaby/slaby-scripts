@@ -86,6 +86,10 @@ function loop_waiting_net() {
 	done
 }
 
+function sl_ds() {
+	diffstat -l -p1 `gd @{u} --name-only -- patches.suse/`
+}
+
 function sl_push() {
 	FORCE=
 	if [ "$1" = -f ]; then
