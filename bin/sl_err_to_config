@@ -1,0 +1,89 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use DBI;
+use File::Basename;
+use File::Spec;
+use Getopt::Long;
+
+my $db_file = 'conf_file_map.sqlite';
+my $db;
+my $branch = 'SUSE-2025';
+my $arch_dir = '/home/latest/a/arch';
+
+GetOptions(
+	'arch=s' => \$arch_dir,
+	'branch=s' => \$branch,
+        'db=s' => \$db_file,
+) or die("Error in command line arguments\n");
+
+$db = DBI->connect("dbi:SQLite:dbname=$db_file", undef, undef, {AutoCommit => 0}) or
+        die "connect to db error: " . DBI::errstr;
+
+my $sel = $db->prepare(
+	'SELECT config ' .
+	'FROM conf_file_map_view ' .
+	'WHERE branch = ? AND path = ?;') or
+	die "cannot prepare";
+
+sub report($$) {
+	my ($file, $arch) = @_;
+	$file =~ s/c$/o/;
+	print "\t\t$file $arch\n";
+}
+
+sub handle_config($$) {
+	my ($file, $config) = @_;
+	my $reported;
+
+	print "$file -> $config\n";
+	foreach my $conf (glob("$arch_dir/*/.config")) {
+		my $arch = dirname($conf);
+		$arch = File::Spec->abs2rel($arch, $arch_dir);
+		open(my $conf_fd, "<", $conf) or die "cannot open $conf";
+		while (<$conf_fd>) {
+			if (/${config}=/) {
+				chomp;
+				print "\t$arch:$_\n";
+				report($file, $arch);
+				$reported = 1;
+				last;
+			}
+		}
+		close $conf_fd;
+	}
+	report($file, "SPECIAL # " . $config) unless ($reported);
+}
+
+my %handled;
+
+sub handle_file($) {
+	my $file = shift;
+
+	return if ($handled{$file});
+	$handled{$file} = 1;
+
+	$sel->execute($branch, $file);
+	my $row = $sel->fetchrow_hashref;
+	$sel->finish;
+	unless ($row) {
+		report($file, "NO_CONFIG");
+		return;
+	}
+
+	my $config = $$row{'config'};
+	handle_config($file, $config);
+}
+
+my $file_re = qr@/home/latest/linux/(?<file>.*\.c)@;
+my $re = qr@ from $file_re:|^$file_re:.*error@;
+
+while (<>) {
+	handle_file($+{file}) if (/$re/);
+}
+
+END {
+        if (defined $db && $db->{Active}) {
+                $db->disconnect;
+        }
+}
