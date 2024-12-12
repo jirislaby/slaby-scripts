@@ -37,14 +37,24 @@ fi
 declare -A DRV_ARCH=(
 	arch/alpha/kernel/setup.o alpha
 	arch/alpha/kernel/srmcons.o alpha
+	arch/arm/mach-exynos/suspend.o arm
+	arch/arm64/kvm/arch_timer.o arm64
 	arch/loongarch/kernel/sysrq.o loongarch
 	arch/mips/kernel/sysrq.o mips
 	arch/m68k/emu/nfcon.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
+	arch/powerpc/platforms/cell/axon_msi.o powerpc
+	arch/powerpc/platforms/cell/interrupt.o powerpc
+	arch/powerpc/platforms/cell/spider-pic.o powerpc
+	arch/powerpc/platforms/powermac/smp.o powerpc
 	arch/powerpc/platforms/powernv/opal.o powerpc
 	arch/powerpc/platforms/powernv/pci-ioda.o powerpc
 	arch/powerpc/platforms/pseries/hvconsole.o powerpc
 	arch/powerpc/platforms/pseries/msi.o powerpc
+	arch/powerpc/platforms/52xx/media5200.o powerpc_mpc5200
+	arch/powerpc/sysdev/cpm2_pic.o powerpc_tqm8560
+	arch/powerpc/sysdev/i8259.o powerpc
+	arch/powerpc/sysdev/mpic.o powerpc
 	arch/powerpc/xmon/xmon.o powerpc
 	arch/sparc/kernel/process_64.o sparc
 	arch/um/drivers/chan_kern.o um
@@ -54,25 +64,46 @@ declare -A DRV_ARCH=(
 	arch/um/drivers/ssl.o um
 	arch/um/drivers/stdio_console.o um
 	arch/xtensa/platforms/iss/console.o xtensa
+	drivers/acpi/irq.o loongarch
 	drivers/edac/amd8111_edac.o powerpc
 	drivers/edac/armada_xp_edac.o arm
 	drivers/edac/mpc85xx_edac.o powerpc
 	drivers/edac/thunderx_edac.o arm64
+	drivers/gpio/gpio-sa1100.o arm_sa1100
 	drivers/irqchip/irq-apple-aic.o arm64
 	drivers/irqchip/irq-armada-370-xp.o arm
+	drivers/irqchip/irq-dw-apb-ictl.o arm64
+	drivers/irqchip/irq-gic.o arm64
 	drivers/irqchip/irq-gic-v3-its-fsl-mc-msi.o arm64
+	drivers/irqchip/irq-gic-v3-its.o arm64
+	drivers/irqchip/irq-gic-v3-mbi.o arm64
 	drivers/irqchip/irq-gic-v3.o arm64
 	drivers/irqchip/irq-ixp4xx.o arm
+	drivers/irqchip/irq-i8259.o mips
+	drivers/irqchip/irq-loongarch-avec.o loongarch
 	drivers/irqchip/irq-loongarch-cpu.o loongarch
 	drivers/irqchip/irq-loongson-eiointc.o loongarch
 	drivers/irqchip/irq-loongson-htvec.o loongarch
 	drivers/irqchip/irq-loongson-liointc.o loongarch
+	drivers/irqchip/irq-loongson-pch-lpc.o loongarch
 	drivers/irqchip/irq-loongson-pch-msi.o loongarch
 	drivers/irqchip/irq-loongson-pch-pic.o loongarch
+	drivers/irqchip/irq-mips-cpu.o mips
+	drivers/irqchip/irq-mips-gic.o mips_m32r
+	drivers/irqchip/irq-partition-percpu.o arm64
+	drivers/irqchip/irq-riscv-aplic-direct.o riscv
+	drivers/irqchip/irq-riscv-imsic-platform.o riscv
 	drivers/irqchip/irq-riscv-intc.o riscv
+	drivers/irqchip/irq-sa11x0.o arm_sa1100
+	drivers/irqchip/irq-sifive-plic.o riscv
 	drivers/irqchip/irq-ti-sci-inta.o arm64
+	drivers/irqchip/irq-xtensa-pic.o xtensa
+	drivers/net/dsa/microchip/ksz_ptp.o riscv
+	drivers/pci/controller/pcie-apple.o arm
+	drivers/pci/controller/pcie-apple.o riscv
 	drivers/pci/controller/pcie-iproc-msi.o arm
 	drivers/remoteproc/pru_rproc.o arm64
+	drivers/soc/tegra/pmc.o arm64
 	drivers/s390/char/con3215.o s390
 	drivers/s390/char/con3270.o s390
 	drivers/s390/char/sclp_rw.o s390
@@ -132,6 +163,88 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/8250/8250_ioc3.o mips_special # SGI_MFD_IOC3 -> 64BIT
 	drivers/usb/misc/sisusbvga/sisusb_con.o broken # BROKEN
 	sound/soc/ti/ams-delta.o arm_special # SND_SOC_OMAP_AMS_DELTA -> MACH_AMS_DELTA -> OMAP1
+
+	arch/arc/kernel/intc-arcv2.o SPECIAL # CONFIG_ISA_ARCV2
+	arch/arc/kernel/intc-compact.o SPECIAL # CONFIG_ISA_ARCOMPACT
+	arch/arc/kernel/mcip.o SPECIAL # CONFIG_ARC_MCIP
+	arch/arm/common/sa1111.o SPECIAL # CONFIG_SA1111
+	arch/arm/mach-imx/avic.o SPECIAL # CONFIG_MXC_AVIC
+	arch/arm/mach-imx/tzic.o SPECIAL # CONFIG_MXC_TZIC
+	arch/mips/ath25/ar2315.o SPECIAL # CONFIG_SOC_AR2315
+	arch/mips/ath25/ar5312.o SPECIAL # CONFIG_SOC_AR5312
+	arch/mips/pci/pci-ar2315.o SPECIAL # CONFIG_PCI_AR2315
+	arch/mips/pci/pci-rt3883.o SPECIAL # CONFIG_SOC_RT3883
+	arch/mips/pci/pci-xtalk-bridge.o SPECIAL # CONFIG_PCI_XTALK_BRIDGE
+	arch/mips/ralink/irq.o SPECIAL # CONFIG_IRQ_INTC
+	arch/powerpc/platforms/embedded6xx/flipper-pic.o SPECIAL # CONFIG_GAMECUBE_COMMON
+	arch/powerpc/platforms/embedded6xx/hlwd-pic.o SPECIAL # CONFIG_WII
+	arch/powerpc/platforms/512x/mpc5121_ads_cpld.o SPECIAL # CONFIG_MPC5121_ADS
+	arch/powerpc/platforms/8xx/cpm1-ic.o SPECIAL # CONFIG_CPM1
+	arch/powerpc/platforms/85xx/socrates_fpga_pic.o SPECIAL # CONFIG_SOCRATES
+	arch/powerpc/sysdev/ehv_pic.o SPECIAL # CONFIG_PPC_EPAPR_HV_PIC
+	arch/powerpc/sysdev/ge/ge_pic.o SPECIAL # CONFIG_GE_FPGA
+	arch/powerpc/sysdev/ipic.o SPECIAL # CONFIG_IPIC
+	arch/powerpc/sysdev/tsi108_pci.o SPECIAL # CONFIG_TSI108_BRIDGE
+	drivers/irqchip/irq-aspeed-vic.o SPECIAL # CONFIG_ARCH_ASPEED
+	drivers/irqchip/irq-ath79-misc.o SPECIAL # CONFIG_ATH79
+	drivers/irqchip/irq-bcm2835.o SPECIAL # CONFIG_ARCH_BCM2835
+	drivers/irqchip/irq-bcm2836.o SPECIAL # CONFIG_ARCH_BCM2835
+	drivers/irqchip/irq-bcm6345-l1.o SPECIAL # CONFIG_BCM6345_L1_IRQ
+	drivers/irqchip/irq-clps711x.o SPECIAL # CONFIG_CLPS711X_IRQCHIP
+	drivers/irqchip/irq-csky-mpintc.o SPECIAL # CONFIG_CSKY_MPINTC
+	drivers/irqchip/irq-davinci-cp-intc.o SPECIAL # CONFIG_DAVINCI_CP_INTC
+	drivers/irqchip/irq-digicolor.o SPECIAL # CONFIG_ARCH_DIGICOLOR
+	drivers/irqchip/irq-ftintc010.o SPECIAL # CONFIG_FARADAY_FTINTC010
+	drivers/irqchip/irq-hip04.o SPECIAL # CONFIG_ARCH_HIP04
+	drivers/irqchip/irq-imgpdc.o SPECIAL # CONFIG_IMGPDC_IRQ
+	drivers/irqchip/irq-lpc32xx.o SPECIAL # CONFIG_ARCH_LPC32XX
+	drivers/irqchip/irq-ls1x.o SPECIAL # CONFIG_LS1X_IRQ
+	drivers/irqchip/irq-mmp.o SPECIAL # CONFIG_ARCH_MMP
+	drivers/irqchip/irq-mxs.o SPECIAL # CONFIG_IRQ_MXS
+	drivers/irqchip/irq-nvic.o SPECIAL # CONFIG_ARM_NVIC
+	drivers/irqchip/irq-omap-intc.o SPECIAL # CONFIG_OMAP_IRQCHIP
+	drivers/irqchip/irq-orion.o SPECIAL # CONFIG_ORION_IRQCHIP
+	drivers/irqchip/irq-or1k-pic.o SPECIAL # CONFIG_OR1K_PIC
+	drivers/irqchip/irq-pic32-evic.o SPECIAL # CONFIG_PIC32_EVIC
+	drivers/irqchip/irq-rda-intc.o SPECIAL # CONFIG_RDA_INTC
+	drivers/irqchip/irq-realtek-rtl.o SPECIAL # CONFIG_MACH_REALTEK_RTL
+	drivers/irqchip/irq-sun4i.o SPECIAL # CONFIG_SUN4I_INTC
+	drivers/irqchip/irq-tb10x.o SPECIAL # CONFIG_TB10X_IRQC
+	drivers/irqchip/irq-versatile-fpga.o SPECIAL # CONFIG_VERSATILE_FPGA_IRQ
+	drivers/irqchip/irq-vic.o SPECIAL # CONFIG_ARM_VIC
+	drivers/irqchip/irq-vt8500.o SPECIAL # CONFIG_ARCH_VT8500
+	drivers/irqchip/irq-wpcm450-aic.o SPECIAL # CONFIG_WPCM450_AIC
+	drivers/irqchip/irq-xtensa-mx.o SPECIAL # CONFIG_XTENSA_MX
+	drivers/irqchip/irq-zevio.o SPECIAL # CONFIG_ARCH_NSPIRE
+	drivers/mfd/ab8500-core.o SPECIAL # CONFIG_AB8500_CORE
+	drivers/mfd/db8500-prcmu.o SPECIAL # CONFIG_MFD_DB8500_PRCMU
+	drivers/mfd/ioc3.o SPECIAL # CONFIG_SGI_MFD_IOC3
+	drivers/pci/controller/pci-mvebu.o SPECIAL # CONFIG_PCI_MVEBU
+	drivers/thermal/qcom/lmh.o SPECIAL # CONFIG_QCOM_LMH
+
+	arch/arm/mach-omap1/irq.o NO_CONFIG
+	arch/arm/mach-omap2/omap-wakeupgen.o NO_CONFIG
+	arch/arm/mach-pxa/irq.o NO_CONFIG
+	arch/arm/plat-orion/gpio.o NO_CONFIG
+	arch/mips/cavium-octeon/octeon-irq.o NO_CONFIG
+	arch/mips/lantiq/irq.o NO_CONFIG
+	arch/mips/sgi-ip27/ip27-irq.o NO_CONFIG
+	arch/mips/sgi-ip30/ip30-irq.o NO_CONFIG
+	arch/nios2/kernel/irq.o NO_CONFIG
+	arch/powerpc/platforms/powermac/pic.o NO_CONFIG
+	arch/powerpc/platforms/powernv/opal-irqchip.o NO_CONFIG
+	arch/powerpc/platforms/ps3/interrupt.o NO_CONFIG
+	arch/powerpc/platforms/44x/uic.o NO_CONFIG
+	arch/powerpc/platforms/52xx/mpc52xx_gpt.o NO_CONFIG
+	arch/powerpc/platforms/52xx/mpc52xx_pic.o NO_CONFIG
+	arch/powerpc/platforms/8xx/pic.o NO_CONFIG
+	arch/powerpc/sysdev/fsl_msi.o NO_CONFIG
+	arch/powerpc/sysdev/xics/xics-common.o NO_CONFIG
+	arch/powerpc/sysdev/xive/common.o NO_CONFIG
+	arch/sh/boards/mach-se/7343/irq.o NO_CONFIG
+	arch/sh/boards/mach-se/7722/irq.o NO_CONFIG
+	arch/sh/boards/mach-x3proto/gpio.o NO_CONFIG
+	drivers/gpu/drm/msm/msm_mdss.o NO_CONFIG
 )
 
 function echo_red() {
@@ -147,9 +260,11 @@ declare -A ARCHS
 for FILE; do
 	ARCH="${DRV_ARCH[$FILE]}"
 	if [ -n "$ARCH" ]; then
-		declare -n ref="$ARCH"
-		ref+=($FILE)
-		ARCHS[$ARCH]=1
+		if [ "$ARCH" != 'NO_CONFIG' -a "$ARCH" != 'SPECIAL' ]; then
+			declare -n ref="$ARCH"
+			ref+=($FILE)
+			ARCHS[$ARCH]=1
+		fi
 	else
 		BU+=($FILE)
 	fi
