@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use File::pushd;
+use Getopt::Long qw(GetOptions);
+use Git;
+use Pod::Usage qw(pod2usage);
+use Term::ANSIColor qw(colored);
+
+my $repo = Git->repository;
+my $pos_diff = 100;
+my $from;
+my $rev = '@';
+my $single;
+GetOptions(
+	"from=s" => \$from,
+	"rev=s" => \$rev,
+	"single" => \$single,
+) or pod2usage(2);
+
+my @patches = @ARGV;
+
+if (!scalar @patches) {
+	@patches = $repo->command('diff', '--name-only', $rev, '--', 'patches.*');
+}
+
+die 'nothing to do' unless (scalar @patches);
+
+my $regexp = join "|", @patches;
+my @patches_sorted;
+my @patch_pos;
+
+foreach my $pos_patch ($repo->command('grep', '-nEh', $regexp, 'series.conf')) {
+	my ($pos, $patch) = $pos_patch =~ /^([0-9]+):\s*(\S+)\s*$/;
+	push @patches_sorted, $patch;
+	push @patch_pos, $pos;
+}
+
+sub dump_diff(@) {
+	my %count;
+
+	foreach my $e (@_) {
+		$count{$e}++;
+	}
+
+	foreach my $e (keys %count) {
+		print STDERR "\t$e\n" if ($count{$e} != 2);
+	}
+}
+
+if (scalar @patches != scalar @patches_sorted) {
+	print STDERR colored("problems:\n", 'red');
+	dump_diff(@patches, @patches_sorted);
+	die 'count of patches does not match: ', scalar @patches, " != ", scalar @patches_sorted;
+}
+
+if (defined $from) {
+	while (scalar @patches_sorted && $patches_sorted[0] ne $from) {
+		shift @patches_sorted;
+		shift @patch_pos;
+	}
+}
+
+sub seq_patch(;$$) {
+	my ($file, $do_out_dir) = @_;
+	my $out_dir;
+
+	my @cmdline = qw@./scripts/sequence-patch.sh --quilt --dir=/dev/shm/jslaby/ --rapid@;
+
+	push @cmdline, $file if ($file);
+
+	print colored("Applying up to " . ($file ? "'$file'" : 'the end') . "\n", 'green');
+
+	if ($do_out_dir) {
+		open(my $seq, '-|', @cmdline) or die 'cannot run ' . $cmdline[0];
+		while (<$seq>) {
+			$out_dir = $1 if (/Creating tree in (.*)/);
+			print;
+		}
+		close($seq);
+
+		return $out_dir;
+	}
+
+	system(@cmdline) == 0 or die 'cannot run ' . $cmdline[0];
+}
+
+my $last_no;
+my $out_dir;
+
+while (scalar @patches_sorted) {
+	my $file = shift @patches_sorted;
+	my $no = shift @patch_pos;
+
+	if (!$out_dir) {
+		$out_dir = seq_patch($file, 1);
+	} elsif ($no - $last_no > $pos_diff) {
+		seq_patch($file);
+	}
+
+	$last_no = $no;
+
+	{
+		my $d = pushd($out_dir);
+
+		system('quilt', 'push', '--fuzz=0', $file) == 0 or
+			die "push in $out_dir";
+		system('./patches/scripts/refresh_patch.sh') == 0 or
+			die "refresh in $out_dir";
+	}
+
+	exit 0 if ($single);
+}
+
+seq_patch();
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+sl_refresh_list [options] [patches]
+
+ Options:
+   --from=patch		patch to start from
+   --rev=rev		revision to diff against [default=@]
+   --single		refresh only one patch
