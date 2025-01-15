@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+from contextlib import closing
+import os
+import sqlite3
+import sys
+from termcolor import colored
+
+db_file = os.path.join(os.environ["HOME"],
+                       ".cache/check-kernel-fix/conf_file_map.sqlite")
+
+if not sys.argv:
+    sys.exit("no files to check")
+
+if not os.path.exists(db_file):
+    sys.exit(f"no {db_file}")
+
+with closing(sqlite3.connect(db_file)) as db:
+    db.execute('PRAGMA foreign_keys = ON;')
+    with closing(db.cursor()) as cursor:
+        for path in sys.argv[1:]:
+            (dir, filename) = os.path.split(path)
+            print(colored(path, 'green'))
+            for row in cursor.execute('''SELECT config.config, branch.branch
+                    FROM conf_file_map AS map
+                    LEFT JOIN config ON map.config = config.id
+                    LEFT JOIN branch ON map.branch = branch.id
+                    WHERE map.file = (SELECT id FROM file WHERE file = ?
+                        AND dir = (SELECT id FROM dir WHERE dir = ?))
+                    ORDER BY 2, 1;''', (filename, dir)):
+                print(f"\t{row[1]:>25}: {row[0]}")
