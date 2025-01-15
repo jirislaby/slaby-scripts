@@ -11,6 +11,7 @@ zypper --no-refresh -v dup --no-recommends --from repo-update
 
 declare -a SEL=(
 avidemux*
+avr*
 ccache
 cscope
 cross-*
@@ -22,7 +23,7 @@ java*
 kernel-default
 kernel-default-devel
 kernel-devel
-kernel-firmware
+kernel-firmware*
 kernel-macros
 klee*
 ffmpeg*
@@ -56,6 +57,7 @@ openttd*
 openSUSE-release*
 perl*
 psi+*
+python*
 qemu*
 slaby-scripts*
 slucto
