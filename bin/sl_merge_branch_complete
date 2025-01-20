@@ -10,7 +10,7 @@ my $repo = Git->repository();
 my @to_checkoout = qw/config blacklist.conf/;
 my %to_rm;
 
-print colored("Merging\n", 'green');
+print colored("Merging $branch\n", 'green');
 try {
 	my $fh = $repo->command_output_pipe('merge', $branch);
 	while (<$fh>) {
