@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+import argparse
+from contextlib import closing
+import os
+import sqlite3
+import sys
+from termcolor import colored
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--db-file', default=os.path.join(os.environ["HOME"],
+                            ".cache/check-kernel-fix/conf_file_map.sqlite"))
+parser.add_argument('-D', '--detail', action='store_true')
+parser.add_argument('path', nargs='+')
+args = parser.parse_args()
+
+if not os.path.exists(args.db_file):
+    sys.exit(f"db '{args.db_file}' not found")
+
+def print_overview(cursor, dir, filename):
+    for row in cursor.execute('''
+            SELECT user.email, sum(map.count) AS count
+            FROM user_file_map AS map
+            LEFT JOIN user ON map.user = user.id
+            WHERE map.file IN
+                (SELECT id
+                FROM file
+                WHERE (? OR file.file LIKE ?) AND file.dir IN
+                    (SELECT id FROM dir WHERE dir.dir LIKE ?))
+            GROUP BY substr(user.email, 0, instr(user.email,'@'))
+            ORDER BY count DESC, user.email;
+            ''', (not filename, filename, dir)):
+        print(f"\t{row[0]:>25}: {row[1]}")
+
+def print_detailed(cursor, dir, filename):
+    for row in cursor.execute('''
+            SELECT user.email, dir.dir, file.file, sum(map.count) AS count
+            FROM user_file_map AS map
+            LEFT JOIN user ON map.user = user.id
+            LEFT JOIN file ON map.file = file.id
+            LEFT JOIN dir ON file.dir = dir.id
+            WHERE (? OR file.file LIKE ?) AND dir.dir LIKE ?
+            GROUP BY substr(user.email, 0, instr(user.email,'@')), dir.dir, file.file
+            ORDER BY count DESC, user.email, dir.dir, file.file;
+            ''', (not filename, filename, dir)):
+        print(f"\t{row[0]:>25}: {row[3]:5} {row[1]}/{row[2]}")
+
+with closing(sqlite3.connect(args.db_file)) as db:
+    db.execute('PRAGMA foreign_keys = ON;')
+    with closing(db.cursor()) as cursor:
+        for path in args.path:
+            (dir, filename) = os.path.split(path)
+            print(colored(path, 'green'))
+            if (args.detail):
+                print_detailed(cursor, dir, filename)
+            else:
+                print_overview(cursor, dir, filename)
+
