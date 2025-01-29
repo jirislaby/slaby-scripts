@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -exx
+
+eval `git grep -h SRCVERSION rpm/config.sh`
+
+test -z "$SRCVERSION" && exit 1
+
+VER="$SRCVERSION"
+RC=""
+if [ "$1" = '-r' ]; then
+	RC="-rc"
+fi
+
+TREE="stable${RC}/linux-$VER.y"
+
+VER=`{ git -C "$LINUX_GIT" show "$TREE":Makefile | head -4;
+	echo -e 'ver:\n\t@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)'
+	} | make -f - ver`
+
+if [ -n "$RC" ]; then
+	git -C "$LINUX_GIT" tag "v$VER" "$TREE"
+	trap "git -C "$LINUX_GIT" tag -d \"v$VER\"" EXIT
+fi
+
+stableup "$VER"
