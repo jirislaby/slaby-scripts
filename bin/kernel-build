@@ -38,11 +38,15 @@ declare -A DRV_ARCH=(
 	arch/alpha/kernel/setup.o alpha
 	arch/alpha/kernel/srmcons.o alpha
 	arch/arm/mach-exynos/suspend.o arm
+	arch/arm/mach-sa1100/assabet.o arm_sa1100
+	arch/arm/mach-sa1100/collie.o arm_sa1100
+	arch/arm/mach-sa1100/h3xxx.o arm_sa1100
 	arch/arm64/kvm/arch_timer.o arm64
 	arch/loongarch/kernel/sysrq.o loongarch
 	arch/mips/kernel/sysrq.o mips
 	arch/m68k/emu/nfcon.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
+	arch/powerpc/kernel/legacy_serial.o powerpc
 	arch/powerpc/platforms/cell/axon_msi.o powerpc
 	arch/powerpc/platforms/cell/interrupt.o powerpc
 	arch/powerpc/platforms/cell/spider-pic.o powerpc
@@ -99,6 +103,7 @@ declare -A DRV_ARCH=(
 	drivers/irqchip/irq-ti-sci-inta.o arm64
 	drivers/irqchip/irq-xtensa-pic.o xtensa
 	drivers/net/dsa/microchip/ksz_ptp.o riscv
+	drivers/parisc/superio.o parisc
 	drivers/pci/controller/pcie-apple.o arm
 	drivers/pci/controller/pcie-apple.o riscv
 	drivers/pci/controller/pcie-iproc-msi.o arm
@@ -170,12 +175,16 @@ declare -A DRV_ARCH=(
 	arch/arm/common/sa1111.o SPECIAL # CONFIG_SA1111
 	arch/arm/mach-imx/avic.o SPECIAL # CONFIG_MXC_AVIC
 	arch/arm/mach-imx/tzic.o SPECIAL # CONFIG_MXC_TZIC
+	arch/mips/alchemy/common/platform.o SPECIAL # CONFIG_MIPS_ALCHEMY
 	arch/mips/ath25/ar2315.o SPECIAL # CONFIG_SOC_AR2315
 	arch/mips/ath25/ar5312.o SPECIAL # CONFIG_SOC_AR5312
+	arch/mips/ath25/devices.o SPECIAL # CONFIG_ATH25
 	arch/mips/pci/pci-ar2315.o SPECIAL # CONFIG_PCI_AR2315
 	arch/mips/pci/pci-rt3883.o SPECIAL # CONFIG_SOC_RT3883
 	arch/mips/pci/pci-xtalk-bridge.o SPECIAL # CONFIG_PCI_XTALK_BRIDGE
 	arch/mips/ralink/irq.o SPECIAL # CONFIG_IRQ_INTC
+	arch/mips/rb532/serial.o SPECIAL # CONFIG_MIKROTIK_RB532
+	arch/mips/txx9/generic/setup.o SPECIAL # CONFIG_MACH_TX49XX
 	arch/powerpc/platforms/embedded6xx/flipper-pic.o SPECIAL # CONFIG_GAMECUBE_COMMON
 	arch/powerpc/platforms/embedded6xx/hlwd-pic.o SPECIAL # CONFIG_WII
 	arch/powerpc/platforms/512x/mpc5121_ads_cpld.o SPECIAL # CONFIG_MPC5121_ADS
@@ -185,6 +194,7 @@ declare -A DRV_ARCH=(
 	arch/powerpc/sysdev/ge/ge_pic.o SPECIAL # CONFIG_GE_FPGA
 	arch/powerpc/sysdev/ipic.o SPECIAL # CONFIG_IPIC
 	arch/powerpc/sysdev/tsi108_pci.o SPECIAL # CONFIG_TSI108_BRIDGE
+	arch/x86/platform/ce4100/ce4100.o SPECIAL # CONFIG_X86_INTEL_CE
 	drivers/irqchip/irq-aspeed-vic.o SPECIAL # CONFIG_ARCH_ASPEED
 	drivers/irqchip/irq-ath79-misc.o SPECIAL # CONFIG_ATH79
 	drivers/irqchip/irq-bcm2835.o SPECIAL # CONFIG_ARCH_BCM2835
@@ -222,6 +232,7 @@ declare -A DRV_ARCH=(
 	drivers/pci/controller/pci-mvebu.o SPECIAL # CONFIG_PCI_MVEBU
 	drivers/thermal/qcom/lmh.o SPECIAL # CONFIG_QCOM_LMH
 
+	arch/arm/mach-omap1/board-ams-delta.o NO_CONFIG
 	arch/arm/mach-omap1/irq.o NO_CONFIG
 	arch/arm/mach-omap2/omap-wakeupgen.o NO_CONFIG
 	arch/arm/mach-pxa/irq.o NO_CONFIG
@@ -244,6 +255,10 @@ declare -A DRV_ARCH=(
 	arch/sh/boards/mach-se/7343/irq.o NO_CONFIG
 	arch/sh/boards/mach-se/7722/irq.o NO_CONFIG
 	arch/sh/boards/mach-x3proto/gpio.o NO_CONFIG
+	arch/sh/kernel/cpu/sh3/serial-sh770x.o NO_CONFIG
+	arch/sh/kernel/cpu/sh3/serial-sh7710.o NO_CONFIG
+	arch/sh/kernel/cpu/sh3/serial-sh7720.o NO_CONFIG
+	arch/sh/kernel/cpu/sh4a/serial-sh7722.o NO_CONFIG
 	drivers/gpu/drm/msm/msm_mdss.o NO_CONFIG
 )
 
