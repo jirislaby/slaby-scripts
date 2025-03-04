@@ -47,6 +47,8 @@ declare -A DRV_ARCH=(
 	arch/m68k/emu/nfcon.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
 	arch/powerpc/kernel/legacy_serial.o powerpc
+	arch/powerpc/kvm/book3s_hv.o powerpc
+	arch/powerpc/kvm/book3s_xive.o powerpc
 	arch/powerpc/platforms/cell/axon_msi.o powerpc
 	arch/powerpc/platforms/cell/interrupt.o powerpc
 	arch/powerpc/platforms/cell/spider-pic.o powerpc
@@ -67,6 +69,7 @@ declare -A DRV_ARCH=(
 	arch/um/drivers/null.o um
 	arch/um/drivers/ssl.o um
 	arch/um/drivers/stdio_console.o um
+	arch/um/drivers/virt-pci.o um
 	arch/xtensa/platforms/iss/console.o xtensa
 	drivers/acpi/irq.o loongarch
 	drivers/edac/amd8111_edac.o powerpc
@@ -242,13 +245,16 @@ declare -A DRV_ARCH=(
 	arch/mips/sgi-ip27/ip27-irq.o NO_CONFIG
 	arch/mips/sgi-ip30/ip30-irq.o NO_CONFIG
 	arch/nios2/kernel/irq.o NO_CONFIG
-	arch/powerpc/platforms/powermac/pic.o NO_CONFIG
-	arch/powerpc/platforms/powernv/opal-irqchip.o NO_CONFIG
-	arch/powerpc/platforms/ps3/interrupt.o NO_CONFIG
 	arch/powerpc/platforms/44x/uic.o NO_CONFIG
 	arch/powerpc/platforms/52xx/mpc52xx_gpt.o NO_CONFIG
 	arch/powerpc/platforms/52xx/mpc52xx_pic.o NO_CONFIG
 	arch/powerpc/platforms/8xx/pic.o NO_CONFIG
+	arch/powerpc/platforms/amigaone/setup.o NO_CONFIG
+	arch/powerpc/platforms/chrp/setup.o NO_CONFIG
+	arch/powerpc/platforms/pasemi/setup.o NO_CONFIG
+	arch/powerpc/platforms/powermac/pic.o NO_CONFIG
+	arch/powerpc/platforms/powernv/opal-irqchip.o NO_CONFIG
+	arch/powerpc/platforms/ps3/interrupt.o NO_CONFIG
 	arch/powerpc/sysdev/fsl_msi.o NO_CONFIG
 	arch/powerpc/sysdev/xics/xics-common.o NO_CONFIG
 	arch/powerpc/sysdev/xive/common.o NO_CONFIG
