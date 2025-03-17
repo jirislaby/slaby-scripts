@@ -95,6 +95,7 @@ declare -A DRV_ARCH=(
 	drivers/irqchip/irq-loongson-pch-lpc.o loongarch
 	drivers/irqchip/irq-loongson-pch-msi.o loongarch
 	drivers/irqchip/irq-loongson-pch-pic.o loongarch
+	drivers/irqchip/irq-ls-scfg-msi.o arm64
 	drivers/irqchip/irq-mips-cpu.o mips
 	drivers/irqchip/irq-mips-gic.o mips_m32r
 	drivers/irqchip/irq-partition-percpu.o arm64
