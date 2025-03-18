@@ -1,26 +1,25 @@
 #!/usr/bin/bash
 
-read X_H X_MIT X_KEY < <(xauth list|grep "`uname -n`"|tail -1)
-chmod g+w /tmp/.X11-unix/X${X_H##*:}
+read X_H X_MIT X_KEY < <(xauth list|grep "$(uname -n)"|tail -1)
+chmod g+w "/tmp/.X11-unix/X${X_H##*:}"
 
-DESK=`xdotool get_desktop`
-case $DESK in
+function open_con()
+{
+	for DIM; do
+		konsole -p "TerminalColumns=${DIM%%:*}" -p "TerminalRows=${DIM##*:}" &
+	done
+}
+
+DESK="$(xdotool get_desktop)"
+case "$DESK" in
 	0)
 	xdg-su -c 'cd; konsole -p TerminalColumns=164 -p TerminalRows=24' &
-	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
+	open_con 80:42
 	;;
-	1)
-	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
-	konsole -p 'TerminalColumns=80' -p 'TerminalRows=42' &
-	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
-	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
-	#xterm -geometry 12x4+1840+0 -T P -e 'cat .nopas; read' &
+	1) open_con 80:42 80:42 150:24 80:24 150:24 150:24
 	;;
 	2)
-	xdg-su -u ku -c 'konsole -p TerminalColumns=153 -p TerminalRows=25 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=150 -p TerminalRows=24' &
-	konsole -p 'TerminalColumns=80' -p 'TerminalRows=24' &
-	konsole -p 'TerminalColumns=150' -p 'TerminalRows=24' &
+	xdg-su -u ku -c 'konsole -p TerminalColumns=153 -p TerminalRows=25 & konsole -p TerminalColumns=100 -p TerminalRows=42 & konsole -p TerminalColumns=80 -p TerminalRows=42 & konsole -p TerminalColumns=150 -p TerminalRows=24' &
+	open_con 80:24 150:24
 	;;
 esac
