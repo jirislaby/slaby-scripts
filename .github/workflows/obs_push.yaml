@@ -1,0 +1,8 @@
+name: GitHub push to OBS
+#run-name: ${{ github.actor }} is testing out GitHub Actions
+on: [push]
+jobs:
+  push-to-obs:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'curl -H "Authorization: Token ${{ secrets.OBS_TOKEN }}" -X POST "https://api.opensuse.org/trigger/runservice?project=home:jirislaby&package=slaby-scripts"'
