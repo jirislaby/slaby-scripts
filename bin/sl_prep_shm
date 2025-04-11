@@ -12,7 +12,9 @@ if [ ! -d kernel-source ]; then
 	if [ -d ~/kernel-source/ ]; then
 		REF=( --dissociate --reference ~/kernel-source/ )
 	fi
-	git clone "${REF[@]}" kerncvs.suse.de:/srv/git/kernel-source.git
+	git clone --no-tags -c 'remote.origin.fetch=^refs/heads/ptf/*' \
+		-c 'remote.origin.fetch=^refs/heads/users/*' \
+		"${REF[@]}" kerncvs.suse.de:/srv/git/kernel-source.git
 
 	pushd kernel-source
 	./scripts/install-git-hooks
