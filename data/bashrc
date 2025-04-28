@@ -2,7 +2,6 @@
 alias sb="ssh bellona -CX"
 alias sd='ssh decibel -CX'
 alias san='ssh anemoi -X'
-alias san2='ssh anemoi2-e -X'
 
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
@@ -126,7 +125,12 @@ function stable_dry() {
 }
 
 function vimconfl() {
-	vim `git diff --name-only|sort -u` '+/<<<<<<<'
+	mapfile -d '' -t FILES < <(git diff --name-only -z | sort -zu)
+	vim "${FILES[@]}" '+/<<<<<<<'
+	local MSG=$'Add to git?\n\n'"$(join_by $'\n' "${FILES[@]}")"
+	if dialog --keep-tite --cr-wrap --yesno "$MSG" 0 0; then
+		git add "${FILES[@]}"
+	fi
 }
 
 function vimp() {
