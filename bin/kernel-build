@@ -7,7 +7,7 @@ CROSS_DESTDIR="../a/arch"
 DESTDIR="../bu"
 DUMP_MAKE=0
 
-while getopts "a:A:d:cC:mMwW" OPT; do
+while getopts "a:A:d:f:cC:mMwW" OPT; do
 	case "$OPT" in
 		a) DESTDIR="$OPTARG" ;;
 		A) CROSS_DESTDIR="$OPTARG" ;;
@@ -16,10 +16,10 @@ while getopts "a:A:d:cC:mMwW" OPT; do
 		   ;;
 		C) MAKE_OPTS+=("CC=$OPTARG") ;;
 		d) readarray -t DFF < <(git diff --name-only "$OPTARG"|sed -n 's@\.c$@.o@ p')
-		   echo Files: "${DFF[@]}"
-		   if [ "${#DFF[@]}" -eq 0 ]; then
-			   exit 1
-		   fi
+		   test "${#DFF[@]}" -eq 0 && exit 1
+		   ;;
+		f) readarray -t DFF < "$OPTARG"
+		   test "${#DFF[@]}" -eq 0 && exit 1
 		   ;;
 		m) DUMP_MAKE=1 ;;
 		w) MAKE_OPTS+=("W=1") ;;
@@ -29,6 +29,7 @@ while getopts "a:A:d:cC:mMwW" OPT; do
 done
 
 if [ "${#DFF[@]}" -ne 0 ]; then
+	echo Files: "${DFF[@]}"
 	set -- "${DFF[@]}"
 else
 	shift $(($OPTIND-1))
