@@ -128,6 +128,7 @@ function stable_dry() {
 
 function vimconfl() {
 	mapfile -d '' -t FILES < <(git diff --name-only -z | sort -zu)
+	test "${#FILES[@]}" -eq 0 && return
 	vim "${FILES[@]}" '+/<<<<<<<'
 	local MSG=$'Add to git?\n\n'"$(join_by $'\n' "${FILES[@]}")"
 	if "${SL_DIALOG[@]}" --yesno "$MSG" 0 0; then
