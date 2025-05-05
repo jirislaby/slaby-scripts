@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Term::ANSIColor qw(colored);
+use Term::ReadLine;
 
 my $from = 'Kernel:stable';
 my $to = 'openSUSE:Factory';
@@ -41,13 +42,16 @@ while (<$DIFF>) {
 }
 close $DIFF;
 
-print colored("\nWrite summary: ", 'yellow');
-my $msg = <STDIN>;
-chomp $msg;
-$msg .= "; bugs: " . join(" ", sort keys %bsc) if (scalar %bsc);
-print "\n$msg\n", colored('OK? ', 'yellow');
+my $term = new Term::ReadLine('sl_sr_kernel');
 
-<STDIN>;
+print "\n";
+
+my $msg = $term->readline(colored("Write summary:", 'yellow') . " ");
+$msg .= "; bugs: " . join(" ", sort keys %bsc) if (scalar %bsc);
+print "\n$msg\n";
+
+my $reply = $term->readline(colored('OK?', 'yellow') . " ");
+exit 0 unless defined $reply;
 
 @cmd = ('osc', 'sr', '-m', $msg, $from, 'kernel-source', $to);
 
