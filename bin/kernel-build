@@ -3,8 +3,10 @@
 declare -a CROSS_OPTS=()
 declare -a DFF=()
 declare -a MAKE_OPTS=()
+CC_IS_SET=0
 CROSS_DESTDIR="../a/arch"
 DESTDIR="../bu"
+DESTDIR_CLANG="../a/bu_clang"
 DUMP_MAKE=0
 
 while getopts "a:A:d:f:cC:mMwW" OPT; do
@@ -14,7 +16,9 @@ while getopts "a:A:d:f:cC:mMwW" OPT; do
 		c) MAKE_OPTS+=('C=1')
 		   CROSS_OPTS+=('-c')
 		   ;;
-		C) MAKE_OPTS+=("CC=$OPTARG") ;;
+		C) MAKE_OPTS+=("CC=$OPTARG")
+		   CC_IS_SET=1
+		   ;;
 		d) readarray -t DFF < <(git diff --name-only "$OPTARG"|sed -n 's@\.c$@.o@ p')
 		   test "${#DFF[@]}" -eq 0 && exit 1
 		   ;;
@@ -359,7 +363,13 @@ if [ "${#BU[@]}" -ne 0 ]; then
 	echo Files: "${BU[@]}"
 	set -x
 	make O="$DESTDIR" -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
+	RETVAL=$?
 	set +x
+	if [ $RETVAL -eq 0 -a $CC_IS_SET -eq 0 ]; then
+		set -x
+		make O="$DESTDIR_CLANG" CC='clang' -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
+		set +x
+	fi
 	echo "=== done ==="
 fi
 
