@@ -85,6 +85,7 @@ declare -A DRV_ARCH=(
 	drivers/irqchip/irq-apple-aic.o arm64
 	drivers/irqchip/irq-armada-370-xp.o arm
 	drivers/irqchip/irq-dw-apb-ictl.o arm64
+	drivers/irqchip/irq-econet-en751221.o mips
 	drivers/irqchip/irq-gic.o arm64
 	drivers/irqchip/irq-gic-v3-its-fsl-mc-msi.o arm64
 	drivers/irqchip/irq-gic-v3-its.o arm64
