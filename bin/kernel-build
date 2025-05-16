@@ -49,7 +49,12 @@ declare -A DRV_ARCH=(
 	arch/arm64/kvm/arch_timer.o arm64
 	arch/loongarch/kernel/sysrq.o loongarch
 	arch/mips/kernel/sysrq.o mips
+	arch/m68k/amiga/config.o m68k
+	arch/m68k/apollo/config.o m68k
+	arch/m68k/atari/config.o m68k
 	arch/m68k/emu/nfcon.o m68k
+	arch/m68k/mac/config.o m68k
+	arch/m68k/q40/config.o m68k
 	arch/parisc/kernel/pdc_cons.o parisc
 	arch/powerpc/kernel/legacy_serial.o powerpc
 	arch/powerpc/kvm/book3s_hv.o powerpc
@@ -57,6 +62,7 @@ declare -A DRV_ARCH=(
 	arch/powerpc/platforms/cell/axon_msi.o powerpc
 	arch/powerpc/platforms/cell/interrupt.o powerpc
 	arch/powerpc/platforms/cell/spider-pic.o powerpc
+	arch/powerpc/platforms/powermac/setup.o powerpc
 	arch/powerpc/platforms/powermac/smp.o powerpc
 	arch/powerpc/platforms/powernv/opal.o powerpc
 	arch/powerpc/platforms/powernv/pci-ioda.o powerpc
