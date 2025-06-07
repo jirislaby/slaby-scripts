@@ -1,4 +1,21 @@
 [alias]
+	apply-sparse = read-tree -mu HEAD
+
         sdiff = !git diff && git submodule foreach 'git diff'
         spush = push --recurse-submodules=on-demand
         supdate = submodule update --remote --merge
+
+        find-merge = "!sh -c 'commit=$0 && branch=${1:-HEAD} && (git rev-list $commit..$branch --ancestry-path | cat -n; git rev-list $commit..$branch --first-parent | cat -n) | sort -k2 -s | uniq -f1 -d | sort -n | tail -1 | cut -f2'"
+        show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
+
+        one = show -s --pretty=format:'%h %s'
+	fixes = show -s --pretty=fixes
+
+[core]
+        abbrev = 12
+[init]
+        defaultBranch = master
+[pretty]
+        fixes = Fixes: %h (\"%s\")
+[push]
+        default = matching
