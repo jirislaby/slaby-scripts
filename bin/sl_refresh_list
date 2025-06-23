@@ -65,7 +65,7 @@ sub seq_patch(;$$) {
 	my ($file, $do_out_dir) = @_;
 	my $out_dir;
 
-	my @cmdline = qw@./scripts/sequence-patch.sh --quilt --dir=/dev/shm/jslaby/ --rapid@;
+	my @cmdline = qw@./scripts/sequence-patch --quilt --dir=/dev/shm/jslaby/ --rapid@;
 
 	push @cmdline, $file if ($file);
 
@@ -105,7 +105,7 @@ while (scalar @patches_sorted) {
 
 		system('quilt', 'push', '--fuzz=0', $file) == 0 or
 			die "push in $out_dir";
-		system('./patches/scripts/refresh_patch.sh') == 0 or
+		system('./patches/scripts/refresh_patch') == 0 or
 			die "refresh in $out_dir";
 	}
 

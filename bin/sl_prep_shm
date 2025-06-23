@@ -20,7 +20,7 @@ if [ ! -d kernel-source ]; then
 	git config merge.tool git-sort
 	git config mergetool.keepBackup false
 
-	git config mergetool.git-sort.cmd 'scripts/git_sort/merge_tool.py $LOCAL $BASE $REMOTE $MERGED'
+	git config mergetool.git-sort.cmd 'scripts/git_sort/merge_tool $LOCAL $BASE $REMOTE $MERGED'
 	git config mergetool.git-sort.trustExitCode true
 
 	cat >>.git/info/exclude <<EOF

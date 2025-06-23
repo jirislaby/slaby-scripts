@@ -152,7 +152,7 @@ close SERIES;
 
 if ($sort) {
 	print colored("Running series_sort\n", 'green');
-	exec('./scripts/series_sort.py', 'series.conf');
+	exec('./scripts/series_sort', 'series.conf');
 }
 
 print "SORT the patches now!\n";
