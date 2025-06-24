@@ -11,6 +11,7 @@ alias gpr='git pull --rebase'
 alias gru='git remote update'
 alias gd='git diff'
 alias gdw='git diff --word-diff'
+alias gdwb='git diff -w -b'
 alias glm='git log --author=jirislaby'
 alias ref='~/kernel-source/scripts/refresh_patch'
 alias qd='quilt diff'
@@ -49,8 +50,11 @@ function fastbuildconfig() {
 }
 
 function gf() {
-	local BRANCH="${1:-`git rev-parse --abbrev-ref HEAD`}"
-	git fetch origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
+	declare -a FETCH=()
+	for BRANCH in "${@:-$(git rev-parse --abbrev-ref HEAD)}"; do
+		FETCH+=( "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" )
+	done
+	git fetch origin "${FETCH[@]}"
 }
 
 function gfr() {
