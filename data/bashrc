@@ -144,12 +144,13 @@ function vimp() {
 	if [ -z "$REV" ]; then
 		REV="@{u}"
 	fi
-	declare -a PATCHES
-	PATCHES=( $(gd --name-only "$REV" -- 'patches.*') )
-	PATCHES=( $(git grep -hE "`join_by '|' \"${PATCHES[@]}\"`" series.conf) )
+	readarray -t PATCHES < <(git diff --name-only "$REV" -- 'patches.*' | git grep -ohFf - series.conf)
 #	| grep -v '^\s*#'`
 	${EDITOR:-vim} "${PATCHES[@]}"
 }
+
+alias pstat='EDITOR='\''diffstat -lp1'\'' vimp "$@"'
+alias pstato='pstat | sed -n '\''s@c$@o@ p'\'
 
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
 
