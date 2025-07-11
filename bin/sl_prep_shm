@@ -70,5 +70,6 @@ if [ ! -d linux ]; then
 		git remote add -f ${opts[$tree]} "$tree" "${remotes[$tree]}"
 	done
 	git repack -a -d
+	git symbolic-ref refs/remotes/origin/master refs/remotes/linus/master
 	popd
 fi
