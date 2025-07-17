@@ -60,7 +60,11 @@ function gf() {
 function gfr() {
 	local BRANCH="${1:-`git rev-parse --abbrev-ref HEAD`}"
 	gf "$BRANCH"
-	git rebase "origin/$BRANCH" "$BRANCH"
+	if git show-ref --quiet --branches "$BRANCH"; then
+		git rebase "origin/$BRANCH" "$BRANCH"
+	else
+		git checkout -b "$BRANCH" "origin/$BRANCH"
+	fi
 }
 
 function get_maintainer() {
