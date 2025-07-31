@@ -116,8 +116,7 @@ function sl_push() {
 function show_patch {
 	SHA="$1"
 	HEAD="$2"
-	declare -a PATCHES
-	PATCHES=( $(git grep -l "Git-commit: $SHA" $HEAD -- 'patches.*') )
+	readarray -t PATCHES < <(git grep -l "Git-commit: $SHA" "$HEAD" -- 'patches.*')
 	if [ ${#PATCHES[*]} -eq 0 ]; then
 		echo no patch found >&2
 	elif [ ${#PATCHES[*]} -gt 1 ]; then
