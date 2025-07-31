@@ -19,3 +19,7 @@
         fixes = Fixes: %h (\"%s\")
 [push]
         default = matching
+[submodule]
+	recurse = true
+[advice]
+        skippedCherryPicks = false
