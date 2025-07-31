@@ -68,9 +68,9 @@ function gfr() {
 }
 
 function get_maintainer() {
-	WHAT="$1"
+	local WHAT="$1"
 	test -z "$WHAT" && WHAT="@^"
-	tmpfile=$(mktemp /tmp/maintainers.XXXXXX)
+	local tmpfile=$(mktemp /tmp/maintainers.XXXXXX)
 	git diff "$WHAT" | ./scripts/get_maintainer.pl --git-min-signatures 1000 | tee "$tmpfile"
 	echo
 	echo
@@ -85,7 +85,7 @@ function join_by() {
 }
 
 function loop_waiting_net() {
-	PORT=60000
+	local PORT=60000
 	echo "waiting for ping on port $PORT"
 	nc -dkl 0.0.0.0 "$PORT" | while read; do
 		set -x
@@ -100,7 +100,7 @@ function sl_ds() {
 }
 
 function sl_push() {
-	FORCE=
+	local FORCE=
 	if [ "$1" = -f ]; then
 		FORCE=+
 		shift
@@ -114,8 +114,8 @@ function sl_push() {
 }
 
 function show_patch {
-	SHA="$1"
-	HEAD="$2"
+	local SHA="$1"
+	local HEAD="$2"
 	readarray -t PATCHES < <(git grep -l "Git-commit: $SHA" "$HEAD" -- 'patches.*')
 	if [ ${#PATCHES[*]} -eq 0 ]; then
 		echo no patch found >&2
@@ -147,7 +147,7 @@ function vimconfl() {
 }
 
 function vimp() {
-	REV="$1"
+	local REV="$1"
 	if [ -z "$REV" ]; then
 		REV="@{u}"
 	fi
