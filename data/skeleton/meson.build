@@ -13,6 +13,7 @@ add_project_arguments('-ggdb', language : 'c')
 add_project_arguments('-ggdb', language : 'cpp')
 
 deps = []
+#deps += dependency('m')
 #deps += meson.get_compiler('cpp').find_library('LLVM')
 
 prj_name = meson.project_name()
