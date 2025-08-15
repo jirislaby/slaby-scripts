@@ -156,8 +156,10 @@ function vimp() {
 	${EDITOR:-vim} "${PATCHES[@]}"
 }
 
-alias pstat='EDITOR='\''diffstat -lp1'\'' vimp "$@"'
-alias pstato='pstat | sed -n '\''s@c$@o@ p'\'
+alias pstat='EDITOR='\''diffstat -lp1'\'' vimp'
+function pstato() {
+	pstat "$@" | sed -n 's@c$@o@ p'
+}
 
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
 
