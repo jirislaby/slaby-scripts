@@ -67,6 +67,14 @@ function gfr() {
 	fi
 }
 
+function gpu() {
+	declare -a PUSH=()
+	for BRANCH in "${@:-$(git rev-parse --abbrev-ref HEAD)}"; do
+		PUSH+=( "+refs/heads/$BRANCH:refs/heads/users/jslaby/$BRANCH/for-next" )
+	done
+	git push origin "${PUSH[@]}"
+}
+
 function get_maintainer() {
 	local WHAT="$1"
 	test -z "$WHAT" && WHAT="@^"
