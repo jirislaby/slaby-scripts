@@ -169,11 +169,8 @@ declare -A DRV_ARCH=(
 	drivers/tty/serial/21285.o arm_footbridge
 	drivers/tty/serial/8250/8250_acorn.o arm_rpc
 	drivers/tty/serial/8250/8250_aspeed_vuart.o arm64
-	drivers/tty/serial/8250/8250_em.o arm
-	drivers/tty/serial/8250/8250_fsl.o arm64
-	drivers/tty/serial/8250/8250_gsc.o parisc
 	drivers/tty/serial/8250/8250_hp300.o m68k
-	drivers/tty/serial/8250/8250_pxa.o arm_pxa
+	drivers/tty/serial/8250/8250_parisc.o parisc
 	drivers/tty/vcc.o sparc
 	drivers/video/console/newport_con.o mips
 	drivers/video/console/sticon.o parisc
