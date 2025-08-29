@@ -68,9 +68,14 @@ function gfr() {
 }
 
 function gpu() {
+	local FORCE=
+	if [ "$1" = -f ]; then
+		FORCE=+
+		shift
+	fi
 	declare -a PUSH=()
 	for BRANCH in "${@:-$(git rev-parse --abbrev-ref HEAD)}"; do
-		PUSH+=( "+refs/heads/$BRANCH:refs/heads/users/jslaby/$BRANCH/for-next" )
+		PUSH+=( "${FORCE}refs/heads/$BRANCH:refs/heads/users/jslaby/$BRANCH/for-next" )
 	done
 	git push origin "${PUSH[@]}"
 }
@@ -105,20 +110,6 @@ function loop_waiting_net() {
 
 function sl_ds() {
 	diffstat -l -p1 `gd @{u} --name-only -- patches.suse/`
-}
-
-function sl_push() {
-	local FORCE=
-	if [ "$1" = -f ]; then
-		FORCE=+
-		shift
-	fi
-	test $# -eq 0 && return 1
-	declare -a ARGS
-	for BRANCH; do
-		ARGS+=( ${FORCE}${BRANCH}:users/jslaby/$BRANCH/for-next )
-	done
-	git push origin "${ARGS[@]}"
 }
 
 function show_patch {
