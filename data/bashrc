@@ -128,10 +128,6 @@ function show_patch {
 	fi
 }
 
-function stable_dry() {
-	patch --dry-run -p1 -i ~/repos/stable-queue/queue-4.13/"$1"
-}
-
 function vimconfl() {
 	mapfile -d '' -t FILES < <(git diff --name-only -z | sort -zu)
 	test "${#FILES[@]}" -eq 0 && return
@@ -163,7 +159,6 @@ function pstato() {
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
 
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
-alias cds='cd ~/tmp/stable-4.12'
 alias cdsl='cd_existing ~/repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
 alias cdq='cd ~/repos/stable-queue/'
 alias cdk='cd_existing ~/kernel-source ~/repos/suse/kernel-source/'
