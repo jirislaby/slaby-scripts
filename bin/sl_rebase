@@ -64,5 +64,5 @@ wait_child;
 
 $repo->command_noisy(qw|push korg +next/master:next_master linus/master:master  +work:devel|);
 $repo->command_noisy(qw|checkout work|);
-exec('make O=../bu cscope &');
+exec('make O=../build/bu cscope &');
 die 'cannot exec cscope';

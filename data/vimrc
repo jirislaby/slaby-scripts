@@ -24,13 +24,21 @@ endif
 
 if filereadable("kernel/pid.c")
 	set makeprg=kernel-build\ -d\ @
+	set path+=/home/xslaby/linux/include/
+	set path+=/home/xslaby/linux/include/uapi/
+	set path+=/home/xslaby/linux/arch/x86/include/
+	set path+=/home/xslaby/linux/arch/x86/include/uapi/
+	set path+=/home/xslaby/build/bu/include/
+	set path+=/home/xslaby/build/bu/arch/x86/include/
 
-	if filereadable("/home/latest/bu/cscope.out")
+	if filereadable("/home/xslaby/build/bu/cscope.out")
 		set nocsverb
-		cs add /home/latest/bu/cscope.out
+		cs add /home/xslaby/build/bu/cscope.out
 		set csverb
 	endif
 endif
+
+set tags=tags;/
 
 function InsertInterpreter(interp)
 	call append(0, "#!/usr/bin/" . a:interp)

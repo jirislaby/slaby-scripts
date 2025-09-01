@@ -8,8 +8,8 @@ use Getopt::Long;
 
 my $db_file = 'conf_file_map.sqlite';
 my $db;
-my $branch = 'SUSE-2025';
-my $arch_dir = '/home/latest/a/arch';
+my $branch = 'SL-16.0';
+my $arch_dir = '/home/xslaby/build/arch';
 
 GetOptions(
 	'arch=s' => \$arch_dir,
@@ -75,7 +75,7 @@ sub handle_file($) {
 	handle_config($file, $config);
 }
 
-my $file_re = qr@/home/latest/linux/(?<file>.*\.c)@;
+my $file_re = qr@/home/xslaby/linux/(?<file>.*\.c)@;
 my $re = qr@ from $file_re:|^$file_re:.*error@;
 
 while (<>) {

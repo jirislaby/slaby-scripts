@@ -159,7 +159,7 @@ function pstato() {
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
 
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
-alias cdsl='cd_existing ~/repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
+alias cdsl='cd_existing ~/my-repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
 alias cdq='cd ~/repos/stable-queue/'
 alias cdk='cd_existing ~/kernel-source ~/repos/suse/kernel-source/'
 alias cdkk='cd /dev/shm/jslaby/kernel-source'

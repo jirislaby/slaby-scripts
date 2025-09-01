@@ -9,7 +9,7 @@ GetOptions('s=i', \$skip);
 
 die 'bad params' if (scalar @ARGV != 1);
 
-my @patches_paths = qw|./ patches/ /home/latest/repos/stable-queue/queue-4.4/|;
+my @patches_paths = qw|./ patches/ /home/xslaby/repos/stable-queue/queue-4.4/|;
 my $patch = $ARGV[0];
 my $file;
 my $hunk;

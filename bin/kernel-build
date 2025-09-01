@@ -4,9 +4,9 @@ declare -a CROSS_OPTS=()
 declare -a DFF=()
 declare -a MAKE_OPTS=()
 CC_IS_SET=0
-CROSS_DESTDIR="../a/arch"
-DESTDIR="../bu"
-DESTDIR_CLANG="../a/bu_clang"
+CROSS_DESTDIR="../build/arch"
+DESTDIR="../build/bu"
+DESTDIR_CLANG="../build/bu_clang"
 DUMP_MAKE=0
 
 while getopts "a:A:d:f:cC:mMwW" OPT; do
