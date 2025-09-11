@@ -54,8 +54,10 @@ function SetExecutableBit(file)
 endfun
 
 augroup filetype
-	au! BufRead,BufNewFile *.ll	set filetype=llvm
+	au! BufRead,BufNewFile _service	set filetype=xml
 	au! BufRead,BufNewFile *.g	set filetype=antlr3
+	au! BufRead,BufNewFile *.i	set filetype=c
+	au! BufRead,BufNewFile *.ll	set filetype=llvm
 	au! BufRead,BufNewFile *.td	set filetype=tablegen
 	if filereadable("/usr/share/slaby-scripts/skeleton/skeleton.c")
 		au BufNewFile CMakeLists.txt	:0r /usr/share/slaby-scripts/skeleton/CMakeLists.txt
