@@ -57,7 +57,7 @@ if [ ! -d linux ]; then
 
 	function get_latest_head()
 	{
-		git ls-remote -h "$1" 'refs/heads/linux-[0-9]*.y' | sed -n '$s@.*refs/heads/@@ p'
+		git ls-remote -h "$1" 'refs/heads/linux-[0-9]*.y' | sed 's@.*refs/heads/@@' | sort -Vr | head -1
 	}
 
 	for r in stable stable-rc; do
