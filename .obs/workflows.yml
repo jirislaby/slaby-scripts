@@ -1,5 +1,0 @@
-workflow:
-  steps:
-    - trigger_services:
-        project: home:jirislaby
-        package: slaby-scripts
