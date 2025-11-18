@@ -172,7 +172,7 @@ else
 	fi
 	NET=(-netdev user,id=n1,tftp=/home/xslaby/tftp,bootfile="$BOOTFILE",hostfwd=tcp::`find_free_port 2222`-:22,hostfwd=tcp::`find_free_port 3632`-:3632,hostfwd=tcp::`find_free_port 5901`-:5901 "${NET[@]}")
 	OTHER+=(-serial $SERIAL --device virtio-balloon -device virtio-tablet-pci)
-	OTHER+=(-device virtio-vga)
+	OTHER+=(-device virtio-vga-gl)
 fi
 
 if [ $EFI = 1 ]; then
