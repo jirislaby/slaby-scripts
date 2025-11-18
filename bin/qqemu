@@ -126,8 +126,7 @@ if [ "$WANT_SPICE" = 1 ] && ( test "$SPICE_REMOTE" = 1 || which remote-viewer &>
 		SPICE_CONF="port=$SPICE_PORT"
 	else
 		SPICE_PORT="/tmp/qemu-spice.$$.sock"
-		# gl=on,
-		SPICE_CONF="unix=on,addr=$SPICE_PORT"
+		SPICE_CONF="gl=on,unix=on,addr=$SPICE_PORT"
 	fi
 	SPICE=(-spice disable-ticketing=on,$SPICE_CONF -device virtio-serial -monitor pty)
 	SPICE+=(-chardev spicevmc,id=vdagent,name=vdagent -device virtserialport,chardev=vdagent,name=com.redhat.spice.0)
