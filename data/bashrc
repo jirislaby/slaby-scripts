@@ -20,8 +20,6 @@ alias qpr='quilt push && ref'
 alias rapid='./scripts/sequence-patch --quilt --dir=/dev/shm/jslaby/ --rapid'
 
 alias tigl='tig -1000'
-alias tign='tig korg/next_master..'
-alias tigu='tig @{u}..'
 alias ip='ip $IP_COLOR'
 
 alias awrap='echo -ne "\x1b[?7h"'
@@ -154,6 +152,13 @@ function vimp() {
 alias pstat='EDITOR='\''diffstat -lp1'\'' vimp'
 function pstato() {
 	pstat "$@" | sed -n 's@c$@o@ p'
+}
+
+function tign() {
+	tig ^korg/next_master "${1:-@}"
+}
+function tigu() {
+	tig ^@{u} "${1:-@}"
 }
 
 alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
