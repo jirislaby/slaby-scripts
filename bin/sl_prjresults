@@ -98,7 +98,7 @@ my $sel = IO::Select->new(\*STDIN) if ($watch);
 		select()->flush();
 		sleep(1);
 		while ($sel->can_read(0)) {
-			<STDIN>;
+			exit(0) if (<STDIN> =~ /q/);
 			$s = 0;
 		}
 	}
