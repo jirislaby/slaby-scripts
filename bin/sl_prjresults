@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 use Getopt::Long;
+use IO::Select;
 use Term::ANSIColor qw(colored);
 use XML::LibXML;
 
@@ -37,7 +38,8 @@ GetOptions(
 	"watch:60" => \$watch,
 ) or die("Error in command line arguments\n");
 
-my $in = *STDIN;
+my $in = \*STDIN if (!$cmd);
+my $sel = IO::Select->new(\*STDIN) if ($watch);
 
 { do {
 	if ($cmd) {
@@ -95,6 +97,10 @@ my $in = *STDIN;
 		printf "%s%3s", "\b" x 3, $s;
 		select()->flush();
 		sleep(1);
+		while ($sel->can_read(0)) {
+			<STDIN>;
+			$s = 0;
+		}
 	}
 } while ($watch); }
 
