@@ -6,7 +6,7 @@ project('XXX', 'c',
     'b_lto=true',
     'b_pie=true',
     'c_std=gnu17',
-    'cpp_std=c++17',
+    'cpp_std=c++20',
   ])
 
 add_project_arguments('-ggdb', language : 'c')
