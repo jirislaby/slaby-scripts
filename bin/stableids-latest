@@ -23,4 +23,4 @@ if [ -n "$RC" ]; then
 	trap "git -C "$LINUX_GIT" tag -d \"v$VER\"" EXIT
 fi
 
-stableup "$VER"
+./scripts/stableup "$VER"
