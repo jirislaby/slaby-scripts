@@ -13,7 +13,7 @@ alias gd='git diff'
 alias gdw='git diff --word-diff'
 alias gdwb='git diff -w -b'
 alias glm='git log --author=jirislaby'
-alias ref='~/kernel-source/scripts/refresh_patch'
+alias ref='run_existing ./refresh_patch ~/kernel-source/scripts/refresh_patch'
 alias qd='quilt diff'
 alias qdig='echo "vim `quilt next`" | xclip; dig_patch `quilt next`'
 alias qpr='quilt push && ref'
@@ -36,6 +36,15 @@ function cd_existing() {
 	for DIR; do
 		if [ -d "$DIR" ]; then
 			cd "$DIR"
+			break
+		fi
+	done
+}
+
+function run_existing() {
+	for FILE; do
+		if [ -x "$FILE" ]; then
+			"$FILE"
 			break
 		fi
 	done
