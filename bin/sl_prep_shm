@@ -8,11 +8,12 @@ cd /dev/shm/jslaby
 # kernel-source
 
 if [ ! -d kernel-source ]; then
+{
 	declare -a REF=()
 	if [ -d ~/kernel-source/ ]; then
 		REF=( --dissociate --reference ~/kernel-source/ )
 	fi
-	git clone "${REF[@]}" kerncvs.suse.de:/srv/git/kernel-source.git
+	git clone "${REF[@]}" ssh://kerncvs.suse.de/srv/git/kernel-source.git
 
 	pushd kernel-source
 	./scripts/install-git-hooks
@@ -30,11 +31,13 @@ linux-*.tar.sign
 EOF
 	ln -s . patches
 	popd
+} &
 fi
 
 # linux
 
 if [ ! -d linux ]; then
+{
 	declare -a REF=()
 	if [ -d ~/linux.git/ ]; then
 		REF=( --reference ~/linux.git/ )
@@ -72,4 +75,7 @@ if [ ! -d linux ]; then
 	git repack -a -d
 	git symbolic-ref refs/remotes/origin/master refs/remotes/linus/master
 	popd
+} &
 fi
+
+wait
