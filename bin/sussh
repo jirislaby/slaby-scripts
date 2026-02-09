@@ -2,7 +2,7 @@
 
 MOSH=0
 USER=jslaby
-declare -a SSH=('ssh' '-CX' '-o' 'StrictHostKeyChecking=no')
+declare -a SSH=('ssh' '-CX' '-o' 'StrictHostKeyChecking=no' '-o' 'ServerAliveInterval=60')
 
 while getopts "mr" OPT; do
 	case "$OPT" in
@@ -14,32 +14,28 @@ while getopts "mr" OPT; do
 done
 
 shift $(($OPTIND-1))
+FOUND_HOST=''
 HOST="$1"
 shift
 
 for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de arch.nue2.suse.org; do
 	FQDN="$HOST.$SUFFIX"
-	IP="$(host -t A "$FQDN" ${SU_NAMESERVER:+"$SU_NAMESERVER"} | sed -ne 's/.* has address // p')"
-	if [ -n "$IP" ]; then
-		if [[ "$SUFFIX" == *.de || "$SUFFIX" == *nue* ]]; then
-			SSH+=('-o' 'ServerAliveInterval=60')
-		fi
+	if host -t A -t AAAA "$FQDN" ${SU_NAMESERVER:+"$SU_NAMESERVER"} >/dev/null; then
+		FOUND_HOST="$USER@$FQDN"
 		break
 	fi
 done
 
-if [ -z "$IP" ]; then
+if [ -z "$FOUND_HOST" ]; then
 	echo "no IP found for $HOST"
 	exit 1
 fi
-
-ssh-keygen -R "$IP" >/dev/null 2>&1
 
 set -x
 
 if [ $MOSH -eq 1 ]; then
 	SSH_ARG="$(printf "%q " "${SSH[@]}")"
-	exec mosh --ssh="${SSH_ARG}" "$USER@$IP" "$@"
+	exec mosh --ssh="${SSH_ARG}" "$FOUND_HOST" "$@"
 else
-	exec "${SSH[@]}" "$USER@$IP" "$@"
+	exec "${SSH[@]}" "$FOUND_HOST" "$@"
 fi
