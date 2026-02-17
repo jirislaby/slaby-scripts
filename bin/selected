@@ -77,4 +77,4 @@ declare -a SEL=(
 'yt-dlp'
 'zypper*'
 )
-zypper --no-refresh -v up --no-recommends "${SEL[@]}" "$@"
+zypper --no-refresh -v up --allow-vendor-change --no-recommends "${SEL[@]}" "$@"
