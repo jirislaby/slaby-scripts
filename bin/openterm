@@ -1,8 +1,5 @@
 #!/usr/bin/bash
 
-read X_H X_MIT X_KEY < <(xauth list|grep "$(uname -n)"|tail -1)
-chmod g+w "/tmp/.X11-unix/X${X_H##*:}"
-
 function open_con()
 {
 	for DIM; do
