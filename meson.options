@@ -1,3 +1,1 @@
-option('python_skip', type : 'boolean', value : false)
-option('non_python_skip', type : 'boolean', value : false)
 option('unitdir', type : 'string', value : 'lib/systemd/system', description : 'Path to systemd unit dir')

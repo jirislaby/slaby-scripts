@@ -1,2 +1,0 @@
-def pokus():
-    print("ahoj")
