@@ -1,3 +1,0 @@
-#!/usr/bin/bash
-
-zypper -v in --no-recommends `rpm --qf '%{name}-debuginfo\n' -qf $@`

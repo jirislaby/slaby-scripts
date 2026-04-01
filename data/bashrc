@@ -50,6 +50,10 @@ function run_existing() {
 	done
 }
 
+function debugin() {
+	zypper -v in --no-recommends $(rpm --qf '%{name}-debuginfo\n' -qf "$@")
+}
+
 function fastbuildconfig() {
 	sed -E -i -e 's/(CONFIG_(IKCONFIG|LIVEPATCH_IPA_CLONES|DEBUG_INFO(_DWARF[0-9])?))=y/# \1 is not set/' \
 		-e 's/# (CONFIG_DEBUG_INFO_NONE) is not set/\1=y/' \
