@@ -6,7 +6,7 @@ return {
 	    local ts = require("nvim-treesitter")
 	    ts.setup()
 	    vim.api.nvim_create_autocmd("FileType", {
-		    callback = function() vim.treesitter.start() end,
+		    callback = function() pcall(vim.treesitter.start) end,
 	    })
 	    ts.install({
 		"asm",
