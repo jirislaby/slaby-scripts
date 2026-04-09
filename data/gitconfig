@@ -9,7 +9,7 @@
         show-merge = "!sh -c 'merge=$(git find-merge $0 $1) && [ -n \"$merge\" ] && git show $merge'"
 
         one = show -s --pretty=format:'%h %s'
-	fixes = show -s --pretty=fixes
+	onefixes = show -s --pretty=fixes
 
 [core]
         abbrev = 12
