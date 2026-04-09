@@ -7,8 +7,6 @@ local map = vim.keymap.set
 -- map({ "n", "i" }, "<F6>", function() return vim.fn.mode() == "i" and "<Esc>l]si" or "]s" end, { expr = true })
 map({ "n", "i" }, "<F7>", "<Esc>:mak<CR>")
 -- map({ "n", "i" }, "<C-F7>", "<Esc>:mak!<CR>")
-map("n", "<F11>", ":cp<CR>")
-map("n", "<F12>", ":cn<CR>")
 
 -- Editace řádku (C-K, C-U)
 map("i", "<C-K>", "<Esc>lc<End>")
@@ -19,5 +17,3 @@ map("n", "<C-U>", "d<Home>")
 -- Speciální operace s diffy/změnami
 map("n", "<leader>N", "?^@@<CR>V/^@@\\|\\%$<CR>:s/^[- ]//n<CR>")
 map("n", "<leader>M", "?^@@<CR>V/^@@\\|\\%$<CR>:s/^[+ ]//n<CR>")
-
-map("n", "<leader>rn", vim.lsp.buf.rename, { desc = "LSP Rename" })
