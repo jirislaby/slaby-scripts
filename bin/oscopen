@@ -31,12 +31,19 @@ function show_devel {
 	show_pkg_joined "$PKG"
 }
 
+function show_factory {
+	show_pkg openSUSE:Factory "$1"
+}
+
 BS=build.opensuse.org
 DEVEL=0
+FACTORY=0
 
-while getopts "dip" OPT; do
+while getopts "dfip" OPT; do
 	case "$OPT" in
 	d) DEVEL=1
+	;;
+	f) FACTORY=1
 	;;
 	i) BS=build.suse.de
 	;;
@@ -49,6 +56,8 @@ shift $(($OPTIND-1))
 
 if [ $DEVEL -eq 1 ]; then
 	show_devel "$1"
+elif [ $FACTORY -eq 1 ]; then
+	show_factory "$1"
 elif [ $# -eq 1 ]; then
 	case "$1" in
 	+([0-9]))
