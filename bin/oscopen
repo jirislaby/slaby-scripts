@@ -4,9 +4,7 @@
 shopt -s extglob
 
 function filter {
-	echo "$@" | sed '
-		s/+/%2B/g
-		'
+	echo "${@//+/%2B}"
 }
 
 function show_req {
@@ -14,19 +12,23 @@ function show_req {
 }
 
 function show_pkg {
-	PRJ="`filter $1`"
-	PKG="`filter $2`"
+	local PRJ="$(filter "$1")"
+	local PKG="$(filter "$2")"
 	xdg-open "https://$BS/package/show/$PRJ/$PKG"
 }
 
+function show_pkg_joined {
+	show_pkg "${1%/*}" "${1#*/}"
+}
+
 function show_prj {
-	PRJ="`filter $1`"
+	local PRJ="$(filter "$1")"
 	xdg-open "https://$BS/project/monitor/$PRJ"
 }
 
 function show_devel {
-	PKG="`osc develproject openSUSE:Factory $1`" || exit 1
-	show_pkg "${PKG%/*}" "${PKG#*/}"
+	local PKG="$(osc develproject openSUSE:Factory "$1")" || exit 1
+	show_pkg_joined "$PKG"
 }
 
 BS=build.opensuse.org
@@ -34,12 +36,12 @@ DEVEL=0
 
 while getopts "dip" OPT; do
 	case "$OPT" in
-		i) BS=build.suse.de
-		;;
-		p) BS=pmbs.links2linux.de
-		;;
-		d) DEVEL=1
-		;;
+	d) DEVEL=1
+	;;
+	i) BS=build.suse.de
+	;;
+	p) BS=pmbs.links2linux.de
+	;;
 	esac
 done
 
@@ -53,7 +55,7 @@ elif [ $# -eq 1 ]; then
 		show_req "$1"
 		;;
 	*/*)
-		show_pkg "${1%/*}" "${1#*/}"
+		show_pkg_joined "$1"
 		;;
 	*)
 		show_prj "$1"
