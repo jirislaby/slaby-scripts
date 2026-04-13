@@ -9,12 +9,9 @@ if vim.fn.filereadable("kernel/pid.c") == 1 then
     --     "/home/xslaby/build/bu/arch/x86/include/"
     -- })
     --
-    -- if vim.fn.filereadable("/home/xslaby/build/bu/cscope.out") == 1 then
-    --     vim.cmd([[
-    --         set nocsverb
-    --         cs add /home/xslaby/build/bu/cscope.out
-    --         set csverb
-    --     ]])
-    -- end
+    local tags = "/home/xslaby/build/bu/tags"
+    if vim.fn.filereadable(tags) == 1 then
+        vim.opt.tags:append(tags)
+    end
 end
 
