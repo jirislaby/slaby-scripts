@@ -2,8 +2,8 @@ local group = vim.api.nvim_create_augroup("filetype_custom", { clear = true })
 
 local filetypes = {
     ["_service"] = "xml",
-    ["*.g"] = "antlr3",
-    ["*.g4"] = "antlr3",
+    ["*.g"] = "antlr",
+    ["*.g4"] = "antlr",
     ["*.i"] = "c",
     ["*.ll"] = "llvm",
     ["*.td"] = "tablegen",

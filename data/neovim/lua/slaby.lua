@@ -6,6 +6,7 @@ vim.g.maplocalleader = "\\"
 require("sl_config.lazy")
 
 require("sl_config.build")
+require("sl_config.file_types")
 require("sl_config.kernel")
 require("sl_config.keymap")
 require("sl_config.nohls")
