@@ -17,6 +17,7 @@ return {
 		"css",
 		"diff",
 		"dockerfile",
+		"doxygen",
 		"dtd",
 		"git_config",
 		"git_rebase",
