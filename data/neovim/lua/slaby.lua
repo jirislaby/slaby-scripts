@@ -9,7 +9,6 @@ require("sl_config.build")
 require("sl_config.file_types")
 require("sl_config.kernel")
 require("sl_config.keymap")
-require("sl_config.nohls")
 require("sl_config.restore_cursor")
 require("sl_config.skeletons")
 
