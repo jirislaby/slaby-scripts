@@ -370,7 +370,7 @@ if [ "${#BU[@]}" -ne 0 ]; then
 	set +x
 	if [ $RETVAL -eq 0 -a $CC_IS_SET -eq 0 ]; then
 		set -x
-		make O="$DESTDIR_CLANG" CC='clang' -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
+		make O="$DESTDIR_CLANG" LLVM=1 -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
 		set +x
 	fi
 	echo "=== done ==="
