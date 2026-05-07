@@ -1,7 +1,7 @@
 HISTSIZE=10000
 LESS="-M -R -X -F -i"
 
-if less --help|grep -q -- --mouse; then
+if TERM=vt100 less --help|grep -q -- --mouse; then
 	LESS="$LESS --mouse --wheel-lines=3"
 fi
 
