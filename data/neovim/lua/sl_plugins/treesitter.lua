@@ -39,6 +39,7 @@ return {
 		"perl",
 		"python",
 		"regex",
+		"rst",
 		"sql",
 		"strace",
 		"udev",
