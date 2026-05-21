@@ -1,4 +1,4 @@
-project('XXX', 'c',
+project('XXX', 'cpp',
   version: '1',
   default_options: [
     'optimization=g',
@@ -17,6 +17,6 @@ deps = []
 #deps += meson.get_compiler('cpp').find_library('LLVM')
 
 prj_name = meson.project_name()
-executable(prj_name, prj_name + '.c', dependencies: deps)
+executable(prj_name, prj_name + '.cpp', dependencies: deps)
 
 #shared_library(prj_name, prj_name + '.cpp', dependencies: deps)
