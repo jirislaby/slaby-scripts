@@ -4,6 +4,8 @@ return {
     config = function()
 	vim.keymap.set('n', '<F4>', '<cmd>LspClangdSwitchSourceHeader<cr>',
 		       { desc = 'Switch between .h and .cpp' })
+	vim.keymap.set('n', 'grd', vim.lsp.buf.definition, { desc = "Go to definition" })
+	vim.keymap.set('n', 'grD', vim.lsp.buf.declaration, { desc = "Go to declaraction" })
 
 	local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
