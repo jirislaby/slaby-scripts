@@ -187,7 +187,57 @@ function tigu() {
 	tig ^@{u} "${1:-@}"
 }
 
-alias ping_waiting_net='echo | nc -N 185.219.167.24 60000'
+function sl_osc_build() {
+	local -a pkgs=( -x vim -x vim-data -x strace )
+	local -a opts=( --download-api-only --noverify "${pkgs[@]}" )
+	local ccache=1
+	local api='api.opensuse.org'
+	local dir='xxx'
+	local rel=101
+
+	local OPTIND opt OPTARG
+	while getopts "cd:ir:" opt; do
+		case "$opt" in
+			c) ccache=0 ;;
+			d) dir="xx$OPTARG" ;;
+			i) api='api.suse.de' ;;
+			r) rel="$OPTARG" ;;
+		esac
+	done
+	shift $((OPTIND-1))
+
+	[ $ccache -eq 1 ] && opts+=( "--ccache" )
+	opts+=( "--apiurl=$api" )
+	opts+=( "--root=/dev/shm/jslaby/$dir" )
+	opts+=( "--release=$rel" )
+
+	trap 'set +x' RETURN
+	set -x
+	CCACHE_DIR="" osc build "${opts[@]}" "$@"
+}
+
+function __sl_fetch_tar() {
+	gf scripts && \
+	./scripts/tar-up
+}
+
+function sl_upload_rc() {
+	__sl_fetch_tar && \
+	./scripts/osc_wrapper upload --ibs home:jirislaby:stable-rc
+}
+
+function sl_upload_stable() {
+	local -a maintainers=( jirislaby kernelbugs michals sthackarajan factory-maintainers )
+	local -a opts=( --debug )
+	for m in "${maintainers[@]}"; do
+		opts+=( "--maintainer=$m" )
+	done
+
+	__sl_fetch_tar && \
+	./scripts/osc_wrapper upload "${opts[@]}" Kernel:stable
+}
+
+alias ping_waiting_net='echo | nc -N "$VEREJNA" 60000'
 
 alias cdl='cd_existing ~/linux /dev/shm/jslaby/linux ~/linux.git ~/labs/linux.git'
 alias cdsl='cd_existing ~/my-repos/slaby-scripts/ ~/labs/slaby-scripts/ ~/slaby-scripts/'
