@@ -1,38 +1,64 @@
-#!/usr/bin/bash
+#!/usr/bin/python3
+import dbus
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
 
-function open_con()
-{
-	for DIM; do
-		konsole -p "TerminalColumns=${DIM%%:*}" -p "TerminalRows=${DIM##*:}" &
-	done
-}
+def get_current_desktop_number() -> int:
+    bus = dbus.SessionBus()
+    kwin_obj = bus.get_object('org.kde.KWin', '/VirtualDesktopManager')
+    props_interface = dbus.Interface(kwin_obj, 'org.freedesktop.DBus.Properties')
 
-function open_con_dir()
-{
-	pushd "$1" > /dev/null
-	open_con 100:83 100:83
-	popd > /dev/null
-}
+    current_uuid = props_interface.Get('org.kde.KWin.VirtualDesktopManager', 'current')
 
-if [ $# -gt 0 ]; then
-	for APP; do
-		case "$APP" in
-		f2c) open_con_dir ~/my-repos/file2config/ ;;
-		sgm) open_con_dir ~/repos/suse/suse-get-maintainers/ ;;
-		slh) open_con_dir ~/my-repos/slhelpers/ ;;
-		esac
-	done
-	exit 0
-fi
+    all_desktops = props_interface.Get('org.kde.KWin.VirtualDesktopManager', 'desktops')
+    for desktop in all_desktops:
+        if desktop[1] == current_uuid:
+            return desktop[0]
 
-DESK="$(xdotool get_desktop)"
-case "$DESK" in
-	0)
-	xdg-su -c 'cd; konsole -p TerminalColumns=164 -p TerminalRows=24' &
-	open_con 80:42
-	;;
-	1) open_con 80:42 80:42 150:24 80:24 150:24 150:24
-	;;
-	2) open_con 133:25 100:42 80:42 150:24 80:24 150:24
-	;;
-esac
+    return -1
+
+def run_in_background(command: list[str]) -> None:
+    with open(os.devnull, "wb") as devnull:
+        subprocess.Popen(
+            command,
+            stdout=devnull,
+            stderr=devnull,
+            stdin=subprocess.DEVNULL,
+            preexec_fn=os.setpgrp,
+        )
+
+def build_konsole_command(width: int, height: int, cwd: Path | None = None) -> list[str]:
+    command = ["konsole", "-p", f"TerminalColumns={width}", "-p", f"TerminalRows={height}"]
+    if cwd:
+        command.extend(["--workdir", str(cwd)])
+    return command
+
+def open_con(dim: list[tuple[int, int]], cwd: Path | None = None) -> None:
+    for w, h in dim:
+        run_in_background(build_konsole_command(w, h, cwd))
+
+def open_2cons_cwd(cwd: Path) -> None:
+    open_con([(100,83), (100,83)], cwd=cwd)
+
+if len(sys.argv) > 1:
+    home=Path.home()
+    for app in sys.argv[1:]:
+        match app:
+            case "f2c":
+                open_2cons_cwd(home / 'my-repos/file2config/')
+            case "sgm":
+                open_2cons_cwd(home / 'repos/suse/suse-get-maintainers/')
+            case "slh":
+                open_2cons_cwd(home / 'my-repos/slhelpers/')
+    sys.exit(0)
+
+match get_current_desktop_number():
+    case 0:
+        konsole=build_konsole_command(164, 25, Path('~root').expanduser())
+        run_in_background(['xdg-su', '-c', shlex.join(konsole)])
+        open_con([(80,42), (80,25)])
+    case 1 | 2:
+        open_con([(80,42), (100,42), (133,25), (80,25), (150,25), (150,25)])
