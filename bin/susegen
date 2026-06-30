@@ -52,7 +52,7 @@ GITARGS+=( '--add-header' "Patch-mainline: ${MAINLINE_FORCE:-no}" )
 git format-patch "${GITARGS[@]}" "$@" || exit 1
 
 function get_next_tag() {
-	local LATEST="`git describe --tags --abbrev=0 linus/master`"
+	local LATEST="`git describe --tags --abbrev=0 origin/master`"
 	if [[ "$LATEST" =~ -rc ]]; then
 		echo "${LATEST%-rc*}"
 	else
@@ -67,8 +67,8 @@ for patch in "$PATCHES"/*; do
 	if [ -z "$MAINLINE_FORCE" ]; then
 		AUTO_MAINLINE="`git name-rev --refs=refs/tags/v[2-9].* "$SHA"|sed 's@^.*tags/v*\([a-zA-Z0-9\.-]*\).*$@\1@'`"
 		if echo "$AUTO_MAINLINE" | grep -q undefined; then
-			CONTAINED_IN="`git branch -r --contains "$SHA" linus/master next/master|head -1`"
-			if [ "$CONTAINED_IN" = "  linus/master" ]; then
+			CONTAINED_IN="`git branch -r --contains "$SHA" origin/master next/master|head -1`"
+			if [ "$CONTAINED_IN" = "  origin/master" ]; then
 				AUTO_MAINLINE="`get_next_tag`"
 			elif [ "$CONTAINED_IN" = "  next/master" ]; then
 				AUTO_MAINLINE="Queued in subsystem maintainer repository"

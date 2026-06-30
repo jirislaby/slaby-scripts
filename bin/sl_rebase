@@ -40,7 +40,7 @@ if (!$cont) {
 	$out = $repo->command('ls-files', '-md');
 	die "directory not clean:\n$out" if (length $out);
 
-	$repo->command_noisy(qw|remote update next linus|);
+	$repo->command_noisy(qw|remote update next origin|);
 
 	try {
 		$repo->command_noisy(qw|rebase --onto=next/master
@@ -62,7 +62,7 @@ foreach my $branch (keys %branches) {
 
 wait_child;
 
-$repo->command_noisy(qw|push korg +next/master:next_master linus/master:master  +work:devel|);
+$repo->command_noisy(qw|push korg +next/master:next_master origin/master:master  +work:devel|);
 $repo->command_noisy(qw|checkout work|);
 exec('make O=../build/bu tags &');
 die 'cannot exec ctags';
