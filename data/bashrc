@@ -190,7 +190,7 @@ function sl_osc_build() {
 	local -a pkgs=( -x vim -x vim-data -x strace )
 	local -a opts=( --download-api-only --noverify "${pkgs[@]}" )
 	local ccache=1
-	local api='api.opensuse.org'
+	local api=
 	local dir='xxx'
 	local rel=101
 
@@ -206,7 +206,7 @@ function sl_osc_build() {
 	shift $((OPTIND-1))
 
 	[ $ccache -eq 1 ] && opts+=( "--ccache" )
-	opts+=( "--apiurl=$api" )
+	[ -n "$api" ] && opts+=( "--apiurl=$api" )
 	opts+=( "--root=/dev/shm/jslaby/$dir" )
 	opts+=( "--release=$rel" )
 
