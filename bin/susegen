@@ -27,8 +27,11 @@ declare -a GITARGS=( '-o' "$PATCHES" '-s' '-k' '--no-renames' )
 
 rm -rf "$PATCHES"
 
-while getopts "g:m:r:s:" OPT; do
+while getopts "cg:m:r:s:" OPT; do
 	case "$OPT" in
+		c) export GIT_COMMITTER_EMAIL=jslaby@suse.cz
+		   export GIT_COMMITTER_NAME="Jiri Slaby"
+		;;
 		g) GITREPO=1
 		   GITARGS+=( '--add-header' "Git-repo: $OPTARG" )
 		;;
