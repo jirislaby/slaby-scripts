@@ -95,9 +95,8 @@ function gpu() {
 	git push origin "${PUSH[@]}"
 }
 
-function get_maintainer() {
-	local WHAT="$1"
-	test -z "$WHAT" && WHAT="@^"
+function sl_get_maintainer() {
+	local WHAT="${1:-@^}"
 	local tmpfile=$(mktemp /tmp/maintainers.XXXXXX)
 	git diff "$WHAT" | ./scripts/get_maintainer.pl --git-min-signatures 1000 | tee "$tmpfile"
 	echo
