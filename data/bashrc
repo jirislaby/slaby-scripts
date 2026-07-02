@@ -191,23 +191,26 @@ function sl_osc_build() {
 	local -a opts=( --download-api-only --noverify "${pkgs[@]}" )
 	local ccache=1
 	local api=
-	local dir='xxx'
+	local dir=
 	local rel=101
 
 	local OPTIND opt OPTARG
-	while getopts "cd:ir:" opt; do
+	while getopts "cd:ir:v" opt; do
 		case "$opt" in
 			c) ccache=0 ;;
 			d) dir="xx$OPTARG" ;;
 			i) api='api.suse.de' ;;
 			r) rel="$OPTARG" ;;
+			v) dir="${dir:-xxvm}"
+			   opts+=( '--vm-type=kvm' '--vm-memory=20G' )
+			   ;;
 		esac
 	done
 	shift $((OPTIND-1))
 
 	[ $ccache -eq 1 ] && opts+=( "--ccache" )
 	[ -n "$api" ] && opts+=( "--apiurl=$api" )
-	opts+=( "--root=/dev/shm/jslaby/$dir" )
+	opts+=( "--root=/dev/shm/jslaby/${dir:-xxx}" )
 	opts+=( "--release=$rel" )
 
 	trap 'set +x' RETURN
