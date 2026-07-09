@@ -17,3 +17,14 @@ map("n", "<C-U>", "d<Home>")
 -- Speciální operace s diffy/změnami
 map("n", "<leader>N", "?^@@<CR>V/^@@\\|\\%$<CR>:s/^[- ]//n<CR>")
 map("n", "<leader>M", "?^@@<CR>V/^@@\\|\\%$<CR>:s/^[+ ]//n<CR>")
+
+local pure_ctags = function(cmd)
+  local old_tagfunc = vim.bo.tagfunc
+  vim.bo.tagfunc = ''
+  vim.cmd(cmd .. ' ' .. vim.fn.expand('<cword>'))
+  vim.bo.tagfunc = old_tagfunc
+end
+
+map('n', '<leader>tg', function() pure_ctags('tag') end, { desc = 'Ctags Tag (no LSP)' })
+map('n', '<leader>tj', function() pure_ctags('tjump') end, { desc = 'Ctags Tjump (no LSP)' })
+map('n', '<leader>ts', function() pure_ctags('tselect') end, { desc = 'Ctags Tselect (no LSP)' })
