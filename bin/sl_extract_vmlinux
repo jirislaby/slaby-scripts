@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+
+RPM="$1"
+RPM_DEBUG="$2"
+FILE="${3:-vmlinux\.xz}"
+FILE_DEBUG="${3:-vmlinux}"
+FILE_DEBUG="${FILE_DEBUG}\.debug"
+
+function extract() {
+	rpm2cpio "$1" | cpio -ivd "$2" | head -1
+}
+
+FILE=".$(rpm -qlp "$RPM" 2>/dev/null | grep -m 1 "/usr/.*/$FILE")"
+FILE_DEBUG=".$(rpm -qlp "$RPM_DEBUG" 2>/dev/null | grep -m 1 "/usr/.*/$FILE_DEBUG")"
+
+test -n "$FILE" -a -n "$FILE_DEBUG" || exit 1
+
+extract "$RPM" "${FILE}" &
+extract "$RPM_DEBUG" "${FILE_DEBUG}" &
+
+wait
+
+mv "${FILE}" "${FILE_DEBUG}" .
+FILE="${FILE##*/}"
+if [[ "$FILE" == *.xz ]]; then
+	unxz "$FILE"
+elif [[ "$FILE" == *.zst ]]; then
+	unzstd "$FILE"
+fi
