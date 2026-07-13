@@ -6,7 +6,7 @@ alias san='ssh anemoi -X'
 alias osci='osc -A https://api.suse.de'
 alias oscp='osc -A https://pmbs-api.links2linux.org'
 
-alias gde='git describe --contains --exact-match'
+alias gde="git describe --contains --exact-match --match='v*'"
 alias gpr='git pull --rebase'
 alias gru='git remote update'
 alias gd='git diff'
