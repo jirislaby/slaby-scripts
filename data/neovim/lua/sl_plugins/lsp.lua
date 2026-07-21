@@ -14,6 +14,16 @@ return {
 	})
 	vim.lsp.enable("clangd")
 
+	vim.lsp.config("cssls", {
+		cmd = { "vscode-css-languageserver", "--stdio" },
+	})
+	vim.lsp.enable("cssls")
+
+	vim.lsp.config("html", {
+		cmd = { "vscode-html-languageserver", "--stdio" },
+	})
+	vim.lsp.enable("html")
+
 	vim.lsp.config("lua_ls", {
 		capabilities = capabilities,
 	})
