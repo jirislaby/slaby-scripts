@@ -5,6 +5,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import sys
+import time
 
 def get_current_desktop_number() -> int:
     bus = dbus.SessionBus()
@@ -20,9 +21,9 @@ def get_current_desktop_number() -> int:
 
     return -1
 
-def run_in_background(command: list[str]) -> None:
+def run_in_background(command: list[str]) -> subprocess.Popen:
     with open(os.devnull, "wb") as devnull:
-        subprocess.Popen(
+        return subprocess.Popen(
             command,
             stdout=devnull,
             stderr=devnull,
@@ -30,29 +31,49 @@ def run_in_background(command: list[str]) -> None:
             preexec_fn=os.setpgrp,
         )
 
-def build_konsole_command(width: int, height: int, cwd: Path | None = None) -> list[str]:
-    command = ["konsole", "-p", f"TerminalColumns={width}", "-p", f"TerminalRows={height}"]
-    if cwd:
-        command.extend(["--workdir", str(cwd)])
+def build_konsole_command(width: int, height: int, layout: Path | None = None) -> list[str]:
+    command = ["/usr/bin/konsole"]
+    if layout:
+        command.extend(["--layout", str(layout)])
+    else:
+        command.extend(["-p", f"TerminalColumns={width}", "-p", f"TerminalRows={height}"])
     return command
 
-def open_con(dim: list[tuple[int, int]], cwd: Path | None = None) -> None:
+def open_con(dim: list[tuple[int, int]]) -> None:
     for w, h in dim:
-        run_in_background(build_konsole_command(w, h, cwd))
+        run_in_background(build_konsole_command(w, h))
 
-def open_2cons_cwd(cwd: Path) -> None:
-    open_con([(100,83), (100,83)], cwd=cwd)
+def open_dev() -> None:
+    pid = run_in_background(build_konsole_command(0, 0, home / ".config/konsole/layouts/1.json")).pid
+    service = f"org.kde.konsole-{pid}"
+    bus = dbus.SessionBus()
+    props_interface = None
+    for _ in range(10):
+        try:
+            kwin_obj = bus.get_object(service, "/Windows/1")
+            props_interface = dbus.Interface(kwin_obj, 'org.kde.konsole.Window')
+            break
+        except dbus.exceptions.DBusException:
+            pass
+        time.sleep(0.1)
+    if props_interface is None:
+        print("Failed to connect to Konsole DBus interface.", file=sys.stderr)
+        return
+
+    id = 2
+    while True:
+        layout = home / f".config/konsole/layouts/{id}.json"
+        if not layout.exists():
+            break
+        props_interface.loadLayout(str(layout))
+        id += 1
 
 if len(sys.argv) > 1:
     home=Path.home()
     for app in sys.argv[1:]:
         match app:
-            case "f2c":
-                open_2cons_cwd(home / 'my-repos/file2config/')
-            case "sgm":
-                open_2cons_cwd(home / 'repos/suse/suse-get-maintainers/')
-            case "slh":
-                open_2cons_cwd(home / 'my-repos/slhelpers/')
+            case "dev":
+                open_dev()
     sys.exit(0)
 
 match get_current_desktop_number():
