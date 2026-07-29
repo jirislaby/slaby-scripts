@@ -6,6 +6,7 @@ import shlex
 import subprocess
 import sys
 import time
+from typing import TypedDict, Unpack
 
 def get_current_desktop_number() -> int:
     bus = dbus.SessionBus()
@@ -31,20 +32,29 @@ def run_in_background(command: list[str]) -> subprocess.Popen:
             preexec_fn=os.setpgrp,
         )
 
-def build_konsole_command(width: int, height: int, layout: Path | None = None) -> list[str]:
+class KonsoleOptions(TypedDict, total = False):
+    width: int
+    height: int
+    layout: Path
+    cwd: Path
+
+def build_konsole_command(**kwargs: Unpack[KonsoleOptions]) -> list[str]:
     command = ["/usr/bin/konsole"]
-    if layout:
-        command.extend(["--layout", str(layout)])
-    else:
-        command.extend(["-p", f"TerminalColumns={width}", "-p", f"TerminalRows={height}"])
+    if 'layout' in kwargs:
+        command.extend(["--layout", str(kwargs['layout'])])
+    elif 'width' in kwargs and 'height' in kwargs:
+        command.extend(["-p", f"TerminalColumns={kwargs['width']}",
+                        "-p", f"TerminalRows={kwargs['height']}"])
+    if 'cwd' in kwargs:
+        command.extend(["--workdir", str(kwargs['cwd'])])
     return command
 
 def open_con(dim: list[tuple[int, int]]) -> None:
     for w, h in dim:
-        run_in_background(build_konsole_command(w, h))
+        run_in_background(build_konsole_command(width = w, height = h))
 
 def open_dev() -> None:
-    pid = run_in_background(build_konsole_command(0, 0, home / ".config/konsole/layouts/1.json")).pid
+    pid = run_in_background(build_konsole_command(layout = home / ".config/konsole/layouts/1.json")).pid
     service = f"org.kde.konsole-{pid}"
     bus = dbus.SessionBus()
     props_interface = None
@@ -78,7 +88,7 @@ if len(sys.argv) > 1:
 
 match get_current_desktop_number():
     case 0:
-        konsole=build_konsole_command(164, 25, Path('~root').expanduser())
+        konsole = build_konsole_command(width = 164, height = 25, cwd = Path('~root').expanduser())
         run_in_background(['xdg-su', '-c', shlex.join(konsole)])
         open_con([(80,42), (80,25)])
     case 1 | 2:
