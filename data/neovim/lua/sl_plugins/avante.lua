@@ -1,0 +1,42 @@
+return {
+-- 	"yetone/avante.nvim",
+-- 	event = "VeryLazy",
+-- 	lazy = false,
+-- 	version = false,
+-- 	opts = {
+-- 		provider = "vertex_claude",
+-- 		providers = {
+-- 			vertex_claude = {
+-- 				endpoint = "https://aiplatform.googleapis.com/v1/projects/vertex-ai-206179/locations/global/publishers/anthropic/models",
+-- 				model = "claude-sonnet-5",
+-- 				api_key_name = "cmd:gcloud auth print-access-token",
+-- 				extra_request_body = {
+-- 					anthropic_version = "vertex-2023-10-16",
+-- 				},
+-- 				thinking = {
+-- 					type = "disabled",
+-- 				},
+-- 			},
+-- 			vertex_claude_haiku = {
+-- 				__inherited_from = "vertex_claude",
+-- 				model = "claude-haiku-4-5@20251001",
+-- 				display_name = "Haiku (Vertex)",
+-- 			},
+-- 		},
+-- 	},
+-- 	build = "make",
+-- 	dependencies = {
+-- 		"stevearc/dressing.nvim",
+-- 		"nvim-lua/plenary.nvim",
+-- 		"MunifTanjim/nui.nvim",
+-- 		"nvim-tree/nvim-web-devicons",
+-- 		"nvim-treesitter/nvim-treesitter",
+-- 		{
+-- 			"MeanderingProgrammer/render-markdown.nvim",
+-- 			opts = {
+-- 				file_types = { "markdown", "Avante" },
+-- 			},
+-- 			ft = { "markdown", "Avante" },
+-- 		},
+-- 	},
+}
