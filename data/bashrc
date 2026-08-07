@@ -168,7 +168,7 @@ function vimconfl() {
 }
 
 function vimp() {
-	local REV="${1:-@{u}}"
+	local REV="${1:-'@{u}'}"
 	readarray -t PATCHES < <(git diff --name-only "$REV" -- 'patches.*' | git grep -ohFf - series.conf)
 #	| grep -v '^\s*#'`
 	${EDITOR:-vim} "${PATCHES[@]}"
