@@ -1,17 +1,18 @@
-#!/usr/bin/perl
-use warnings;
-use strict;
-use Net::DBus;
+#!/usr/bin/python3
+import dbus
 
-my $bus = Net::DBus->session;
-my $kwin = $bus->get_service('org.kde.KWin');
-my $dev_man = $kwin->get_object('/org/kde/KWin/InputDevice', 'org.kde.KWin.InputDeviceManager');
+session_bus = dbus.SessionBus()
+kwin = session_bus.get_object('org.kde.KWin', '/org/kde/KWin/InputDevice')
+kwin_props = dbus.Interface(kwin, dbus_interface='org.freedesktop.DBus.Properties')
+for ev in kwin_props.Get('org.kde.KWin.InputDeviceManager', 'devicesSysNames'):
+    evdev = session_bus.get_object('org.kde.KWin', f'/org/kde/KWin/InputDevice/{ev}')
+    evdev_props = dbus.Interface(evdev, dbus_interface='org.freedesktop.DBus.Properties')
 
-for my $ev (@{$dev_man->devicesSysNames}) {
-	my $dev = $kwin->get_object("/org/kde/KWin/InputDevice/$ev", 'org.kde.KWin.InputDevice');
-	next unless $dev->touchpad;
-	print "$ev: ", ($dev->enabled ? "dis" : "en"), "abling\n";
-	$dev->enabled(!$dev->enabled);
-}
+    is_touchpad = evdev_props.Get('org.kde.KWin.InputDevice', 'touchpad')
+    if not is_touchpad:
+        continue
 
-1;
+    enabled = evdev_props.Get('org.kde.KWin.InputDevice', 'enabled')
+    print(f'{str(ev)}: {"dis" if enabled else "en"}abling')
+    evdev_props.Set('org.kde.KWin.InputDevice', 'enabled', not enabled)
+
