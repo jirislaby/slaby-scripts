@@ -1,80 +1,135 @@
-#!/usr/bin/perl
-use strict;
-use warnings;
-use Error qw(:try);
-use Git;
-use Term::ANSIColor qw(colored);
+#!/usr/bin/python3
+from termcolor import colored
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from typing import TextIO
 
-my $branch = $ARGV[0] // 'origin/master';
-my $repo = Git->repository();
-my @to_checkoout = qw/config blacklist.conf/;
-my %to_rm;
+sys.path.insert(0, str(Path.cwd() / 'scripts' / 'python'))
+from kutil import config
 
-print colored("Merging $branch\n", 'green');
-try {
-	my $fh = $repo->command_output_pipe('merge', $branch);
-	while (<$fh>) {
-		next if (/^CONFLICT.*patches\.kernel\.org\//);
-		next if (/^Auto-merging /);
-		next if (/^\QCONFLICT (content): Merge conflict in config\/\E/);
-		if (/^\QCONFLICT (content):\E.*(patches\..*)/) {
-			push @to_checkoout, $1;
-			next;
-		}
-		if (/^\QCONFLICT (modify\/delete): \Q(patches\..*) deleted in $branch and modified in HEAD./) {
-			$to_rm{$1} = 1;
-			next;
-		}
+def run_git_command(*args: list[str], exit_on_error=True, capture_output=True) -> str:
+    if not capture_output:
+        sys.stderr.flush()
+        sys.stdout.flush()
 
-		print;
-	}
-	$repo->command_close_pipe($fh);
-} catch Git::Error::Command with {
-};
+    try:
+        return subprocess.run(('git', ) + args, check=True, capture_output=capture_output,
+                              text=True)
+    except subprocess.CalledProcessError as e:
+        if not exit_on_error:
+            raise e
+        print(colored(f"Failed to run git: {e}", 'red'), file=sys.stderr)
+        print(colored("stdout:", 'red'), file=sys.stderr)
+        print(e.stdout, end='', file=sys.stderr)
+        print(colored("stderr:", 'red'), file=sys.stderr)
+        print(e.stderr, end='', file=sys.stderr)
+        sys.exit(1)
 
-$repo->command_noisy('checkout', $branch, '--', @to_checkoout);
+branch = (sys.argv[1:] or ['origin/master'])[0]
+to_checkout = ['config', 'blacklist.conf']
+to_rm = {}
 
-my @deleted = $repo->command('rm', 'patches.kernel.org/[0-9]*.patch');
-print colored("\nDeleted " .  scalar @deleted . " patches.kernel.org/\n", 'green');
+print(colored(f"Merging {branch}", 'green'));
+try:
+    output = run_git_command('merge', branch, exit_on_error=False).stdout
+except subprocess.CalledProcessError as e:
+    output = e.stdout
+    print(colored(f"Merge failed, attempting to resolve conflicts...", 'yellow'))
 
-my $SRCVERSION;
-open(my $conf, '<', 'rpm/config.sh') or die 'cannot read rpm/config.sh';
-while (<$conf>) {
-	if (/^SRCVERSION=([0-9.]+)/) {
-		$SRCVERSION = $1;
-		last;
-	}
-}
-close $conf;
+for line in output.splitlines():
+    if line.startswith("CONFLICT") and " patches.kernel.org/" in line:
+        continue
+    if line.startswith("Auto-merging "):
+        continue
+    if line.startswith("CONFLICT (content): Merge conflict in config/"):
+        continue
+    if line.startswith("CONFLICT (content): ") and " patches." in line:
+        patch_file = line.split()[-1]
+        to_checkout.append(patch_file)
+        continue
+    if line.startswith("CONFLICT (modify/delete): ") and "deleted in" in line and "modified in HEAD." in line:
+        patch_file = line.split()[2]
+        to_rm[patch_file] = True
+        continue
 
-try {
-	$to_rm{$_} = 1 foreach ($repo->command('grep', '-l', "Patch-mainline: v*$SRCVERSION", '--', 'patches.*'));
-} catch Git::Error::Command with {
-	print "nothing from mainline to delete...\n";
-};
+    print(line)
 
-my $to_rm;
-if (scalar %to_rm) {
-	print colored("\nDeleting other:\n", 'green');
-	$repo->command_noisy('rm', keys %to_rm);
-	$to_rm = join('|', map { qr/\t\Q$_\E\n/ } keys %to_rm);
-}
+run_git_command('checkout', branch, '--', *to_checkout, capture_output=False)
 
-print colored("\nUpdating series.conf\n", 'green');
+deleted = run_git_command('rm', 'patches.kernel.org/[0-9]*.patch').stdout.splitlines()
+print(colored(f"\nDeleted {len(deleted)} patches.kernel.org/", 'green'))
 
-{
-our @ARGV = qw/series.conf/;
-our $^I = '';
-local $/ = undef;
-while (<>) {
-	s|(latest standard kernel patches.*#####\n).*(\n\t#####+\n\t# Build)|$1$2|ms;
-	s|(sorted patches.*#####\n).*(\n\t#####+\n\t# end of sorted)|$1$2|ms;
-	s|$to_rm||g if (defined $to_rm);
-	print;
-}
-}
+src_version = config.read_config_sh('rpm').get('srcversion')
+try:
+    for patch_file in run_git_command('grep', '-l', f"Patch-mainline: v*{re.escape(src_version)}", '--', 'patches.*',
+                                      exit_on_error=False).stdout.splitlines():
+        to_rm[patch_file] = True
+except subprocess.CalledProcessError:
+	print("nothing from mainline to delete...")
 
-print colored("\nDone, git diff:\n", 'green');
-$repo->command_noisy('diff');
+to_rm_pattern = {}
+if to_rm:
+    print(colored("\nDeleting other:", 'green'))
+    run_git_command('rm', *to_rm.keys(), capture_output=False)
+    for patch_file in to_rm.keys():
+        to_rm_pattern[f"\t{patch_file}\n"] = True
 
-1;
+print(colored("\nUpdating series.conf", 'green'))
+
+def consume_comments(f: TextIO) -> list[str]:
+    ret = []
+    for ln in f:
+        ret += ln
+        if not ln.startswith("\t#"):
+            break
+    return ret
+
+def consume_kernel_org(f: TextIO) -> list[str]:
+    ret = consume_comments(f)
+
+    prev_line = None
+    for ln in f:
+        if ln.startswith("\t# Build fixes"):
+            ret += prev_line
+            ret += ln
+            return ret
+        prev_line = ln
+
+    raise RuntimeError("Failed to find end of kernel.org patches section")
+
+def consume_sorted(f: TextIO) -> list[str]:
+    ret = consume_comments(f)
+
+    for ln in f:
+        # Either
+        # # tip/tip or alike
+        # or
+        # #############...
+        if ln.startswith("\t#"):
+            ret += ln
+            return ret
+
+    raise RuntimeError("Failed to find end of sorted patches section")
+
+lines = []
+with open('series.conf', encoding='utf-8') as f:
+    for ln in f:
+        if ln.startswith("\t# latest standard kernel patches"):
+            lines += ln
+            lines += consume_kernel_org(f)
+            continue
+        if ln.startswith("\t# sorted patches"):
+            lines += ln
+            lines += consume_sorted(f)
+            continue
+        if not ln in to_rm_pattern:
+            lines += ln
+
+with open('series.conf', 'w', encoding='utf-8') as f:
+    f.writelines(lines)
+
+print(colored("\nDone, git diff:", 'green'))
+run_git_command('--no-pager', 'diff', capture_output=False)
