@@ -1,10 +1,10 @@
 #!/usr/bin/python3
+from sl_run_git_command import run_git_command
 from termcolor import colored
 import subprocess
 
 def get_branches() -> list[str]:
-    p = subprocess.run(['git', 'for-each-ref', '--format=%(refname:short)', 'refs/heads/'],
-                       check=True, capture_output=True, text=True)
+    p = run_git_command('for-each-ref', '--format=%(refname:short)', 'refs/heads/')
     return p.stdout.splitlines()
 
 def check_commit(commit: str) -> bool:
@@ -21,7 +21,8 @@ def pending(branch: str) -> str | None:
         return None
 
     try:
-        subprocess.run(['git', 'merge-base', '--is-ancestor', branch, user], check=True)
+        run_git_command('merge-base', '--is-ancestor', branch, user, exit_on_error=False,
+                        capture_output=False)
     except subprocess.CalledProcessError:
         return None
     return user
@@ -37,11 +38,13 @@ def check_branch(branch: str) -> None:
         return
 
     try:
-        subprocess.run(['git', 'merge-base', '--is-ancestor', branch, upstream], check=True)
+        run_git_command('merge-base', '--is-ancestor', branch, upstream, exit_on_error=False,
+                        capture_output=False)
         dump_state("light_green", "MERGED", branch, None)
     except subprocess.CalledProcessError:
         p=pending(branch)
-        dump_state("light_red", "UNMERGED", f"{upstream}..{branch}", f" (pending at {p})" if p else None)
+        dump_state("light_red", "UNMERGED", f"{upstream}..{branch}",
+                   f" (pending at {p})" if p else None)
 
 for branch in get_branches():
     check_branch(branch)
