@@ -29,19 +29,34 @@ return {
 	})
 	vim.lsp.enable("lua_ls")
 
-	vim.lsp.config("pyright", {
-	    capabilities = capabilities,
-	    settings = {
-		python = {
-		    analysis = {
-			autoSearchPaths = true,
-			useLibraryCodeForTypes = true,
-			diagnosticMode = "workspace",
-		    },
+	-- vim.lsp.config("pyright", {
+	--     capabilities = capabilities,
+	--     settings = {
+	-- 	python = {
+	-- 	    analysis = {
+	-- 		autoSearchPaths = true,
+	-- 		useLibraryCodeForTypes = true,
+	-- 		diagnosticMode = "workspace",
+	-- 	    },
+	-- 	},
+	--     },
+	-- })
+	-- vim.lsp.enable("pyright")
+
+	vim.lsp.config("pylsp", {
+		cmd = { "pylsp" },
+		capabilities = capabilities,
+		settings = {
+			pylsp = {
+				plugins = {
+					pycodestyle = { enabled = true },
+					pyflakes = { enabled = true },
+					mccabe = { enabled = false },
+				},
+			},
 		},
-	    },
 	})
-	vim.lsp.enable("pyright")
+	vim.lsp.enable("pylsp")
 
 	vim.lsp.enable("rust_analyzer")
     end,
