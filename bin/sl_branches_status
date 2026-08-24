@@ -7,8 +7,19 @@ def get_branches() -> list[str]:
                        check=True, capture_output=True, text=True)
     return p.stdout.splitlines()
 
+def check_commit(commit: str) -> bool:
+    try:
+        subprocess.run(['git', 'rev-parse', '--verify', commit], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
 def pending(branch: str) -> str | None:
     user=f"origin/users/jslaby/{branch}/for-next"
+    if not check_commit(user):
+        return None
+
     try:
         subprocess.run(['git', 'merge-base', '--is-ancestor', branch, user], check=True)
     except subprocess.CalledProcessError:
@@ -21,10 +32,7 @@ def dump_state(color: str, state: str, rev: str, note: str | None) -> None:
 
 def check_branch(branch: str) -> None:
     upstream=f"origin/{branch}"
-    try:
-        subprocess.run(['git', 'rev-parse', '--verify', upstream], stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, check=True)
-    except subprocess.CalledProcessError:
+    if not check_commit(upstream):
         dump_state("light_yellow", "NOT_PRESENT", branch, None)
         return
 
