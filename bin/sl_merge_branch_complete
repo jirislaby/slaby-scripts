@@ -93,7 +93,8 @@ def consume_kernel_org(f: TextIO) -> list[str]:
     prev_line = None
     for ln in f:
         if ln.startswith("\t# Build fixes"):
-            ret += prev_line
+            if prev_line:
+                ret += prev_line
             ret += ln
             return ret
         prev_line = ln
