@@ -3,30 +3,13 @@ from termcolor import colored
 import os
 from pathlib import Path
 import re
+from sl_run_git_command import run_git_command
 import subprocess
 import sys
 from typing import TextIO
 
 sys.path.insert(0, str(Path.cwd() / 'scripts' / 'python'))
 from kutil import config
-
-def run_git_command(*args: list[str], exit_on_error=True, capture_output=True) -> str:
-    if not capture_output:
-        sys.stderr.flush()
-        sys.stdout.flush()
-
-    try:
-        return subprocess.run(('git', ) + args, check=True, capture_output=capture_output,
-                              text=True)
-    except subprocess.CalledProcessError as e:
-        if not exit_on_error:
-            raise e
-        print(colored(f"Failed to run git: {e}", 'red'), file=sys.stderr)
-        print(colored("stdout:", 'red'), file=sys.stderr)
-        print(e.stdout, end='', file=sys.stderr)
-        print(colored("stderr:", 'red'), file=sys.stderr)
-        print(e.stderr, end='', file=sys.stderr)
-        sys.exit(1)
 
 branch = (sys.argv[1:] or ['origin/master'])[0]
 to_checkout = ['config', 'blacklist.conf']
