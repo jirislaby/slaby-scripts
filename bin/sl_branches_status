@@ -1,5 +1,10 @@
 #!/usr/bin/python3
-from sl_run_git_command import run_git_command
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'python'))
+
+from slaby_scripts.git import run_git_command
 from termcolor import colored
 import subprocess
 

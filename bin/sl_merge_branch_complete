@@ -1,11 +1,14 @@
 #!/usr/bin/python3
-from termcolor import colored
-import os
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'python'))
+
+import os
 import re
 from sl_run_git_command import run_git_command
 import subprocess
-import sys
+from termcolor import colored
 from typing import TextIO
 
 sys.path.insert(0, str(Path.cwd() / 'scripts' / 'python'))
