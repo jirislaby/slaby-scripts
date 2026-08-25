@@ -15,10 +15,12 @@ def run_git_command(*args: str, exit_on_error=True, capture_output=True) -> subp
         if not exit_on_error:
             raise e
         print(colored(f"Failed to run git: {e}", 'red'), file=sys.stderr)
-        print(colored("stdout:", 'red'), file=sys.stderr)
-        print(e.stdout, end='', file=sys.stderr)
-        print(colored("stderr:", 'red'), file=sys.stderr)
-        print(e.stderr, end='', file=sys.stderr)
+        if e.stdout:
+            print(colored("stdout:", 'red'), file=sys.stderr)
+            print(e.stdout, end='', file=sys.stderr)
+        if e.stderr:
+            print(colored("stderr:", 'red'), file=sys.stderr)
+            print(e.stderr, end='', file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
