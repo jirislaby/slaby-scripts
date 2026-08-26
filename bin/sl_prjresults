@@ -60,7 +60,9 @@ my $sel = IO::Select->new(\*STDIN) if ($watch);
 			next if (defined $ignore{$code} && $ignore{$code} <= $skip);
 
 			my $pkg = $stat->getAttribute('package');
-			my $entry = "$pkg $code";
+			my $pkg_no_colon = $pkg;
+			$pkg_no_colon =~ s/.*:(.*)/$1^/;
+			my $entry = "$pkg_no_colon $code";
 			my $entry_len = length $entry;
 			$max_len = $entry_len if ($entry_len > $max_len);
 			$entry = colored($entry, $colors{$code}) if ($colors{$code});
@@ -72,7 +74,7 @@ my $sel = IO::Select->new(\*STDIN) if ($watch);
 				$rhs .= "rbl $project $pkg $repo $arch";
 				$rhs .= ")" unless $rhs_empty;
 			}
-			push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs ];
+			push @{$out{"$repo $arch"}}, [ $entry, $entry_len, $rhs, $pkg_no_colon ];
 		}
 	}
 
@@ -86,7 +88,7 @@ my $sel = IO::Select->new(\*STDIN) if ($watch);
 			$a[1] cmp $b[1] || $a[0] cmp $b[0];
 		} keys %out) {
 		print "$k\n";
-		foreach my $o (@{$out{$k}}) {
+		foreach my $o (sort { $a->[3] cmp $b->[3] } @{$out{$k}}) {
 			my ($entry, $entry_len, $rhs) = @{$o};
 			my $spaces = $max_len - $entry_len + 3;
 			print "   $entry", ' ' x $spaces, "$rhs\n";
