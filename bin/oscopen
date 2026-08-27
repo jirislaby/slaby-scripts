@@ -1,77 +1,81 @@
-#!/usr/bin/bash
+#!/usr/bin/python3
+import argparse
+from osc import conf, core
+import sys
+import webbrowser
 
-# for +() in request
-shopt -s extglob
+IBS = "https://build.suse.de"
+OBS = "https://build.opensuse.org"
+PMBS = "https://pmbs.links2linux.de"
 
-function filter {
-	echo "${@//+/%2B}"
-}
+OBS_API = "https://api.opensuse.org"
 
-function show_req {
-	xdg-open "https://$BS/request/show/$1"
-}
+def filter(s: str) -> str:
+    return s.replace('+', '%2B')
 
-function show_pkg {
-	local PRJ="$(filter "$1")"
-	local PKG="$(filter "$2")"
-	xdg-open "https://$BS/package/show/$PRJ/$PKG"
-}
+def show_req(bs: str, req_id: int) -> None:
+    webbrowser.open(f"{bs}/request/show/{req_id}")
 
-function show_pkg_joined {
-	show_pkg "${1%/*}" "${1#*/}"
-}
+def show_pkg(bs: str, prj: str, pkg: str) -> None:
+    webbrowser.open(f"{bs}/package/show/{filter(prj)}/{filter(pkg)}")
 
-function show_prj {
-	local PRJ="$(filter "$1")"
-	xdg-open "https://$BS/project/monitor/$PRJ"
-}
+def show_pkg_joined(bs: str, pkg_joined: str) -> None:
+    prj, pkg = pkg_joined.split('/', 1)
+    show_pkg(bs, prj, pkg)
 
-function show_devel {
-	local PKG="$(osc develproject openSUSE:Factory "$1")" || exit 1
-	show_pkg_joined "$PKG"
-}
+def show_prj(bs: str, prj: str) -> None:
+    webbrowser.open(f"{bs}/project/monitor/{filter(prj)}")
 
-function show_factory {
-	show_pkg openSUSE:Factory "$1"
-}
+def show_devel(pkg: str) -> None:
+    conf.get_config(override_apiurl=OBS_API) # log in
+    if not conf.config["apiurl"]:
+        raise ValueError(f"Not logged in to {OBS_API}. Please run 'osc login' first.")
+    prj, pkg = core.show_devel_project(conf.config["apiurl"], "openSUSE:Factory", pkg)
+    show_pkg(OBS, prj, pkg)
 
-BS=build.opensuse.org
-DEVEL=0
-FACTORY=0
+def show_factory(bs: str, pkg: str) -> None:
+    show_pkg(bs, "openSUSE:Factory", pkg)
 
-while getopts "dfip" OPT; do
-	case "$OPT" in
-	d) DEVEL=1
-	;;
-	f) FACTORY=1
-	;;
-	i) BS=build.suse.de
-	;;
-	p) BS=pmbs.links2linux.de
-	;;
-	esac
-done
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--devel', help='show the devel project of a package in openSUSE:Factory')
+parser.add_argument('-f', '--factory', help='show the package in openSUSE:Factory')
+parser.add_argument('args', nargs='*', help='project, project/package, or request ID')
+api_group = parser.add_argument_group('api')
+api_group.add_argument('-i', '--ibs', action='store_true', help='use the build.suse.de instance')
+api_group.add_argument('-p', '--pmbs', action='store_true', help='use the pmbs.links2linux.de instance')
+args = parser.parse_args()
 
-shift $(($OPTIND-1))
+if args.ibs:
+    if args.devel:
+        parser.error("The --devel option is not supported with the --ibs option")
+    bs = IBS
+elif args.pmbs:
+    if args.devel:
+        parser.error("The --devel option is not supported with the --pmbs option")
+    bs = PMBS
+else:
+    bs = OBS
 
-if [ $DEVEL -eq 1 ]; then
-	show_devel "$1"
-elif [ $FACTORY -eq 1 ]; then
-	show_factory "$1"
-elif [ $# -eq 1 ]; then
-	case "$1" in
-	+([0-9]))
-		show_req "$1"
-		;;
-	*/*)
-		show_pkg_joined "$1"
-		;;
-	*)
-		show_prj "$1"
-		;;
-	esac
-elif [ $# -eq 2 ]; then
-	show_pkg "$1" "$2"
-else
-	exit 1
-fi
+if args.devel:
+    show_devel(args.devel)
+    sys.exit(0)
+
+if args.factory:
+    show_factory(bs, args.factory)
+    sys.exit(0)
+
+if len(args.args) == 1:
+    arg = args.args[0]
+    if arg.isdigit():
+        show_req(bs, int(arg))
+    elif '/' in arg:
+        show_pkg_joined(bs, arg)
+    else:
+        show_prj(bs, arg)
+    sys.exit(0)
+
+if len(args.args) == 2:
+    show_pkg(bs, args.args[0], args.args[1])
+    sys.exit(0)
+
+parser.error("Invalid number of arguments")
