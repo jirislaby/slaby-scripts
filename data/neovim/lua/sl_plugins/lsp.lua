@@ -49,9 +49,20 @@ return {
 		settings = {
 			pylsp = {
 				plugins = {
-					pycodestyle = { enabled = true },
-					pyflakes = { enabled = true },
+					pycodestyle = { enabled = false },
+					pyflakes = { enabled = false },
 					mccabe = { enabled = false },
+
+					ruff = {
+						enabled = true,
+						formatEnabled = true,
+					},
+
+					pylsp_mypy = {
+						enabled = true,
+						live_mode = true,
+						strict = false,
+					},
 				},
 			},
 		},
