@@ -69,6 +69,14 @@ return {
 	})
 	vim.lsp.enable("pylsp")
 
+	vim.lsp.config("rpm_spec_ls", {
+		cmd = { "rpm_lsp_server" },
+		filetypes = { "spec" },
+		capabilities = capabilities,
+		root_markers = { ".git", "*.spec" },
+	})
+	vim.lsp.enable("rpm_spec_ls")
+
 	vim.lsp.enable("rust_analyzer")
     end,
     },
