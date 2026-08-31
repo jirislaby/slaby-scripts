@@ -1,12 +1,14 @@
 #!/usr/bin/python3
-import dbus
 import os
-from pathlib import Path
 import shlex
 import subprocess
 import sys
 import time
+from pathlib import Path
 from typing import TypedDict, Unpack
+
+import dbus
+
 
 def get_current_desktop_number() -> int:
     bus = dbus.SessionBus()
@@ -29,7 +31,7 @@ def run_in_background(command: list[str]) -> subprocess.Popen:
             stdout=devnull,
             stderr=devnull,
             stdin=subprocess.DEVNULL,
-            preexec_fn=os.setpgrp,
+            preexec_fn=os.setpgrp,  # noqa: PLW1509
         )
 
 class KonsoleOptions(TypedDict, total = False):

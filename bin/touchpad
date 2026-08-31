@@ -13,6 +13,6 @@ for ev in kwin_props.Get('org.kde.KWin.InputDeviceManager', 'devicesSysNames'):
         continue
 
     enabled = evdev_props.Get('org.kde.KWin.InputDevice', 'enabled')
-    print(f'{str(ev)}: {"dis" if enabled else "en"}abling')
+    print(f'{ev!s}: {"dis" if enabled else "en"}abling')
     evdev_props.Set('org.kde.KWin.InputDevice', 'enabled', not enabled)
 

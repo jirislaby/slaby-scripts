@@ -1,15 +1,15 @@
 #!/usr/bin/python3
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'python'))
 
-import os
 import re
-from sl_run_git_command import run_git_command
 import subprocess
-from termcolor import colored
 from typing import TextIO
+
+from sl_run_git_command import run_git_command
+from termcolor import colored
 
 sys.path.insert(0, str(Path.cwd() / 'scripts' / 'python'))
 from kutil import config
@@ -23,7 +23,7 @@ try:
     output = run_git_command('merge', branch, exit_on_error=False).stdout
 except subprocess.CalledProcessError as e:
     output = e.stdout
-    print(colored(f"Merge failed, attempting to resolve conflicts...", 'yellow'))
+    print(colored("Merge failed, attempting to resolve conflicts...", 'yellow'))
 
 for line in output.splitlines():
     if line.startswith("CONFLICT") and " patches.kernel.org/" in line:
@@ -60,7 +60,7 @@ to_rm_pattern = {}
 if to_rm:
     print(colored("\nDeleting other:", 'green'))
     run_git_command('rm', *to_rm.keys(), capture_output=False)
-    for patch_file in to_rm.keys():
+    for patch_file in to_rm:
         to_rm_pattern[f"\t{patch_file}\n"] = True
 
 print(colored("\nUpdating series.conf", 'green'))

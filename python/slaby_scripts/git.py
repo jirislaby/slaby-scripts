@@ -1,6 +1,8 @@
 import subprocess
 import sys
+
 from termcolor import colored
+
 
 def run_git_command(*args: str, exit_on_error=True, capture_output=True) -> subprocess.CompletedProcess:
     if not capture_output:
@@ -12,7 +14,7 @@ def run_git_command(*args: str, exit_on_error=True, capture_output=True) -> subp
                               text=True)
     except subprocess.CalledProcessError as e:
         if not exit_on_error:
-            raise e
+            raise
         print(colored(f"Failed to run git: {e}", 'red'), file=sys.stderr)
         if e.stdout:
             print(colored("stdout:", 'red'), file=sys.stderr)

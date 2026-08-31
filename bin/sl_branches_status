@@ -1,12 +1,14 @@
 #!/usr/bin/python3
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'python'))
 
+import subprocess
+
 from slaby_scripts.git import run_git_command
 from termcolor import colored
-import subprocess
+
 
 def get_branches() -> list[str]:
     p = run_git_command('for-each-ref', '--format=%(refname:short)', 'refs/heads/')

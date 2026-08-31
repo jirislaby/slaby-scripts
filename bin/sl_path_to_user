@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import argparse
-from contextlib import closing
 import os
 import sqlite3
 import sys
+from contextlib import closing
+
 from termcolor import colored
 
 parser = argparse.ArgumentParser()
