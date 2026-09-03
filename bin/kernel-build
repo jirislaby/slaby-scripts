@@ -127,6 +127,7 @@ declare -A DRV_ARCH=(
 	drivers/soc/tegra/pmc.o arm64
 	drivers/s390/char/con3215.o s390
 	drivers/s390/char/con3270.o s390
+	drivers/s390/char/fs3270.o s390
 	drivers/s390/char/sclp_rw.o s390
 	drivers/s390/char/sclp_tty.o s390
 	drivers/s390/char/sclp_vt220.o s390
