@@ -1,68 +1,90 @@
-#!/usr/bin/perl
-use strict;
-use warnings;
-use Error qw(:try);
-use Getopt::Long;
-use Git;
+#!/usr/bin/python3
+import sys
+from pathlib import Path
 
-my $cont = 0;
-GetOptions("continue" => \$cont)
-	or die("Error in command line arguments\n");
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'python'))
 
-my $repo = Git->repository();
+import argparse
+import atexit
+import subprocess
 
-my $out = $repo->command('branch', '--show-current');
-chomp $out;
-if (!$cont && $out eq 'work') {
-	$repo->command_noisy('rebase', 'work', 'devel');
-} elsif ($out ne 'devel') {
-	die "not on " . (!$cont ? "work or " : ""). "devel branch: on " .
-		(length $out ? $out : "<nothing>");
-}
+from pygit2 import Keypair, Oid, RemoteCallbacks, Repository, enums
+from slaby_scripts.git import run_git_command
 
-my $child;
+argparser = argparse.ArgumentParser(description='Rebase work onto devel and push to origin')
+argparser.add_argument('--continue', action='store_true', help='Continue rebase if in progress')
+args = argparser.parse_args()
+cont = vars(args)['continue']
 
-sub wait_child() {
-	return unless ($child);
+repo = Repository('.')
+child = None
 
-	print "Waiting for PID $child to finish\n";
-	waitpid($child, 0) if ($child);
-}
+cur_branch = repo.head.shorthand
+if not cont and cur_branch == 'work':
+    run_git_command('rebase', 'work', 'devel', capture_output=False)
+elif cur_branch != 'devel':
+    raise RuntimeError(f"not on {'work or ' if not cont else ''}devel branch: on {cur_branch if cur_branch else '<nothing>'}")
 
-if (!$cont) {
-	$child = fork;
-	unless ($child) {
-		exec('ssh', qw|git@gitolite.kernel.org track fetch
-			pub/scm/linux/kernel/git/jirislaby/linux next_master|);
-		die "exec failed";
-	}
+class MyRemoteCallbacks(RemoteCallbacks):
+    def transfer_progress(self, stats):
+        print(f"Received {stats.received_objects}/{stats.total_objects} objects ({stats.indexed_objects} indexed)")
 
-	$out = $repo->command('ls-files', '-md');
-	die "directory not clean:\n$out" if (length $out);
+    def update_tips(self, refname: str, old: Oid, new: Oid):
+        old = repo[old].short_id
+        new = repo[new].short_id
+        print(f"Updated {refname} from {old} to {new}")
 
-	$repo->command_noisy(qw|remote update next origin|);
+    def credentials(self, url, username_from_url, allowed_types):
+        if allowed_types & enums.CredentialType.SSH_KEY:
+            priv = Path.home() / '.ssh' / 'korg-jirislaby'
+            pub = priv.with_suffix('.pub')
+            return Keypair(username_from_url, pub, priv, None)
 
-	try {
-		$repo->command_noisy(qw|rebase --onto=next/master
-			korg/next_master devel|);
-	} otherwise {
-		wait_child;
-		die "rebase failed";
-	}
-}
+        raise RuntimeError(f"No suitable credentials for {url} (username: {username_from_url}, allowed types: {allowed_types:x})")
 
-my @out = $repo->command('log', '--pretty=format:%h %s', 'next/master..');
+    def push_transfer_progress(self, current, total, bytes):
+        print(f"Pushed {current}/{total} objects ({bytes} bytes)")
 
-my %branches = map { /^([0-9a-f]+) BRANCH_MARKER: (.*)$/ ? ($2 => $1) : () } @out;
+    def push_update_reference(self, refname, status):
+        if status:
+            print(f"Failed to update {refname}: {status}")
+        else:
+            print(f"Updated {refname}")
 
-foreach my $branch (keys %branches) {
-	print "$branch -> $branches{$branch}\n";
-	$repo->command_noisy('branch', '-f', $branch, $branches{$branch});
-}
+if not cont:
+    child = subprocess.Popen(['ssh', 'git@gitolite.kernel.org', 'track', 'fetch',
+                              'pub/scm/linux/kernel/git/jirislaby/linux', 'next_master'])
+    atexit.register(child.wait)
 
-wait_child;
+    stat = repo.status('no')
+    if stat:
+        raise RuntimeError(f"directory not clean:\n{'\n'.join(stat)}")
 
-$repo->command_noisy(qw|push korg +next/master:next_master origin/master:master  +work:devel|);
-$repo->command_noisy(qw|checkout work|);
-exec('make O=../build/bu tags &');
-die 'cannot exec ctags';
+    repo.remotes['next'].fetch(callbacks=MyRemoteCallbacks())
+    repo.remotes['origin'].fetch(callbacks=MyRemoteCallbacks())
+
+    try:
+        run_git_command('rebase', '--onto=next/master', 'korg/next_master', 'devel',
+                        capture_output=False, exit_on_error=False)
+    except subprocess.CalledProcessError:
+        raise RuntimeError("rebase failed")
+
+walker = repo.walk(repo.head.target)
+walker.hide(repo.lookup_reference('refs/remotes/next/master').target)
+for commit in walker:
+    headline = commit.message.splitlines()[0]
+    if headline.startswith('BRANCH_MARKER: '):
+        name = headline.split('BRANCH_MARKER: ')[1]
+        repo.branches.local.create(name, commit, force=True)
+        print(f"Created branch {name} at {commit.short_id}")
+
+if child:
+    print(f"Waiting for PID {child.pid} to finish")
+    child.wait()
+
+repo.remotes['korg'].push(['+next/master:refs/heads/next_master',
+                           'origin/master:refs/heads/master', '+work:refs/heads/devel'],
+                          callbacks=MyRemoteCallbacks())
+repo.checkout('refs/heads/work')
+
+subprocess.Popen(['make', 'O=../build/bu', 'tags'], start_new_session=True)
