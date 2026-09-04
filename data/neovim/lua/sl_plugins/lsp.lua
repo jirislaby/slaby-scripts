@@ -75,7 +75,7 @@ return {
 		capabilities = capabilities,
 		root_markers = { ".git", "*.spec" },
 	})
-	vim.lsp.enable("rpm_spec_ls")
+	-- vim.lsp.enable("rpm_spec_ls")
 
 	vim.lsp.enable("rust_analyzer")
     end,
