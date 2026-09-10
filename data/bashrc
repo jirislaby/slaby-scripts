@@ -87,10 +87,13 @@ function gpu() {
 	declare -a PUSH=()
 	for BRANCH in "${@:-$(git rev-parse --abbrev-ref HEAD)}"; do
 		local DEST="for-next"
+		local DESTBRANCH="$BRANCH"
 		if [ "$BRANCH" = "stable" ]; then
 			DEST="for-merge"
+		elif [ "$BRANCH" = "rc" ]; then
+			DESTBRANCH="stable"
 		fi
-		PUSH+=( "${FORCE}refs/heads/$BRANCH:refs/heads/users/jslaby/$BRANCH/$DEST" )
+		PUSH+=( "${FORCE}refs/heads/$BRANCH:refs/heads/users/jslaby/$DESTBRANCH/$DEST" )
 	done
 	git push origin "${PUSH[@]}"
 }
