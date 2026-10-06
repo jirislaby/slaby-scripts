@@ -8,7 +8,7 @@ import argparse
 import atexit
 import subprocess
 
-from pygit2 import Keypair, Oid, RemoteCallbacks, Repository, enums
+from pygit2 import GIT_OID_HEX_ZERO, Keypair, Oid, RemoteCallbacks, Repository, enums
 from slaby_scripts.git import run_git_command
 
 argparser = argparse.ArgumentParser(description='Rebase work onto devel and push to origin')
@@ -30,9 +30,13 @@ class MyRemoteCallbacks(RemoteCallbacks):
         print(f"Received {stats.received_objects}/{stats.total_objects} objects ({stats.indexed_objects} indexed)")
 
     def update_tips(self, refname: str, old: Oid, new: Oid):
-        old = repo[old].short_id
-        new = repo[new].short_id
-        print(f"Updated {refname} from {old} to {new}")
+        def fmt_oid(oid: Oid) -> str:
+            s_oid = str(oid)
+            if s_oid == GIT_OID_HEX_ZERO:
+                return '0' * 12
+            return repo[oid].short_id
+
+        print(f"Updated {refname} from {fmt_oid(old)} to {fmt_oid(new)}")
 
     def credentials(self, url, username_from_url, allowed_types):
         if allowed_types & enums.CredentialType.SSH_KEY:
