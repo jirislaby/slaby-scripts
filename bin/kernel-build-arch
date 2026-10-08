@@ -66,14 +66,22 @@ test "$HELP" -eq 0 && make+=(O="$DESTDIR/$DIR/")
 make+=("-j$JOBS" ARCH="$ARCH")
 
 if [ "$ARCH" != "um" ]; then
-	if [ -z "${CROSS_COMPILE[$ARCH]}" ]; then
+	PREFIX="${CROSS_COMPILE[$ARCH]}"
+	if [ -z "$PREFIX" ]; then
+		echo "unsupported ARCH: $ARCH" >&2
 		exit 1
 	fi
 
-	if ! which ${CROSS_COMPILE[$ARCH]}gcc >/dev/null && [ ! -f "${CROSS_COMPILE[$ARCH]}gcc" ]; then
+	GCC="${PREFIX}gcc"
+	if ! type -P "$GCC" >/dev/null; then
+		# Try to find the latest version of the cross compiler
+		GCC="$(compgen -c "$GCC-" | sort -V | tail -n1)"
+	fi
+	if [ -z "$GCC" ]; then
+		echo "no cross compiler found for $ARCH ($PREFIX)" >&2
 		exit 1
 	fi
-	make+=("CROSS_COMPILE=${CROSS_COMPILE[$ARCH]}")
+	make+=( "CROSS_COMPILE=$PREFIX" CC="$GCC" )
 fi
 
 if [ "$HELP" -eq 1 ]; then
