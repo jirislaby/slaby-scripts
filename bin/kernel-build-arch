@@ -81,7 +81,7 @@ if [ "$ARCH" != "um" ]; then
 		echo "no cross compiler found for $ARCH ($PREFIX)" >&2
 		exit 1
 	fi
-	make+=( "CROSS_COMPILE=$PREFIX" CC="$GCC" )
+	make+=( "CROSS_COMPILE=$PREFIX" CC="$GCC" CROSS32CC="$GCC" )
 fi
 
 if [ "$HELP" -eq 1 ]; then
