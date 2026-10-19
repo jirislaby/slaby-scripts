@@ -8,7 +8,7 @@ import re
 import subprocess
 from typing import TextIO
 
-from sl_run_git_command import run_git_command
+from slaby_scripts.git import run_git_command
 from termcolor import colored
 
 sys.path.insert(0, str(Path.cwd() / 'scripts' / 'python'))
