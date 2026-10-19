@@ -19,4 +19,4 @@ open(my $fh, ">$file") or die "cannot open $file for w";
 print $fh $msg;
 close $fh;
 
-exec("vim", $file);
+1;
