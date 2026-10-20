@@ -28,7 +28,7 @@ cont = vars(args)['continue']
 repo = Repository('.')
 child = None
 
-cur_branch = repo.head.shorthand
+cur_branch = None if repo.head_is_detached else repo.head.shorthand
 if not cont and cur_branch == 'work':
     run_git_command('rebase', 'work', 'devel', capture_output=False)
 elif cur_branch != 'devel':
