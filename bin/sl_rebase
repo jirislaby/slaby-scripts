@@ -75,8 +75,22 @@ class MyRemoteCallbacks(RemoteCallbacks):
 
         raise RuntimeError(f"No suitable credentials for {url} (username: {username_from_url}, allowed types: {allowed_types:x})")
 
+    def limit_push_transfer_progress(self, current: int, total: int) -> tuple[bool, bool]:
+        # final (or nothing to do) print
+        if current == total:
+            return (True, True)
+
+        # initial print
+        if current == 0:
+            return (True, False)
+
+        return (current % 10 == 0, False)
+
     def push_transfer_progress(self, current: int, total: int, bytes: int) -> None:
-        print(f"Pushed {current}/{total} objects ({bytes} bytes)")
+        (limit, final) = self.limit_push_transfer_progress(current, total)
+        if limit:
+            print(f"Pushed {current}/{total} objects ({bytes} bytes)",
+                  end='\n' if final else '\r', flush=True)
 
     def push_update_reference(self, refname: str, status: str) -> None:
         if status:
