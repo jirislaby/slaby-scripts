@@ -36,8 +36,27 @@ elif cur_branch != 'devel':
     raise RuntimeError(f"not on {'work or ' if not cont else ''}devel branch: on {cur_branch if cur_branch else '<nothing>'}")
 
 class MyRemoteCallbacks(RemoteCallbacks):
+    def limit_transfer_progress(self, stats: TransferProgress) -> tuple[bool, bool]:
+        # final (or nothing to do) print
+        if stats.received_objects == stats.total_objects and stats.indexed_objects == stats.total_objects:
+            return (True, True)
+
+        # initial print
+        if stats.received_objects == 0:
+            return (True, False)
+
+        # receiving objects
+        if stats.received_objects != stats.total_objects:
+            return (stats.received_objects % 100 == 0, False)
+
+        # indexing objects
+        return (stats.indexed_objects % 100 == 0, False)
+
     def transfer_progress(self, stats: TransferProgress) -> None:
-        print(f"Received {stats.received_objects}/{stats.total_objects} objects ({stats.indexed_objects} indexed)")
+        (limit, final) = self.limit_transfer_progress(stats)
+        if limit:
+            print(f"Received {stats.received_objects}/{stats.total_objects} objects ({stats.indexed_objects} indexed)",
+                  end='\n' if final else '\r', flush=True)
 
     def update_tips(self, refname: str, old: Oid, new: Oid) -> None:
         def fmt_oid(oid: Oid) -> str:
