@@ -129,9 +129,9 @@ if not cont:
 walker = repo.walk(repo.head.target)
 walker.hide(repo.lookup_reference('refs/remotes/next/master').target)
 for commit in walker:
-    headline = commit.message.splitlines()[0]
+    headline = commit.message.partition('\n')[0]
     if headline.startswith('BRANCH_MARKER: '):
-        name = headline.split('BRANCH_MARKER: ')[1]
+        name = headline.removeprefix('BRANCH_MARKER: ')
         repo.branches.local.create(name, commit, force=True)
         print(f"Created branch {name} at {commit.short_id}")
 
