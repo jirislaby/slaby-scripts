@@ -8,7 +8,17 @@ import argparse
 import atexit
 import subprocess
 
-from pygit2 import GIT_OID_HEX_ZERO, Keypair, Oid, RemoteCallbacks, Repository, enums
+from pygit2 import (
+    GIT_OID_HEX_ZERO,
+    CredentialType,
+    Keypair,
+    Oid,
+    RemoteCallbacks,
+    Repository,
+    TransferProgress,
+    _Credentials,
+    enums,
+)
 from slaby_scripts.git import run_git_command
 
 argparser = argparse.ArgumentParser(description='Rebase work onto devel and push to origin')
@@ -26,10 +36,10 @@ elif cur_branch != 'devel':
     raise RuntimeError(f"not on {'work or ' if not cont else ''}devel branch: on {cur_branch if cur_branch else '<nothing>'}")
 
 class MyRemoteCallbacks(RemoteCallbacks):
-    def transfer_progress(self, stats):
+    def transfer_progress(self, stats: TransferProgress) -> None:
         print(f"Received {stats.received_objects}/{stats.total_objects} objects ({stats.indexed_objects} indexed)")
 
-    def update_tips(self, refname: str, old: Oid, new: Oid):
+    def update_tips(self, refname: str, old: Oid, new: Oid) -> None:
         def fmt_oid(oid: Oid) -> str:
             s_oid = str(oid)
             if s_oid == GIT_OID_HEX_ZERO:
@@ -38,7 +48,7 @@ class MyRemoteCallbacks(RemoteCallbacks):
 
         print(f"Updated {refname} from {fmt_oid(old)} to {fmt_oid(new)}")
 
-    def credentials(self, url, username_from_url, allowed_types):
+    def credentials(self, url: str, username_from_url: str | None, allowed_types: CredentialType) -> _Credentials:
         if allowed_types & enums.CredentialType.SSH_KEY:
             priv = Path.home() / '.ssh' / 'korg-jirislaby'
             pub = priv.with_suffix('.pub')
@@ -46,10 +56,10 @@ class MyRemoteCallbacks(RemoteCallbacks):
 
         raise RuntimeError(f"No suitable credentials for {url} (username: {username_from_url}, allowed types: {allowed_types:x})")
 
-    def push_transfer_progress(self, current, total, bytes):
+    def push_transfer_progress(self, current: int, total: int, bytes: int) -> None:
         print(f"Pushed {current}/{total} objects ({bytes} bytes)")
 
-    def push_update_reference(self, refname, status):
+    def push_update_reference(self, refname: str, status: str) -> None:
         if status:
             print(f"Failed to update {refname}: {status}")
         else:
