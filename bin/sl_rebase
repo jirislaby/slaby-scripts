@@ -9,7 +9,6 @@ import atexit
 import subprocess
 
 from pygit2 import (
-    GIT_OID_HEX_ZERO,
     CredentialType,
     Keypair,
     Oid,
@@ -64,13 +63,7 @@ class MyRemoteCallbacks(RemoteCallbacks):
                   end='\n' if final else '\r', flush=True)
 
     def update_tips(self, refname: str, old: Oid, new: Oid) -> None:
-        def fmt_oid(oid: Oid) -> str:
-            s_oid = str(oid)
-            if s_oid == GIT_OID_HEX_ZERO:
-                return '0' * 12
-            return repo[oid].short_id
-
-        print(f"Updated {refname} from {fmt_oid(old)} to {fmt_oid(new)}")
+        print(f"Updated {refname} from {str(old)[:12]} to {str(new)[:12]}")
 
     def credentials(self, url: str, username_from_url: str | None, allowed_types: CredentialType) -> _Credentials:
         if self.cred_tried:
