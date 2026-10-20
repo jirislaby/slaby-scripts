@@ -95,10 +95,10 @@ class MyRemoteCallbacks(RemoteCallbacks):
 
         return (current % 10 == 0, False)
 
-    def push_transfer_progress(self, current: int, total: int, bytes: int) -> None:
+    def push_transfer_progress(self, current: int, total: int, nbytes: int) -> None:
         (limit, final) = self.limit_push_transfer_progress(current, total)
         if limit:
-            print(f"Pushed {current}/{total} objects ({bytes} bytes)",
+            print(f"Pushed {current}/{total} objects ({nbytes} bytes)",
                   end='\n' if final else '\r', flush=True)
 
     def push_update_reference(self, refname: str, status: str) -> None:
