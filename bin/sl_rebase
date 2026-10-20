@@ -39,6 +39,7 @@ class MyRemoteCallbacks(RemoteCallbacks):
     def __init__(self) -> None:
         super().__init__()
         self.push_failed = False
+        self.cred_tried = False
 
     def limit_transfer_progress(self, stats: TransferProgress) -> tuple[bool, bool]:
         # final (or nothing to do) print
@@ -72,6 +73,10 @@ class MyRemoteCallbacks(RemoteCallbacks):
         print(f"Updated {refname} from {fmt_oid(old)} to {fmt_oid(new)}")
 
     def credentials(self, url: str, username_from_url: str | None, allowed_types: CredentialType) -> _Credentials:
+        if self.cred_tried:
+            raise RuntimeError(f"Authentication failed for {url} (username: {username_from_url})")
+        self.cred_tried = True
+
         if allowed_types & enums.CredentialType.SSH_KEY:
             priv = Path.home() / '.ssh' / 'korg-jirislaby'
             pub = priv.with_suffix('.pub')
