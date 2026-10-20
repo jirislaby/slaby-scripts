@@ -36,6 +36,10 @@ elif cur_branch != 'devel':
     raise RuntimeError(f"not on {'work or ' if not cont else ''}devel branch: on {cur_branch if cur_branch else '<nothing>'}")
 
 class MyRemoteCallbacks(RemoteCallbacks):
+    def __init__(self) -> None:
+        super().__init__()
+        self.push_failed = False
+
     def limit_transfer_progress(self, stats: TransferProgress) -> tuple[bool, bool]:
         # final (or nothing to do) print
         if stats.received_objects == stats.total_objects and stats.indexed_objects == stats.total_objects:
@@ -95,6 +99,7 @@ class MyRemoteCallbacks(RemoteCallbacks):
     def push_update_reference(self, refname: str, status: str) -> None:
         if status:
             print(f"Failed to update {refname}: {status}")
+            self.push_failed = True
         else:
             print(f"Updated {refname}")
 
@@ -129,9 +134,12 @@ if child:
     print(f"Waiting for PID {child.pid} to finish")
     child.wait()
 
+callbacks = MyRemoteCallbacks()
 repo.remotes['korg'].push(['+next/master:refs/heads/next_master',
                            'origin/master:refs/heads/master', '+work:refs/heads/devel'],
-                          callbacks=MyRemoteCallbacks())
+                          callbacks=callbacks)
+if callbacks.push_failed:
+    raise RuntimeError("push failed")
 repo.checkout('refs/heads/work')
 
 subprocess.Popen(['make', 'O=../build/bu', 'tags'], start_new_session=True)
