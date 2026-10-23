@@ -14,10 +14,10 @@ from pygit2 import (
     Oid,
     RemoteCallbacks,
     Repository,
-    TransferProgress,
-    _Credentials,
     enums,
 )
+from pygit2.callbacks import _Credentials
+from pygit2.remotes import TransferProgress
 from slaby_scripts.git import run_git_command
 
 argparser = argparse.ArgumentParser(description='Rebase work onto devel and push to origin')
