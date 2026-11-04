@@ -57,6 +57,7 @@ declare -a SEL=(
 'mtr*'
 'openttd*'
 'openSUSE-release*'
+'perf'
 'perl*'
 'psi+*'
 'python*'
