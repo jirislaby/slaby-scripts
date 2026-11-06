@@ -13,7 +13,8 @@ class Git:
 
     def call(self, *args: str, **kwargs) -> subprocess.CompletedProcess:
         cmd = ['git', '-C', str(self.tree), *args]
-        return subprocess.run(cmd, check=True, text=True, **kwargs)
+        check = kwargs.pop('check', True)
+        return subprocess.run(cmd, check=check, text=True, **kwargs)
 
     def oneline(self, *args: str) -> str:
         res = self.call(*args, capture_output=True)
