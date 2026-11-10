@@ -18,6 +18,10 @@ FOUND_HOST=''
 HOST="$1"
 shift
 
+if ! nmcli -g GENERAL.STATE connection show "SUSE-Nbg" | grep -Fxq "activated"; then
+	nmcli connection up "SUSE-Nbg"
+fi
+
 for SUFFIX in arch.suse.cz arch.suse.de suse.de suse.cz qa.suse.de arch.nue2.suse.org; do
 	FQDN="$HOST.$SUFFIX"
 	if host -t A -t AAAA "$FQDN" ${SU_NAMESERVER:+"$SU_NAMESERVER"} >/dev/null; then
