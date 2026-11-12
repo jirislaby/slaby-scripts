@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use Getopt::Long;
+use Encode qw(from_to);
+use I18N::Langinfo qw(langinfo CODESET);
 
 system('cdda2wav -D/dev/sr0 -B -L 0');
 
@@ -14,6 +16,7 @@ GetOptions('album=s' => \$overr{Album},
 ) or die "bad arguments";
 
 my %inf;
+my $locale_charset = langinfo(CODESET());
 
 open FILE, "audio.cddb" or die "Error opening inf file: $!";
 while (<FILE>)
@@ -25,7 +28,9 @@ while (<FILE>)
 	$_ =~ /^\s*([^=]*)\s*=\s*'?([^']*)'?$/;
 
 	if (defined $iconv) {
-		$inf{$1} = `echo -n "$2" | iconv -f "$iconv"`;
+		my $val = $2;
+		from_to($val, $iconv, $locale_charset);
+		$inf{$1} = $val;
 	} else {
 		$inf{$1} = $2;
 	}
