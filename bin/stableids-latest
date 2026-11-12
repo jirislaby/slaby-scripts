@@ -24,7 +24,7 @@ VER=`{ git -C "$LINUX_GIT" show "$TREE":Makefile | head -4;
 
 if [ -n "$RC" ]; then
 	git -C "$LINUX_GIT" tag "v$VER" "$TREE"
-	trap "git -C "$LINUX_GIT" tag -d \"v$VER\"" EXIT
+	trap "git -C \"$LINUX_GIT\" tag -d \"v$VER\"" EXIT
 fi
 
 ./scripts/stableup "$VER" $FORCE
