@@ -16,11 +16,8 @@ class SlRepository(pygit2.Repository):
         if isinstance(ref, pygit2.Tree):
             tree = ref
         else:
-            if isinstance(ref, pygit2.Commit):
-                commit = ref
-            else:
-                commit = self.revparse_single(ref)
-            tree = commit.tree
+            commit = ref if isinstance(ref, pygit2.Commit) else self.revparse_single(ref)
+            tree = commit.peel(pygit2.Tree)
 
         if isinstance(pattern, str):
             pattern = re.compile(pattern)
