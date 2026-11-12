@@ -347,7 +347,7 @@ EOF
 		kernel-build-arch -a "$ARCH" -D "$CROSS_DESTDIR" "${CROSS_OPTS[@]}" "${FILTERED[@]}"
 		RETVAL=$?
 		if [ $RETVAL -eq 200 ]; then
-			UNHANDLED+=("${ref[@]}")
+			UNHANDLED+=("${FILTERED[@]}")
 		elif [ $RETVAL -ne 0 ]; then
 		       exit 1
 		fi
