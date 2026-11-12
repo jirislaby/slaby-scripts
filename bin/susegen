@@ -21,11 +21,9 @@ fi
 AUTO_MAINLINE=
 MAINLINE_FORCE=
 GITREPO=0
-PATCHES="$TMPDIR/patches"
+PATCHES=$(mktemp -d "$TMPDIR/susegen-patches.XXXXXX")
 
 declare -a GITARGS=( '-o' "$PATCHES" '-s' '-k' '--no-renames' )
-
-rm -rf "$PATCHES"
 
 while getopts "cg:m:Q:r:s:S:" OPT; do
 	case "$OPT" in
