@@ -27,7 +27,7 @@ for FLAC; do
 	while read LINE; do
 		tag="${LINE%%=*}"
 		val="${LINE#*=}"
-		TAGS[$tag]="$val"
+		TAGS[${tag^^}]="$val"
 	done < <(metaflac "${METAFLAG_CMD[@]}" "$FLAC")
 
 	for TAG in "${!TAGS_CONV[@]}"; do
