@@ -204,18 +204,30 @@ trap finish EXIT
 finish
 
 echo "${QEMU_RUN[@]}"
+QEMU_BG_PID=
 if [ -n "$TELNET_PORT" ]; then
 	"${QEMU_RUN[@]}" |& tee $SCR >&2 &
+	QEMU_BG_PID=$!
 else
 	"${QEMU_RUN[@]}" |& tee $SCR >&2
-fi
-if [ $? -ne 0 ]; then
-	exit 1
+	if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+		exit 1
+	fi
 fi
 
 if [ -n "$SERIAL_WAIT_RE" ]; then
+	WAITED=0
 	while ! [ -f "$PID_FILE" -a -f "$SCR" ] || ! grep -q "$SERIAL_WAIT_RE" "$SCR"; do
+		if [ -n "$QEMU_BG_PID" ] && ! kill -0 "$QEMU_BG_PID" 2>/dev/null; then
+			echo "qemu exited before becoming ready" >&2
+			exit 1
+		fi
+		if [ "$WAITED" -ge 300 ]; then
+			echo "Timed out waiting for qemu to become ready" >&2
+			exit 1
+		fi
 		usleep 100000
+		WAITED=$((WAITED + 1))
 	done
 fi
 QEMU=`cat $PID_FILE`
