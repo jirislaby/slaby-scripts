@@ -28,7 +28,7 @@ for (my $i = 0; $i < 4; $i++) {
 my %bsc;
 my $start = 1;
 while (<$DIFF>) {
-	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+'/g if /^\+/;
+	map { $bsc{$_} = 1 } /(?:bsc|boo|fate)#\d+|jsc#\w+-\d+/g if /^\+/;
 	if (/\+-{10,}/) {
 		$start = 1;
 		print "\n";
