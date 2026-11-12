@@ -7,8 +7,6 @@ from contextlib import closing
 
 from termcolor import colored
 
-db_file = os.path.join(os.environ["HOME"],
-                       ".cache/check-kernel-fix/conf_file_map.sqlite")
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--db-file', default=os.path.join(os.environ["HOME"],
                             ".cache/check-kernel-fix/conf_file_map.sqlite"))
