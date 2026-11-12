@@ -68,7 +68,7 @@ print(colored("\nUpdating series.conf", 'green'))
 def consume_comments(f: TextIO) -> list[str]:
     ret = []
     for ln in f:
-        ret += ln
+        ret.append(ln)
         if not ln.startswith("\t#"):
             break
     return ret
@@ -80,8 +80,8 @@ def consume_kernel_org(f: TextIO) -> list[str]:
     for ln in f:
         if ln.startswith("\t# Build fixes"):
             if prev_line:
-                ret += prev_line
-            ret += ln
+                ret.append(prev_line)
+            ret.append(ln)
             return ret
         prev_line = ln
 
@@ -96,7 +96,7 @@ def consume_sorted(f: TextIO) -> list[str]:
         # or
         # #############...
         if ln.startswith("\t#"):
-            ret += ln
+            ret.append(ln)
             return ret
 
     raise RuntimeError("Failed to find end of sorted patches section")
@@ -105,15 +105,15 @@ lines = []
 with open('series.conf', encoding='utf-8') as f:
     for ln in f:
         if ln.startswith("\t# latest standard kernel patches"):
-            lines += ln
+            lines.append(ln)
             lines += consume_kernel_org(f)
             continue
         if ln.startswith("\t# sorted patches"):
-            lines += ln
+            lines.append(ln)
             lines += consume_sorted(f)
             continue
         if not ln in to_rm_pattern:
-            lines += ln
+            lines.append(ln)
 
 with open('series.conf', 'w', encoding='utf-8') as f:
     f.writelines(lines)
