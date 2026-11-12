@@ -49,8 +49,10 @@ deleted = run_git_command('rm', 'patches.kernel.org/[0-9]*.patch').stdout.splitl
 print(colored(f"\nDeleted {len(deleted)} patches.kernel.org/", 'green'))
 
 src_version = config.read_config_sh('rpm').get('srcversion')
+if not src_version:
+    sys.exit("srcversion not found in rpm/config.sh")
 try:
-    for patch_file in run_git_command('grep', '-l', f"Patch-mainline: v*{re.escape(src_version)}", '--', 'patches.*',
+    for patch_file in run_git_command('grep', '-E', '-l', f"Patch-mainline: v?{re.escape(src_version)}", '--', 'patches.*',
                                       exit_on_error=False).stdout.splitlines():
         to_rm[patch_file] = True
 except subprocess.CalledProcessError:
