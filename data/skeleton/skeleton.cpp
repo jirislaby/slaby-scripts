@@ -1,3 +1,7 @@
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+
 #include <sl/helpers/Color.h>
 #include <sl/helpers/Exception.h>
 
