@@ -134,12 +134,14 @@ function sl_ds() {
 function show_patch {
 	local SHA="$1"
 	local HEAD="$2"
-	readarray -t PATCHES < <(git grep -l "Git-commit: $SHA" "$HEAD" -- 'patches.*')
+	local -a GREP_ARGS=(-l "Git-commit: $SHA")
+	[ -n "$HEAD" ] && GREP_ARGS+=("$HEAD")
+	readarray -t PATCHES < <(git grep "${GREP_ARGS[@]}" -- 'patches.*')
 	if [ ${#PATCHES[*]} -eq 0 ]; then
 		echo no patch found >&2
 	elif [ ${#PATCHES[*]} -gt 1 ]; then
 		echo more than one patch found: >&2
-		echo `join_by $'\n' "${PATCHES[*]}"` >&2
+		echo "$(join_by $'\n' "${PATCHES[@]}")" >&2
 	elif [ -n "$HEAD" ]; then
 		git show ${PATCHES[0]} | view '+set ft=diff' -
 	else
