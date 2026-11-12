@@ -1,4 +1,4 @@
 option('python_versions', type: 'array', value: ['python3'],
-  description: 'Python interpreters to iinstall libraries for')
+  description: 'Python interpreters to install libraries for')
 option('unitdir', type : 'string', value : 'lib/systemd/system',
   description : 'Path to systemd unit dir')
