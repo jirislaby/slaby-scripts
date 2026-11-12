@@ -10,6 +10,10 @@ PATCH="$1"
 shift
 
 SHA=`sed -ne '/^Git-commit/ { s@^Git-commit: \([a-f0-9]*\)@\1@p ; q }' "$PATCH"`
+if [ -z "$SHA" ]; then
+	echo "No Git-commit found in $PATCH" >&2
+	exit 1
+fi
 OPATCH=`grep -rl "$SHA" "$@"`
 
 case "$RUN" in
