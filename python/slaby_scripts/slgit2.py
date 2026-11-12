@@ -24,7 +24,7 @@ class SlRepository(pygit2.Repository):
 
         for entry in tree:
             if entry.type == pygit2.enums.ObjectType.BLOB:
-                blob = self[entry.id]
+                blob = self[entry.id].peel(pygit2.Blob)
                 if blob.is_binary:
                     continue
                 content = blob.data.decode('utf-8', errors='ignore')
@@ -32,7 +32,7 @@ class SlRepository(pygit2.Repository):
                     if pattern.search(line):
                         matches.append((entry.name, line_number, line))
             elif entry.type == pygit2.enums.ObjectType.TREE:
-                sub_tree = self[entry.id]
+                sub_tree = self[entry.id].peel(pygit2.Tree)
                 for match in self.grep(pattern, sub_tree):
                     matches.append((f"{entry.name}/{match[0]}", match[1], match[2]))
 
