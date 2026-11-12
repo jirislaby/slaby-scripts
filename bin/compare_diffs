@@ -8,7 +8,7 @@ fi
 
 while read DIFF; do
 	echo DIFF=$DIFF
-	SHA=`git grep -h '^Git-commit:' "$DIFF"`
+	SHA=`git grep -h -m1 '^Git-commit:' "$DIFF"`
 	#echo SHA=$SHA
 	OTHER_PATCH=`grep -l "$SHA" "$OTHER_PATCH_DIR"/*tch`
 	#echo OTHER_PATCH=$OTHER_PATCH
