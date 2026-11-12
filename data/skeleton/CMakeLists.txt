@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(XXX)
+project(XXX LANGUAGES C)
 
 if (NOT CMAKE_BUILD_TYPE)
 	message("Setting CMAKE_BUILD_TYPE to Debug")
