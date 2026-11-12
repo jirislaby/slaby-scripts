@@ -29,45 +29,55 @@ return {
 	})
 	vim.lsp.enable("lua_ls")
 
-	-- vim.lsp.config("pyright", {
-	--     capabilities = capabilities,
-	--     settings = {
-	-- 	python = {
-	-- 	    analysis = {
-	-- 		autoSearchPaths = true,
-	-- 		useLibraryCodeForTypes = true,
-	-- 		diagnosticMode = "workspace",
-	-- 	    },
-	-- 	},
-	--     },
-	-- })
-	-- vim.lsp.enable("pyright")
 
-	vim.lsp.config("pylsp", {
-		cmd = { "pylsp" },
+	vim.lsp.config("pyright", {
 		capabilities = capabilities,
 		settings = {
-			pylsp = {
-				plugins = {
-					pycodestyle = { enabled = false },
-					pyflakes = { enabled = false },
-					mccabe = { enabled = false },
-
-					ruff = {
-						enabled = true,
-						formatEnabled = true,
-					},
-
-					pylsp_mypy = {
-						enabled = true,
-						live_mode = true,
-						strict = false,
-					},
+			pyright = {
+				disableOrganizeImports = true,
+				disableTaggedHints = true, -- ruff does this
+			},
+			python = {
+				analysis = {
+					autoSearchPaths = true,
+					useLibraryCodeForTypes = true,
+					diagnosticMode = "workspace",
 				},
 			},
 		},
 	})
-	vim.lsp.enable("pylsp")
+	vim.lsp.enable("pyright")
+
+	vim.lsp.config("ruff", {
+		capabilities = capabilities,
+	})
+	vim.lsp.enable("ruff")
+
+	-- vim.lsp.config("pylsp", {
+	-- 	cmd = { "pylsp" },
+	-- 	capabilities = capabilities,
+	-- 	settings = {
+	-- 		pylsp = {
+	-- 			plugins = {
+	-- 				pycodestyle = { enabled = false },
+	-- 				pyflakes = { enabled = false },
+	-- 				mccabe = { enabled = false },
+	--
+	-- 				ruff = {
+	-- 					enabled = true,
+	-- 					formatEnabled = true,
+	-- 				},
+	--
+	-- 				pylsp_mypy = {
+	-- 					enabled = true,
+	-- 					live_mode = true,
+	-- 					strict = false,
+	-- 				},
+	-- 			},
+	-- 		},
+	-- 	},
+	-- })
+	-- vim.lsp.enable("pylsp")
 
 	vim.lsp.config("rpm_spec_ls", {
 		cmd = { "rpm_lsp_server" },
