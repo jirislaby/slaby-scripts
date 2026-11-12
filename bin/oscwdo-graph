@@ -25,7 +25,7 @@ sub get_xml_dep($$$@) {
 	$query = "osc api /build/$prj/$repo/$arch/_builddepinfo?view=revpkgnames\\&$query";
 
 	open(WDO, '-|', $query) or die "Can't run osc whatdependson: $!";
-	local undef $/;
+	local $/;
 	my $xml = <WDO>;
 	close(WDO);
 
