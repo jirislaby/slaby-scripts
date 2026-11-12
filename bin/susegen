@@ -22,6 +22,7 @@ AUTO_MAINLINE=
 MAINLINE_FORCE=
 GITREPO=0
 PATCHES=$(mktemp -d "$TMPDIR/susegen-patches.XXXXXX")
+trap 'rm -rf "$PATCHES"' EXIT
 
 declare -a GITARGS=( '-o' "$PATCHES" '-s' '-k' '--no-renames' )
 
@@ -94,6 +95,7 @@ done
 if [ "$MACHINE" != "nop" ]; then
 	scp -o StrictHostKeyChecking=no -C "$PATCHES"/* "$MACHINE" || exit 1
 	echo Copied to $MACHINE
-
-	rm -rf "$PATCHES"
+else
+	trap - EXIT
+	echo "Patches left in $PATCHES"
 fi
