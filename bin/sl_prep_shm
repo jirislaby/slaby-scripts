@@ -64,7 +64,7 @@ if [ ! -d linux ]; then
 	}
 
 	for r in stable stable-rc; do
-		opts[$r]="${opts[$r]} -t `get_latest_head \"${remotes['stable']}\"`"
+		opts[$r]="${opts[$r]} -t `get_latest_head \"${remotes[$r]}\"`"
 	done
 
 	declare -p opts
