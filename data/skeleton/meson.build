@@ -1,5 +1,6 @@
 project('XXX', 'cpp',
   version: '1',
+  meson_version: '>= 1.1',
   default_options: [
     'optimization=g',
     'warning_level=2',
