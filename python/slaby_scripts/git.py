@@ -6,10 +6,10 @@ from termcolor import colored
 
 
 class Git:
-    tree: os.PathLike
+    tree: str | os.PathLike[str]
 
-    def __init__(self, tree: os.PathLike | None = None):
-        self.tree = tree if tree else os.getcwd()
+    def __init__(self, tree: str | os.PathLike[str] | None = None):
+        self.tree = tree if tree is not None else os.getcwd()
 
     def call(self, *args: str, **kwargs) -> subprocess.CompletedProcess:
         cmd = ['git', '-C', str(self.tree), *args]
