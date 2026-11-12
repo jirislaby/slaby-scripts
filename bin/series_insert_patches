@@ -90,7 +90,8 @@ if ($regexp eq "") {
 	if ($deleted) {
 		print colored("Deleted $deleted patches\n", 'green');
 		print "\tCommit now? (Y/n) ";
-		if (<STDIN> !~ /[nN]/) {
+		my $ans = <STDIN>;
+		if (defined($ans) && $ans !~ /[nN]/) {
 			system("./scripts/log") == 0 or die 'cannot run log';
 		}
 	}
