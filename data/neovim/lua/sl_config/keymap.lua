@@ -21,8 +21,11 @@ map("n", "<leader>M", "?^@@<CR>V/^@@\\|\\%$<CR>:s/^[+ ]//n<CR>")
 local pure_ctags = function(cmd)
   local old_tagfunc = vim.bo.tagfunc
   vim.bo.tagfunc = ''
-  vim.cmd(cmd .. ' ' .. vim.fn.expand('<cword>'))
+  local ok, err = pcall(vim.cmd, cmd .. ' ' .. vim.fn.expand('<cword>'))
   vim.bo.tagfunc = old_tagfunc
+  if not ok then
+    error(err, 0)
+  end
 end
 
 map('n', '<leader>tg', function() pure_ctags('tag') end, { desc = 'Ctags Tag (no LSP)' })
