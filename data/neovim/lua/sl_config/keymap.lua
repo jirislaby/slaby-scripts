@@ -9,8 +9,8 @@ map({ "n", "i" }, "<F7>", "<Esc>:mak<CR>")
 -- map({ "n", "i" }, "<C-F7>", "<Esc>:mak!<CR>")
 
 -- Editace řádku (C-K, C-U)
-map("i", "<C-K>", "<Esc>lc<End>")
-map("i", "<C-U>", "<Esc>ld<Home>")
+map("i", "<C-K>", "<C-\\><C-o>D")
+map("i", "<C-U>", "<C-\\><C-o>d0")
 map("n", "<C-K>", "d<End>")
 map("n", "<C-U>", "d<Home>")
 
