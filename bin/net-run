@@ -14,7 +14,11 @@ if [ -z "$SHA" ]; then
 	echo "No Git-commit found in $PATCH" >&2
 	exit 1
 fi
-OPATCH=`grep -rl "$SHA" "$@"`
+OPATCH=`grep -rl -- "$SHA" "$@" | grep -vFx -- "$PATCH" | head -1`
+if [ -z "$OPATCH" ]; then
+	echo "No other patch with $SHA found" >&2
+	exit 1
+fi
 
 case "$RUN" in
 	vim)
