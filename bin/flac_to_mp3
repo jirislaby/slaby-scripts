@@ -24,7 +24,7 @@ for FLAC; do
 	declare -a TAGS_CMD=(--id3v2-only --pad-id3v2)
 	declare -A TAGS=()
 
-	while read LINE; do
+	while IFS= read -r LINE; do
 		tag="${LINE%%=*}"
 		val="${LINE#*=}"
 		TAGS[${tag^^}]="$val"
@@ -36,8 +36,8 @@ for FLAC; do
 		fi
 	done
 
-	flac -d -F -s -c "$FLAC" | \
-		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" && test "$DELETE_OK" -eq 1 && rm "$FLAC" &
+	( set -o pipefail; flac -d -F -s -c "$FLAC" | \
+		lame -V0 -m stereo "${TAGS_CMD[@]}" - -o "${FLAC%.flac}.mp3" ) && test "$DELETE_OK" -eq 1 && rm "$FLAC" &
 done
 
 wait
