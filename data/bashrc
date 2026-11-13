@@ -220,7 +220,7 @@ function sl_osc_build() {
 	opts+=( "--root=/dev/shm/jslaby/${dir:-xxx}" )
 	opts+=( "--release=$rel" )
 
-	trap 'set +x' RETURN
+	trap 'set +x; trap - RETURN' RETURN
 	set -x
 	CCACHE_DIR="" osc build "${opts[@]}" "$@"
 }
