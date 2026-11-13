@@ -18,6 +18,7 @@ done
 
 TREE="stable${RC}/linux-$VER.y"
 
+git -C "$LINUX_GIT" cat-file -e "$TREE":Makefile
 VER=`{ git -C "$LINUX_GIT" show "$TREE":Makefile | head -4;
 	echo -e 'ver:\n\t@echo $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)'
 	} | make -f - ver`
