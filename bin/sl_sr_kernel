@@ -47,11 +47,12 @@ my $term = new Term::ReadLine('sl_sr_kernel');
 print "\n";
 
 my $msg = $term->readline(colored("Write summary:", 'yellow') . " ");
+exit 0 unless defined $msg;
 $msg .= "; bugs: " . join(" ", sort keys %bsc) if (scalar %bsc);
 print "\n$msg\n";
 
 my $reply = $term->readline(colored('OK?', 'yellow') . " ");
-exit 0 unless defined $reply;
+exit 0 unless defined $reply && $reply !~ /^\s*n/i;
 
 @cmd = ('osc', 'sr', '-m', $msg, $from, 'kernel-source', $to);
 
