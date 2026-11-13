@@ -22,6 +22,10 @@ print(colored(f"Merging {branch}", 'green'));
 try:
     output = run_git_command('merge', branch, exit_on_error=False).stdout
 except subprocess.CalledProcessError as e:
+    try:
+        run_git_command('rev-parse', '-q', '--verify', 'MERGE_HEAD', exit_on_error=False)
+    except subprocess.CalledProcessError:
+        sys.exit(f"Merge failed:\n{e.stdout}{e.stderr}")
     output = e.stdout
     print(colored("Merge failed, attempting to resolve conflicts...", 'yellow'))
 
