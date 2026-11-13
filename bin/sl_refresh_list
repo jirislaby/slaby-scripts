@@ -77,7 +77,8 @@ sub seq_patch(;$$) {
 			$out_dir = $1 if (/Creating tree in (.*)/);
 			print;
 		}
-		close($seq);
+		close($seq) or die 'cannot run ' . $cmdline[0];
+		die 'no tree dir from ' . $cmdline[0] unless defined $out_dir;
 
 		return $out_dir;
 	}
