@@ -94,5 +94,5 @@ imap <C-K> <C-\><C-o>D
 imap <C-U> <C-\><C-o>d0
 map <C-K> d<End>
 map <C-U> d<Home>
-map <C-N> ?^@@<CR>V/^@@\\|\%$<CR>:s/^[- ]//n<CR>
-map <C-M> ?^@@<CR>V/^@@\\|\%$<CR>:s/^[+ ]//n<CR>
+map <leader>N ?^@@<CR>V/^@@\\|\%$<CR>:s/^[- ]//n<CR>
+map <leader>M ?^@@<CR>V/^@@\\|\%$<CR>:s/^[+ ]//n<CR>
