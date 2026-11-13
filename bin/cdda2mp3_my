@@ -65,5 +65,11 @@ foreach my $wav (<audio_*.wav>) {
 	my $mp3name = sprintf "track%.2d.mp3", $tn;
 
 	print "laming title='$tt' author='$ta' album='$tl' year='$ty' track='$tn'\n";
-	system(qq(nice lame --nohist -V0 --vbr-new -m stereo --id3v2-only --tt "$tt" --ta "$ta" --tl "$tl" --ty "$ty" --tn "$tn" ${wav}wav $mp3name &));
+	my $pid = fork() // die "cannot fork: $!";
+	if ($pid == 0) {
+		exec('nice', 'lame', '--nohist', '-V0', '--vbr-new', '-m', 'stereo',
+			'--id3v2-only', '--tt', $tt // '', '--ta', $ta // '',
+			'--tl', $tl // '', '--ty', $ty // '', '--tn', $tn,
+			"${wav}wav", $mp3name) or die "cannot exec lame: $!";
+	}
 }
