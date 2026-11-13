@@ -31,8 +31,10 @@ def show_devel(pkg: str) -> None:
     conf.get_config(override_apiurl=OBS_API) # log in
     if not conf.config["apiurl"]:
         raise ValueError(f"Not logged in to {OBS_API}. Please run 'osc login' first.")
-    prj, pkg = core.show_devel_project(conf.config["apiurl"], "openSUSE:Factory", pkg)
-    show_pkg(OBS, prj, pkg)
+    prj, devel_pkg = core.show_devel_project(conf.config["apiurl"], "openSUSE:Factory", pkg)
+    if not prj:
+        sys.exit(f"no devel project for {pkg}")
+    show_pkg(OBS, prj, devel_pkg or pkg)
 
 def show_factory(bs: str, pkg: str) -> None:
     show_pkg(bs, "openSUSE:Factory", pkg)
