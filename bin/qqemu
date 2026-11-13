@@ -37,6 +37,10 @@ while :; do
 done
 
 FILE=$1
+if [ -z "$FILE" ]; then
+	echo $0 '<file.img> [qemu arguments]'
+	exit 1
+fi
 shift
 WIN10=0
 WINOLD=0
