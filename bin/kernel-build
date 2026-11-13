@@ -284,6 +284,7 @@ function echo_red() {
 	tput sgr0
 }
 
+BUILD_FAILED=0
 declare -a UNHANDLED
 declare -a BU
 declare -A ARCHS
@@ -379,9 +380,11 @@ if [ "${#BU[@]}" -ne 0 ]; then
 	make O="$DESTDIR" -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
 	RETVAL=$?
 	set +x
-	if [ $RETVAL -eq 0 -a $CC_IS_SET -eq 0 ]; then
+	if [ $RETVAL -ne 0 ]; then
+		BUILD_FAILED=1
+	elif [ $CC_IS_SET -eq 0 ]; then
 		set -x
-		make O="$DESTDIR_CLANG" LLVM=1 -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}"
+		make O="$DESTDIR_CLANG" LLVM=1 -k "-j$JOBS" "${MAKE_OPTS[@]}" "${BU[@]}" || BUILD_FAILED=1
 		set +x
 	fi
 	echo "=== done ==="
@@ -392,3 +395,5 @@ if [ "${#UNHANDLED[@]}" -ne 0 ]; then
 	echo_red "=== UNHANDLED files ==="
 	( IFS=$'\n'; echo "${UNHANDLED[*]}" )
 fi
+
+exit $BUILD_FAILED
