@@ -27,8 +27,10 @@ class SlRepository(pygit2.Repository):
                 blob = self[entry.id].peel(pygit2.Blob)
                 if blob.is_binary:
                     continue
-                content = blob.data.decode('utf-8', errors='ignore')
-                for line_number, line in enumerate(content.splitlines(), start=1):
+                lines = blob.data.decode('utf-8', errors='ignore').split('\n')
+                if lines[-1] == '':
+                    lines.pop()
+                for line_number, line in enumerate(lines, start=1):
                     if pattern.search(line):
                         matches.append((entry.name, line_number, line))
             elif entry.type == pygit2.enums.ObjectType.TREE:
