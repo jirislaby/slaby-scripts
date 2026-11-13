@@ -1,8 +1,10 @@
 #!/usr/bin/bash
 
 for FILE; do
-	NEW="${FILE// /_}"
-	if [ "$FILE" != "$NEW" ]; then
-		mv "$FILE" "$NEW"
+	DIR=$(dirname -- "$FILE")
+	BASE=$(basename -- "$FILE")
+	NEW="$DIR/${BASE// /_}"
+	if [ "$BASE" != "${BASE// /_}" ]; then
+		mv -n -- "$FILE" "$NEW"
 	fi
 done
