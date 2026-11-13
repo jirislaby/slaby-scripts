@@ -6,6 +6,8 @@ return {
         { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
     },
     config = function()
+	    require('telescope').setup({})
+	    require('telescope').load_extension('fzf')
 	    local builtin = require('telescope.builtin')
 	    vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 	    vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
