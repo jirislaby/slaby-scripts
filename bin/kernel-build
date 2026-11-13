@@ -313,9 +313,10 @@ for ARCH in "${!ARCHS[@]}"; do
 	echo Files: "${ref[@]}"
 	if [ -d "$CROSS_DESTDIR/$ARCH" ]; then
 		FILTERED_MAKE=`mktemp --tmpdir Makefile.XXXXXXXXXX`
+		BUILD_DIR=`cd "$CROSS_DESTDIR/$ARCH" && pwd`
 		cat >"$FILTERED_MAKE" <<EOF
 SOURCE=$PWD
-BUILD=$PWD/$CROSS_DESTDIR/$ARCH
+BUILD=$BUILD_DIR
 DRVS=${ref[@]}
 EOF
 cat >>"$FILTERED_MAKE" <<'EOF'
