@@ -3,6 +3,7 @@
 set -xe
 
 mkdir -p /dev/shm/jslaby/tmp
+declare -a PIDS=()
 cd /dev/shm/jslaby
 
 # kernel-source
@@ -32,6 +33,7 @@ EOF
 	ln -s . patches
 	popd
 } &
+PIDS+=($!)
 fi
 
 # linux
@@ -75,6 +77,9 @@ if [ ! -d linux ]; then
 	git repack -a -d
 	popd
 } &
+PIDS+=($!)
 fi
 
-wait
+for PID in "${PIDS[@]}"; do
+	wait "$PID"
+done
