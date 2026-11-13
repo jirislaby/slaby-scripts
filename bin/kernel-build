@@ -339,8 +339,17 @@ EOF
 			"${FILTERED_MAKE_CMD[@]}" -d
 			echo "=== Makefile DUMP END ==="
 		fi
-		readarray -t FILTERED < <("${FILTERED_MAKE_CMD[@]}")
+		FILTERED_OUT=`"${FILTERED_MAKE_CMD[@]}"`
+		RETVAL=$?
 		rm -f "$FILTERED_MAKE"
+		if [ $RETVAL -ne 0 ]; then
+			echo_red "filtering for $ARCH failed" >&2
+			exit 1
+		fi
+		declare -a FILTERED=()
+		if [ -n "$FILTERED_OUT" ]; then
+			readarray -t FILTERED <<<"$FILTERED_OUT"
+		fi
 	else
 		declare -a FILTERED=("${ref[@]}")
 	fi
