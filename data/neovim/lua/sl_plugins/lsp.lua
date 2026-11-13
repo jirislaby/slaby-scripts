@@ -16,11 +16,13 @@ return {
 
 	vim.lsp.config("cssls", {
 		cmd = { "vscode-css-languageserver", "--stdio" },
+		capabilities = capabilities,
 	})
 	vim.lsp.enable("cssls")
 
 	vim.lsp.config("html", {
 		cmd = { "vscode-html-languageserver", "--stdio" },
+		capabilities = capabilities,
 	})
 	vim.lsp.enable("html")
 
@@ -87,6 +89,9 @@ return {
 	})
 	-- vim.lsp.enable("rpm_spec_ls")
 
+	vim.lsp.config("rust_analyzer", {
+		capabilities = capabilities,
+	})
 	vim.lsp.enable("rust_analyzer")
     end,
     },
