@@ -24,18 +24,19 @@ while (<FILE>)
 	chomp;
 	next if (($_ =~ /^\s*#/) or ($_ !~ /\=/));
 
-	$_ =~ s/\s*$//;
-	$_ =~ /^\s*([^=]*)\s*=\s*'?([^']*)'?$/;
+	s/\r$//;
+	next unless /^\s*([^=]*?)\s*=(.*)$/;
+	my ($key, $val) = ($1, $2);
+	$val =~ s/^'(.*)'$/$1/;
 
-	if (defined $iconv) {
-		my $val = $2;
-		from_to($val, $iconv, $locale_charset);
-		$inf{$1} = $val;
-	} else {
-		$inf{$1} = $2;
-	}
+	# CDDB splits long values over repeated KEY= lines
+	$inf{$key} .= $val;
 }
 close FILE;
+
+if (defined $iconv) {
+	from_to($_, $iconv, $locale_charset) foreach values %inf;
+}
 
 if ($inf{DTITLE} =~ m#(.*) / (.*)#) {
 	$inf{Performer} = $1;
