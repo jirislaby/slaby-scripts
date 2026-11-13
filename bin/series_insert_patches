@@ -30,7 +30,7 @@ sub get_meta($$) {
 	return ($refs, $sha, $patch);
 }
 
-my $regexp = qr/$tags([a-f0-9]{40})$/m;
+my $regexp = qr/$tags([a-f0-9]{40})(?=\s|$)/m;
 
 foreach my $src (@ARGV) {
 	my ($refs, $sha) = get_meta($src, $regexp);
