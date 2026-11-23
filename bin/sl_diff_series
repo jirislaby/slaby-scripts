@@ -1,0 +1,9 @@
+#!/bin/bash
+
+REV="$1"
+
+function remove_ver() {
+	sed 's@\(patches.kernel.org/\)[0-9.]*-[0-9]*-@\1XXX-@' "$1"
+}
+
+colordiff -u <(git show $REV:series.conf | remove_ver -) <(remove_ver series.conf)
